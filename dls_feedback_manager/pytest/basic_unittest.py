@@ -15,7 +15,8 @@ class numtest(unittest.TestCase):
 		self.assertNotEqual(calc(2,3),4)
 
 	def test_same(self):
-		x = 9, y = 10
+		x = 9
+		y = 10
 		self.assertIsNot(x, y, "x should not be equal to y")
 
 	def test_zero(self):	
