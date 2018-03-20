@@ -5,7 +5,7 @@ python:
 install:
 - pip install coveralls
 - pip install coverage
-- pip install -r requirements.txt
+- pip install cothread==2.14
 
 
 script: coverage run pytest/basic_unittest.py
