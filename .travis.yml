@@ -9,8 +9,8 @@ install:
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
 - cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
 - python epicsdbbuilder/setup.py install
-- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc.tar.gz
-- tar -xvf /tmp/pythonSoftIoc.tar.gz
+- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc-2.11.tar.gz
+- tar -xvf /tmp/pythonSoftIoc-2.11.tar.gz
 - cd /tmp/pythonSoftIoc && make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
 
