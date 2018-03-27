@@ -1,7 +1,7 @@
 from pkg_resources import require
 require('cothread==2.14')
 require('numpy==1.13.3')
-require('epicsdbbuilder==1.0')
+require('epicsdbbuilder')
 
 import unittest
 
