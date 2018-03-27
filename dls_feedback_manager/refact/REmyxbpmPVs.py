@@ -13,11 +13,12 @@ def Monitor(pv):
 
 class XBPM_manager:
 
-    def __init__(self, XBPM_prefix='BL04I-EA-XBPM-', XBPM_num=0, r0=float(0), r1=float(0)):
+    def __init__(self, XBPM_prefix='BL04I-EA-XBPM-', XBPM_num=0, r0=float(0), r1=float(0), sf=float(0)):
         self.XBPM_prefix = XBPM_prefix
         self.XBPM_num = XBPM_num
         self.r0 = r0
         self.r1 = r1
+        self.sf = sf
 
 
     def xbpm_vals(self):
@@ -48,28 +49,63 @@ class XBPM_manager:
                                PINI = 'YES',
                                EGU = '')
 
-    def position_scale(self):
-        self.fb_pid_scale = builder.aIn('FB_PID_SCALE',
-                              initial_value = 1,
-                              LOPR = 0,
-                              HOPR = 1,
-                              PINI = 'YES')
+    def position_threshold(self):
+        # XBPM position threshold PVs
+        self.threshold_percentage_xbpm1 = builder.aOut('THRESHOLDPC_XBPM1',
+                                                       initial_value=3,
+                                                       LOPR=0,
+                                                       HOPR=100,
+                                                       PINI='YES')
+
+        self.threshold_percentage_xbpm2 = builder.aOut('THRESHOLDPC_XBPM2',
+                                                       initial_value=3,
+                                                       LOPR=0,
+                                                       HOPR=100,
+                                                       PINI='YES')
+
+        self.position_threshold_ok_xbpm1 = records.calc('XBPM1POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
+                                                        INPA=Monitor(self.threshold_percentage_xbpm1),
+                                                        INPB=Monitor(self.xbpm_normx),
+                                                        INPC=Monitor(self.xbpm_normy),
+                                                        LOPR=0,
+                                                        HOPR=1,
+                                                        PINI='YES',
+                                                        EGU='')
+
+        self.position_threshold_ok_xbpm2 = records.calc('XBPM2POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
+                                                        INPA=Monitor(self.threshold_percentage_xbpm2),
+                                                        INPB=Monitor(self.xbpm_normx),
+                                                        INPC=Monitor(self.xbpm_normy),
+                                                        LOPR=0,
+                                                        HOPR=1,
+                                                        PINI='YES',
+                                                        EGU='')
+
 
     def camonitor_range(self):
         # check XBPM signal currents
         catools.camonitor('test:' + self.XBPM_prefix + str(self.XBPM_num)+':SumAll:MeanValue_RBV', self.check_range)
         catools.camonitor('test:' + self.XBPM_prefix + str(self.XBPM_num)+':SumAll:MeanValue_RBV', self.check_range)
 
-
     def check_range(self, val):
 
-        self.r = catools.caget('test:' + self.XBPM_prefix + str(self.XBPM_num)+':DRV:Range')
-        if self.r == 0: # 120uA
+        self.r = catools.caget('test:' + self.XBPM_prefix + str(self.XBPM_num) + ':DRV:Range')
+        if self.r == 0:  # 120uA
             if val < self.r0:
-                catools.caput(self.XBPM_prefix + str(self.XBPM_num)+':DRV:Range', 1)
-        elif self.r == 1: # 120nA
+                catools.caput(self.XBPM_prefix + str(self.XBPM_num) + ':DRV:Range', 1)
+        elif self.r == 1:  # 120nA
             if val > self.r1:
-                catools.caput(self.XBPM_prefix + str(self.XBPM_num)+'DRV:Range', 0)
+                catools.caput(self.XBPM_prefix + str(self.XBPM_num) + 'DRV:Range', 0)
+
+    def camonitor_scale(self):
+        # Run monitor on the ID gap. XBPM1; change scale factors if ID energy changes.
+        catools.camonitor(self.XBPM_prefix + str(self.XBPM_num)+':ENERGY', self.setVerticalXBPMScaleFactor)
+
+    def setVerticalXBPMScaleFactor(self, energy):
+        ky = (-26 * energy + 1120) / self.sf
+        kx = 1200 / self.sf
+        catools.caput(self.XBPM_prefix + str(self.XBPM_num) + ':DRV:PositionScaleY', ky)
+        catools.caput(self.XBPM_prefix + str(self.XBPM_num) + ':DRV:PositionScaleX', kx)
 
 
     def curr_limits(self):
@@ -102,78 +138,32 @@ class XBPM_manager:
                                PINI='YES')
 
 
-    def position_threshold(self):
-    # XBPM position threshold PVs
-        self.threshold_percentage_xbpm1 = builder.aOut('THRESHOLDPC_XBPM1',
-                                                   initial_value=3,
-                                                   LOPR=0,
-                                                   HOPR=100,
-                                                   PINI='YES')
+    """    # if NORMX,Y falls outside of good range...
+    catools.camonitor(xbpm.good.name, setFeedbackPID)
+    # set GOOD based on NORM value for X and Y..
+    catools.camonitor(xbpm.xbpm1_normx.name, lambda x, a='X': normGood(x, a))
+    catools.camonitor(xbpm.xbpm1_normy.name, lambda x, a='Y': normGood(x, a)) """
 
-        self.threshold_percentage_xbpm2 = builder.aOut('THRESHOLDPC_XBPM2',
-                                                   initial_value=3,
-                                                   LOPR=0,
-                                                   HOPR=100,
-                                                   PINI='YES')
 
-        self.position_threshold_ok_xbpm1 = records.calc('XBPM1POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
-                                                    INPA=Monitor(self.threshold_percentage_xbpm1),
-                                                    INPB=Monitor(self.xbpm1_normx),
-                                                    INPC=Monitor(self.xbpm1_normy),
-                                                    LOPR=0,
-                                                    HOPR=1,
-                                                    PINI='YES',
-                                                    EGU='')
-
-        self.position_threshold_ok_xbpm2 = records.calc('XBPM2POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
-                                                    INPA=Monitor(self.threshold_percentage_xbpm2),
-                                                    INPB=Monitor(self.xbpm2_normx),
-                                                    INPC=Monitor(self.xbpm2_normy),
-                                                    LOPR=0,
-                                                    HOPR=1,
-                                                    PINI='YES',
-                                                    EGU='')
-
-    # Set the vertical XBPM1 scale factor [um] based on the DCM energy [keV]
+    # Set the vertical XBPM scale factor [um] based on the DCM energy [keV]
     # This maths is based on the beam size calculation from the I04 undulator. For
     # more information please see TDI-DIA-XBPM-REP-003.
-    def setVerticalXBPM1ScaleFactor(self, energy):
-        ky = -26 * energy + 1120
-        kx = 1200
-        catools.caput('BL04I-EA-XBPM-01:DRV:PositionScaleY', ky)
-        catools.caput('BL04I-EA-XBPM-01:DRV:PositionScaleX', kx)
-
-    # Set the vertical XBPM2 scale factor [um] based on the DCM energy [keV]
-    # This is the same as XBPM1, but divided by 3.2
-    def setVerticalXBPM2ScaleFactor(self, energy):
-        ky = (-26 * energy + 1120) / 3.2
-        kx = 1200 / 3.2
-        catools.caput('BL04I-EA-XBPM-02:DRV:PositionScaleY', ky)
-        catools.caput('BL04I-EA-XBPM-02:DRV:PositionScaleX', kx)
-
+    # Note - XBPM2 divided by 3.2
 
     def signals_ok(self):
-
         # XBPM signal chain check PVs
-        self.xbpm1SignalsOk = records.calc('XBPM1SIGNALS_OK', CALC='A>B',
-                                      INPA=Monitor(xbpm1_sum_mean_value),
-                                      INPB=Monitor(minXCurr),
-                                      LOPR=0,
-                                      HOPR=1,
-                                      PINI='YES',
-                                      EGU='')
-
-        self.xbpm2SignalsOk = records.calc('XBPM2SIGNALS_OK', CALC='A>B',
-                                      INPA=Monitor(xbpm2_sum_mean_value),
-                                      INPB=Monitor(minXCurr),
+        self.xbpmSignalsOk = records.calc('XBPM'+str(xbpm_num)+'SIGNALS_OK', CALC='A>B',
+                                      INPA=Monitor(self.xbpm_sum_mean_value),
+                                      INPB=Monitor(self.minXCurr),
                                       LOPR=0,
                                       HOPR=1,
                                       PINI='YES',
                                       EGU='')
 
 
-XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01, 50e-9, 100e-9)
-XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02, 90e-9, 110e-9)
+
+XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01, 50e-9, 100e-9, 1)
+XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02, 90e-9, 110e-9, 3.2)
 
 list_of_XBPMs = [XBPM1, XBPM2]
 
@@ -211,6 +201,7 @@ KPy2 = 1.800e-4
 KPy2 = 1.080e-4
 KIy2 = 3.636
 KDy2 = 0.0
+
 
 kpx1 = builder.aIn('KPX1',
             initial_value = KPx1,
@@ -251,7 +242,7 @@ kdy2 = builder.aIn('KDY2',
             LOPR = 0, HOPR = 10.0, PINI = 'YES')
             
 
-# unused function
+
 """max_goodval = builder.aIn('MAX_GOODVAL',
             initial_value = 0.8,
             LOPR = 0,
