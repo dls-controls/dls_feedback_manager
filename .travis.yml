@@ -6,7 +6,8 @@ install:
 - pip install coveralls
 - pip install coverage
 - pip install cothread==2.14
-- git clone https://github.com/Araneidae/epicsdbbuilder.git
+- git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
+- export PYTHONPATH:=$TRAVIS_BUILD_DIR/epicsdbbuilder
 
 script: coverage run dls_feedback_manager/refact/manager_tests.py
 
