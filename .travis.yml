@@ -11,7 +11,7 @@ install:
 - python epicsdbbuilder/setup.py install
 - wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc-2.11.tar.gz
 - tar -xvf /tmp/pythonSoftIoc-2.11.tar.gz
-- cd /tmp/pythonSoftIoc && make
+- cd tmp/pythonSoftIoc-2.11 && make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
 
 script: coverage run dls_feedback_manager/refact/manager_tests.py
