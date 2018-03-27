@@ -7,8 +7,7 @@ install:
 - pip install coverage
 - pip install cothread==2.14
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
-- cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 &&
-- cd ..
+- cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
 - python epicsdbbuilder/setup.py install
 
 script: coverage run dls_feedback_manager/refact/manager_tests.py
