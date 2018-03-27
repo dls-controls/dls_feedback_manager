@@ -3,6 +3,8 @@ require('cothread==2.13')
 require('numpy==1.11.1')
 require('epicsdbbuilder==1.0')
 
+import unittest
+
 from softioc import builder
 from cothread import catools
 
@@ -137,6 +139,15 @@ class XBPM_manager:
                                HOPR=1,
                                PINI='YES')
 
+    def signals_ok(self):
+        # XBPM signal chain check PVs
+        self.xbpmSignalsOk = records.calc('XBPM' + str(self.XBPM_num) + 'SIGNALS_OK', CALC='A>B',
+                                          INPA=Monitor(self.xbpm_sum_mean_value),
+                                          INPB=Monitor(self.minXCurr),
+                                          LOPR=0,
+                                          HOPR=1,
+                                          PINI='YES',
+                                          EGU='')
 
     """    # if NORMX,Y falls outside of good range...
     catools.camonitor(xbpm.good.name, setFeedbackPID)
@@ -150,25 +161,19 @@ class XBPM_manager:
     # more information please see TDI-DIA-XBPM-REP-003.
     # Note - XBPM2 divided by 3.2
 
-    def signals_ok(self):
-        # XBPM signal chain check PVs
-        self.xbpmSignalsOk = records.calc('XBPM'+str(xbpm_num)+'SIGNALS_OK', CALC='A>B',
-                                      INPA=Monitor(self.xbpm_sum_mean_value),
-                                      INPB=Monitor(self.minXCurr),
-                                      LOPR=0,
-                                      HOPR=1,
-                                      PINI='YES',
-                                      EGU='')
 
 
+if __name__ == '__main__':
+    unittest.main()
 
-XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01, 50e-9, 100e-9, 1)
-XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02, 90e-9, 110e-9, 3.2)
+    XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01, 50e-9, 100e-9, 1)
+    XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02, 90e-9, 110e-9, 3.2)
 
-list_of_XBPMs = [XBPM1, XBPM2]
+    list_of_XBPMs = [XBPM1, XBPM2]
 
-for i in list_of_XBPMs:
-    i.xbpm_vals()
+    for i in list_of_XBPMs:
+        i.xbpm_vals()
+
 
 
 # class that inherits from XBPM manager, derived classes = scale factor and range
@@ -178,7 +183,7 @@ for i in list_of_XBPMs:
 ### CREATE PVS ###
 ##################
 
-
+"""
 IOC_NAME = 'test:BL04I-EA-%s-01'
 
 builder.SetDeviceName(IOC_NAME % 'FDBK')
@@ -243,7 +248,7 @@ kdy2 = builder.aIn('KDY2',
             
 
 
-"""max_goodval = builder.aIn('MAX_GOODVAL',
+max_goodval = builder.aIn('MAX_GOODVAL',
             initial_value = 0.8,
             LOPR = 0,
             HOPR = 1.0,

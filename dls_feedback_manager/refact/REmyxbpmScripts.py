@@ -222,7 +222,7 @@ def setFeedbackPID(good):
     catools.caput('BL04I-MO-FSWT-01:FDBK4.KD', scale*myxbpmPVs.kdy2.get() )
 
 
-# Check and set "normalised" values.
+"""# Check and set "normalised" values.
 def normGood(val, a):
     max_goodval = myxbpmPVs.max_goodval.get()
     pv_name = myxbpmPVs.good.name
@@ -230,3 +230,4 @@ def normGood(val, a):
         catools.caput('%s%s' % (pv_name, a), 0)
     elif abs(val) <= max_goodval:
         catools.caput('%s%s' % (pv_name, a), 1)
+"""

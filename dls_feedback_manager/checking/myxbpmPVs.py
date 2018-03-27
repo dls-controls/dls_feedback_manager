@@ -10,26 +10,56 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 def Monitor(pv):
     return MS(CP(pv))
 
+class XBPM_manager:
 
-# Imported records
-dx1_mean_value = ImportRecord('BL04I-EA-XBPM-01:DiffX:MeanValue_RBV')
-sx1_mean_value = ImportRecord('BL04I-EA-XBPM-01:SumX:MeanValue_RBV')
-dy1_mean_value = ImportRecord('BL04I-EA-XBPM-01:DiffY:MeanValue_RBV')
-sy1_mean_value = ImportRecord('BL04I-EA-XBPM-01:SumY:MeanValue_RBV')
+    def __init__(self, XBPM_prefix = 'BL04I-EA-XBPM-',XBPM_num = 0):
+        self.XBPM_prefix = XBPM_prefix
+        self.XBPM_num = XBPM_num
 
-dx2_mean_value = ImportRecord('BL04I-EA-XBPM-02:DiffX:MeanValue_RBV')
-sx2_mean_value = ImportRecord('BL04I-EA-XBPM-02:SumX:MeanValue_RBV')
-dy2_mean_value = ImportRecord('BL04I-EA-XBPM-02:DiffY:MeanValue_RBV')
-sy2_mean_value = ImportRecord('BL04I-EA-XBPM-02:SumY:MeanValue_RBV')
+    def xbpm_vals(self, XBPM_prefix, XBPM_num):
 
-xbpm1_sum_mean_value = ImportRecord('BL04I-EA-XBPM-01:SumAll:MeanValue_RBV')
-xbpm2_sum_mean_value = ImportRecord('BL04I-EA-XBPM-02:SumAll:MeanValue_RBV')
-xbpm1_x_beamsize = ImportRecord('BL04I-EA-XBPM-01:DRV:PositionScaleX')
-xbpm1_y_beamsize = ImportRecord('BL04I-EA-XBPM-01:DRV:PositionScaleY')
-xbpm2_x_beamsize = ImportRecord('BL04I-EA-XBPM-02:DRV:PositionScaleX')
-xbpm2_y_beamsize = ImportRecord('BL04I-EA-XBPM-02:DRV:PositionScaleY')
+        self.dx_mean_value = ImportRecord(XBPM_prefix + str(XBPM_num) + ':DiffX:MeanValue_RBV')
+        self.sx_mean_value = ImportRecord(XBPM_prefix + str(XBPM_num) + ':SumX:MeanValue_RBV')
+        self.dy_mean_value = ImportRecord(XBPM_prefix + str(XBPM_num) + ':DiffY:MeanValue_RBV')
+        self.sy_mean_value = ImportRecord(XBPM_prefix + str(XBPM_num) + ':SumY:MeanValue_RBV')
+        self.xbpm_sum_mean_value = ImportRecord(XBPM_prefix + str(XBPM_num) + ':SumAll:MeanValue_RBV')
+        self.xbpm_x_beamsize = ImportRecord(XBPM_prefix + str(XBPM_num) + ':DRV:PositionScaleX')
+        self.xbpm_y_beamsize = ImportRecord(XBPM_prefix + str(XBPM_num)+':DRV:PositionScaleY')
+
+    def normal(self):
+
+        self.xbpm_normx = records.calc('XBPM'+str(XBPM_num)+'_NORMX', CALC='A/B',
+                               INPA = Monitor(self.dx_mean_value),
+                               INPB = Monitor(self.sx_mean_value),
+                               LOPR = -1,
+                               HOPR = 1,
+                               PINI = 'YES',
+                               EGU = '')
+        self.xbpm_normy = records.calc('XBPM'+str(XBPM_num)+'_NORMY', CALC='A/B',
+                               INPA = Monitor(self.dy_mean_value),
+                               INPB = Monitor(self.sy_mean_value),
+                               LOPR = -1,
+                               HOPR = 1,
+                               PINI = 'YES',
+                               EGU = '')
+
+    def position_scale(self):
+        self.fb_pid_scale = builder.aIn('FB_PID_SCALE',
+                              initial_value = 1,
+                              LOPR = 0,
+                              HOPR = 1,
+                              PINI = 'YES')
+#class that inherits from
+#class for FDBK1 and FDBK2
 
 
+XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01)
+XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02)
+
+list_of_XBPMs = [XBPM1, XBPM2]
+
+for i in list_of_XBPMs:
+    i.xbpm_vals()
 
 
 ##################
@@ -98,44 +128,8 @@ kdy2 = builder.aIn('KDY2',
             initial_value = KDy2,
             LOPR = 0, HOPR = 10.0, PINI = 'YES')
             
-fb_pid_scale = builder.aIn('FB_PID_SCALE', 
-            initial_value = 1,
-            LOPR = 0, 
-            HOPR = 1, 
-            PINI = 'YES')
-        
-# "Normalised" position PVs
-xbpm1_normx = records.calc('XBPM1_NORMX', CALC='A/B',
-            INPA = Monitor(dx1_mean_value),
-            INPB = Monitor(sx1_mean_value), 
-            LOPR = -1,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '')
 
-xbpm1_normy = records.calc('XBPM1_NORMY', CALC='A/B',
-            INPA = Monitor(dy1_mean_value),
-            INPB = Monitor(sy1_mean_value), 
-            LOPR = -1,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '')
 
-xbpm2_normx = records.calc('XBPM2_NORMX', CALC='A/B',
-            INPA = Monitor(dx2_mean_value),
-            INPB = Monitor(sx2_mean_value), 
-            LOPR = -1,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '')
-
-xbpm2_normy = records.calc('XBPM2_NORMY', CALC='A/B',
-            INPA = Monitor(dy2_mean_value),
-            INPB = Monitor(sy2_mean_value), 
-            LOPR = -1,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '')
 
 max_goodval = builder.aIn('MAX_GOODVAL',
             initial_value = 0.8,

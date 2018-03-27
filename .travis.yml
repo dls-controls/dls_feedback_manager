@@ -6,9 +6,9 @@ install:
 - pip install coveralls
 - pip install coverage
 - pip install cothread==2.14
+- git clone https://github.com/Araneidae/epicsdbbuilder.git
 
-
-script: coverage run dls_feedback_manager/pytest/basic_unittest.py
+script: coverage run dls_feedback_manager/refact/manager_tests.py
 
 after_success:
 - coveralls

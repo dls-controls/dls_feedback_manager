@@ -290,7 +290,7 @@ class XBPM_FSWTfeedback(XBPM_DCMfeedback):
                            LOPR=0, HOPR=10.0, PINI='YES')
 
     # Set feedback PID values, and a scale if wanted.
-    def setFeedbackPID(self):
+    def setFeedback(self):
         if self.good == 1:
             scale = 1
         else:
