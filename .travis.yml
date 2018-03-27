@@ -2,11 +2,6 @@ language: python
 python:
 - "2.7"
 
-before script:
-- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc.tar.gz
-- tar - xvf /tmp/pythonSoftIoc.tar.gz
-- export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
-
 install:
 - pip install coveralls
 - pip install coverage
@@ -14,6 +9,9 @@ install:
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
 - cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
 - python epicsdbbuilder/setup.py install
+- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc.tar.gz
+- tar -xvf /tmp/pythonSoftIoc.tar.gz
+- export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
 
 script: coverage run dls_feedback_manager/refact/manager_tests.py
 
