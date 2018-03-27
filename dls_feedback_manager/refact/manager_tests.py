@@ -15,9 +15,8 @@ class XBPM_manager_test(unittest.TestCase):
         self.assertEqual(REmyxbpmPVs.XBPM2.XBPM_prefix, 'BL04I-EA-XBPM-', "these are equal")
 
     def test_xbpm_vals_name(self):
+        pass
 # test for combining parts together to form PV names
-
-
 
 
 if __name__ == '__main__':
