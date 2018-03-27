@@ -2,6 +2,11 @@ language: python
 python:
 - "2.7"
 
+before script:
+- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc.tar.gz
+- tar - xvf /tmp/pythonSoftIoc.tar.gz
+- export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
+
 install:
 - pip install coveralls
 - pip install coverage
