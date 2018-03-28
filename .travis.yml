@@ -16,6 +16,7 @@ install:
 - echo "deb-src http://epics.nsls2.bnl.gov/debian/ wheezy main contrib"
 - sudo apt-get update -qq
 - sudo apt-get install epics-dev build-essential
+- ls /usr/lib/epics
 - cd pythonSoftIoc-2.11 && make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
 
