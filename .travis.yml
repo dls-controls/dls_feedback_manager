@@ -11,7 +11,7 @@ install:
 - python epicsdbbuilder/setup.py install
 - wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc-2.11.tar.gz
 - tar -xvf /tmp/pythonSoftIoc-2.11.tar.gz
-- curl http://repo.varnish-cache.org/debian/GPG-key.txt | sudo apt-key add
+- curl http://epics.nsls2.bnl.gov/debian/repo-key.pub | sudo apt-key add
 - echo "deb http://epics.nsls2.bnl.gov/debian/ wheezy main contrib" | sudo tee -a /etc/apt/cources.list
 - echo "deb-src http://epics.nsls2.bnl.gov/debian/ wheezy main contrib"
 - sudo apt-get update -qq
