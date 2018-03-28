@@ -9,8 +9,6 @@ install:
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
 - cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
 - python epicsdbbuilder/setup.py install
-- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc-2.11.tar.gz
-- tar -xvf /tmp/pythonSoftIoc-2.11.tar.gz
 - curl http://epics.nsls2.bnl.gov/debian/repo-key.pub | sudo apt-key add
 - echo "deb http://epics.nsls2.bnl.gov/debian/ wheezy main contrib" | sudo tee -a /etc/apt/sources.list
 - echo "deb-src http://epics.nsls2.bnl.gov/debian/ wheezy main contrib"
@@ -18,8 +16,13 @@ install:
 - sudo apt-get install epics-dev build-essential
 - ls /usr/lib/epics
 - git clone https://github.com/epics-modules/iocStats.git epicsiocstats
-- cd epicsiocstats && git checkout 56be8e16384d51faf8ff36841ebc2a4c5ac23418 && cd ..
+- cd epicsiocstats && git checkout 56be8e16384d51faf8ff36841ebc2a4c5ac23418
 - sed -i s^/afs/slac/g/spear/epics/base^/usr/lib/epics^ configure/RELEASE
+- sed -i s^MAKE_TEST_IOC_APP=YES^MAKE_TEST_IOC_APP=NO^ RELEASE
+- make
+- cd ..
+- wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc-2.11.tar.gz
+- tar -xvf /tmp/pythonSoftIoc-2.11.tar.gz
 - cd pythonSoftIoc-2.11
 - sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ configure/RELEASE
 - make
