@@ -17,6 +17,9 @@ install:
 - sudo apt-get update -qq
 - sudo apt-get install epics-dev build-essential
 - ls /usr/lib/epics
+- git clone https://github.com/epics-modules/iocStats.git epicsiocstats
+- cd epicsiocstats && git checkout 56be8e16384d51faf8ff36841ebc2a4c5ac23418 && cd ..
+- sed -i s^/afs/slac/g/spear/epics/base^/usr/lib/epics^ configure/RELEASE
 - cd pythonSoftIoc-2.11
 - sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ configure/RELEASE
 - make
