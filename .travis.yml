@@ -17,8 +17,9 @@ install:
 - sudo apt-get update -qq
 - sudo apt-get install epics-dev build-essential
 - ls /usr/lib/epics
-- sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ configure/RELEASE
-- cd pythonSoftIoc-2.11 && make
+- cd pythonSoftIoc-2.11
+- sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ /configure/RELEASE
+- make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
 
 script: coverage run dls_feedback_manager/refact/manager_tests.py
