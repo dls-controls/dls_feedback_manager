@@ -17,7 +17,6 @@ install:
 - ls /usr/lib/epics
 - git clone https://github.com/epics-modules/iocStats.git epicsiocstats
 - cd epicsiocstats && git checkout 56be8e16384d51faf8ff36841ebc2a4c5ac23418
-- sed -i s^/dls_sw/epics/R3.14.12.3/base^$TRAVIS_BUILD_DIR/epicsiocstats^ configure/RELEASE
 - sed -i s^/afs/slac/g/spear/epics/base^/usr/lib/epics^ configure/RELEASE
 - sed -i s^MAKE_TEST_IOC_APP=YES^MAKE_TEST_IOC_APP=NO^ configure/RELEASE
 - make
@@ -25,6 +24,7 @@ install:
 - wget http://controls.diamond.ac.uk/downloads/python/pythonSoftIoc/2-11/pythonSoftIoc-2.11.tgz -O /tmp/pythonSoftIoc-2.11.tar.gz
 - tar -xvf /tmp/pythonSoftIoc-2.11.tar.gz
 - cd pythonSoftIoc-2.11
+- sed -i s^/dls_sw/prod/R3.14.12.3/support/devIocStats^$TRAVIS_BUILD_DIR/epicsiocstats^ configure/RELEASE
 - sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ configure/RELEASE
 - make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/bin/
