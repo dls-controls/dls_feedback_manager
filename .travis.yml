@@ -33,3 +33,4 @@ script: coverage run dls_feedback_manager/refact/manager_tests.py
 
 after_success:
 - coveralls
+
