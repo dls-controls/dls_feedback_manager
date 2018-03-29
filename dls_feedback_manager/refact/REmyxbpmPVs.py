@@ -1,7 +1,7 @@
 from pkg_resources import require
-require('cothread==2.14')
+require('cothread')
 require('numpy==1.13.3')
-require('epicsdbbuilder')
+require('epicsdbbuilder==1.2')
 
 import unittest
 
@@ -148,12 +148,6 @@ class XBPM_manager:
                                           HOPR=1,
                                           PINI='YES',
                                           EGU='')
-
-    """    # if NORMX,Y falls outside of good range...
-    catools.camonitor(xbpm.good.name, setFeedbackPID)
-    # set GOOD based on NORM value for X and Y..
-    catools.camonitor(xbpm.xbpm1_normx.name, lambda x, a='X': normGood(x, a))
-    catools.camonitor(xbpm.xbpm1_normy.name, lambda x, a='Y': normGood(x, a)) """
 
 
     # Set the vertical XBPM scale factor [um] based on the DCM energy [keV]
