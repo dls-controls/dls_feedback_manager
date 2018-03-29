@@ -34,7 +34,7 @@ install:
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/
 - cd ..
 
-script: coverage run dls_feedback_manager/refact/start_ioc_test.sh
+script: ./dls_feedback_manager/refact/start_ioc_test.sh
 
 after_success:
 - coveralls
