@@ -33,6 +33,7 @@ install:
 - make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/
 - cd ..
+- chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
 
 script: ./dls_feedback_manager/refact/start_ioc_test.sh
 
