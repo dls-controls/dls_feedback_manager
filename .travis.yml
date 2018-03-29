@@ -32,6 +32,7 @@ install:
 - sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ configure/RELEASE
 - make
 - export PATH=$PATH:PWD/pythonSoftIoc-2.11/
+- cd ..
 
 script: coverage run dls_feedback_manager/refact/manager_tests.py
 
