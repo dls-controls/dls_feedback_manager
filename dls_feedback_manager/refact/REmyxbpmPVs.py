@@ -16,6 +16,9 @@ def Monitor(pv):
 class XBPM_manager:
 
     def __init__(self, XBPM_prefix='BL04I-EA-XBPM-', XBPM_num=0, r0=float(0), r1=float(0), sf=float(0)):
+        # r0 & r1 are limits for the current, resulting in flipping between tetramms
+        # These currents can be predefined in new PVs if necessary
+        # sf is the magnification of the optics lens (XBPM2)
         self.XBPM_prefix = XBPM_prefix
         self.XBPM_num = XBPM_num
         self.r0 = r0
@@ -50,6 +53,7 @@ class XBPM_manager:
                                HOPR = 1,
                                PINI = 'YES',
                                EGU = '')
+
 
     def position_threshold(self):
         # XBPM position threshold PVs
@@ -89,21 +93,30 @@ class XBPM_manager:
         catools.camonitor('test:' + self.XBPM_prefix + str(self.XBPM_num)+':SumAll:MeanValue_RBV', self.check_range)
         catools.camonitor('test:' + self.XBPM_prefix + str(self.XBPM_num)+':SumAll:MeanValue_RBV', self.check_range)
 
+
     def check_range(self, val):
 
         self.r = catools.caget('test:' + self.XBPM_prefix + str(self.XBPM_num) + ':DRV:Range')
         if self.r == 0:  # 120uA
             if val < self.r0:
+                # Won't flip into 'higher/lower current mode' until current is higher/lower than r0
                 catools.caput(self.XBPM_prefix + str(self.XBPM_num) + ':DRV:Range', 1)
         elif self.r == 1:  # 120nA
             if val > self.r1:
+                # Won't flip into 'higher/lower current mode' until current is higher/lower than r1
                 catools.caput(self.XBPM_prefix + str(self.XBPM_num) + 'DRV:Range', 0)
+
 
     def camonitor_scale(self):
         # Run monitor on the ID gap. XBPM1; change scale factors if ID energy changes.
         catools.camonitor(self.XBPM_prefix + str(self.XBPM_num)+':ENERGY', self.setVerticalXBPMScaleFactor)
 
+
     def setVerticalXBPMScaleFactor(self, energy):
+        # Set the vertical XBPM scale factor [um] based on the DCM energy [keV]
+        # This maths is based on the beam size calculation from the I04 undulator. For
+        # more information please see TDI-DIA-XBPM-REP-003.
+        # Note - XBPM2 divided by 3.2
         ky = (-26 * energy + 1120) / self.sf
         kx = 1200 / self.sf
         catools.caput(self.XBPM_prefix + str(self.XBPM_num) + ':DRV:PositionScaleY', ky)
@@ -125,20 +138,6 @@ class XBPM_manager:
             PINI = 'YES')
 
 
-    def position_builder(self):
-        # XBPM position builder
-        self.goodposx = builder.aIn('GOOD_POSX',
-                               initial_value=0,
-                               LOPR=-1,
-                               HOPR=1,
-                               PINI='YES')
-
-        self.goodposy = builder.aIn('GOOD_POSY',
-                               initial_value=0,
-                               LOPR=-1,
-                               HOPR=1,
-                               PINI='YES')
-
     def signals_ok(self):
         # XBPM signal chain check PVs
         self.xbpmSignalsOk = records.calc('XBPM' + str(self.XBPM_num) + 'SIGNALS_OK', CALC='A>B',
@@ -150,17 +149,10 @@ class XBPM_manager:
                                           EGU='')
 
 
-    # Set the vertical XBPM scale factor [um] based on the DCM energy [keV]
-    # This maths is based on the beam size calculation from the I04 undulator. For
-    # more information please see TDI-DIA-XBPM-REP-003.
-    # Note - XBPM2 divided by 3.2
-
-
-
 if __name__ == '__main__':
     unittest.main()
 
-    XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01, 50e-9, 100e-9, 1)
+    XBPM1 = XBPM_manager('BL04I-EA-XBPM-', 01, 90e-9, 110e-9, 1)
     XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02, 90e-9, 110e-9, 3.2)
 
     list_of_XBPMs = [XBPM1, XBPM2]
@@ -173,98 +165,7 @@ if __name__ == '__main__':
 # class that inherits from XBPM manager, derived classes = scale factor and range
 
 
-##################
-### CREATE PVS ###
-##################
-
 """
 IOC_NAME = 'test:BL04I-EA-%s-01'
 
-builder.SetDeviceName(IOC_NAME % 'FDBK')
-
-
-# XBPM1 PID parameters
-KPx1 = -1.800e-4
-KIx1 = 1.250
-KDx1 = 0.000
-KPy1 = 1.0e-5 # NOTE: CHANGED ON 10/01/18 TO DEAL WITH TEMPORARY MOTOR ISSUE - SEE ELOG; KPy1 = 3.645e-5
-KIy1 = 1.1042
-KDy1 = 0.000
-
-# XBPM2 PID parameters
-KPx2 = -9.450e-5
-KPx2 = -5.670e-5
-KIx2 = 2.791
-KDx2 = 0.0
-KPy2 = 1.800e-4
-KPy2 = 1.080e-4
-KIy2 = 3.636
-KDy2 = 0.0
-
-
-kpx1 = builder.aIn('KPX1',
-            initial_value = KPx1,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kix1 = builder.aIn('KIX1',
-            initial_value = KIx1,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kdx1 = builder.aIn('KDX1',
-            initial_value = KDx1,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kpy1 = builder.aIn('KPY1',
-            initial_value = KPy1,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kiy1 = builder.aIn('KIY1',
-            initial_value = KIy1,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kdy1 = builder.aIn('KDY1',
-            initial_value = KDy1,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-            
-kpx2 = builder.aIn('KPX2',
-            initial_value = KPx2,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kix2 = builder.aIn('KIX2',
-            initial_value = KIx2,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kdx2 = builder.aIn('KDX2',
-            initial_value = KDx2,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kpy2 = builder.aIn('KPY2',
-            initial_value = KPy2,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kiy2 = builder.aIn('KIY2',
-            initial_value = KIy2,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-kdy2 = builder.aIn('KDY2',
-            initial_value = KDy2,
-            LOPR = 0, HOPR = 10.0, PINI = 'YES')
-            
-
-
-max_goodval = builder.aIn('MAX_GOODVAL',
-            initial_value = 0.8,
-            LOPR = 0,
-            HOPR = 1.0,
-            PINI = 'YES')
-                 
-goodx = builder.aIn('GOODX',
-            initial_value = 1,
-            LOPR = 0,
-            HOPR = 1.0,
-            PINI = 'YES')
-
-goody = builder.aIn('GOODY',
-            initial_value = 1,
-            LOPR = 0,
-            HOPR = 1.0,
-            PINI = 'YES')
-
-good = records.calc('GOOD', CALC='A*B',
-            INPA = Monitor(goodx),
-            INPB = Monitor(goody),
-            LOPR = 0,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '') 
-"""
+builder.SetDeviceName(IOC_NAME % 'FDBK') """

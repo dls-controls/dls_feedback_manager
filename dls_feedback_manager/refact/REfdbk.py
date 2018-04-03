@@ -15,11 +15,9 @@ KIy1 = 1.1042
 KDy1 = 0.000
 
 # XBPM2 PID parameters
-KPx2 = -9.450e-5
 KPx2 = -5.670e-5
 KIx2 = 2.791
 KDx2 = 0.0
-KPy2 = 1.800e-4
 KPy2 = 1.080e-4
 KIy2 = 3.636
 KDy2 = 0.0
@@ -36,7 +34,6 @@ class XBPM_DCMfeedback:
                 self.prefix+':FDBK1:AUTOCALC.INPC',self.prefix+':FDBK2:AUTOCALC.INPC']
         self.create_PVs()
         self.create_pid_pvs()
-        self.create_good_psn_pvs()
         self.feedback_status()
 
     def setup_fb_auto_onoff_pvnames(self):
@@ -129,19 +126,10 @@ class XBPM_DCMfeedback:
                     HOPR = 310.0,
                     PINI = 'YES')
 
-
-    def position_scale(self):
-        # ASK CHRIS IF THIS IS NEEDED
-        self.fb_pid_scale = builder.aIn('FB_PID_SCALE',
-                                        initial_value=1,
-                                        LOPR=0,
-                                        HOPR=1,
-                                        PINI='YES')
-
     def create_pid_pvs(self):
         self.kpx1 = builder.aIn('KPX1',
                            initial_value=KPx1,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500.0, HOPR=500.0, PINI='YES')
         self.kix1 = builder.aIn('KIX1',
                            initial_value=KIx1,
                            LOPR=0, HOPR=10.0, PINI='YES')
@@ -157,50 +145,6 @@ class XBPM_DCMfeedback:
         self.kdy1 = builder.aIn('KDY1',
                            initial_value=KDy1,
                            LOPR=0, HOPR=10.0, PINI='YES')
-
-    def create_good_psn_pvs(self):
-
-        self.max_goodval = builder.aIn('MAX_GOODVAL',
-                initial_value = 0.8,
-                LOPR = 0,
-                HOPR = 1.0,
-                PINI = 'YES')
-
-        self.goodx = builder.aIn('GOODX',
-                initial_value = 1,
-                LOPR = 0,
-                HOPR = 1.0,
-                PINI = 'YES')
-
-        self.goody = builder.aIn('GOODY',
-                initial_value = 1,
-                LOPR = 0,
-                HOPR = 1.0,
-                PINI = 'YES')
-
-        self.good = records.calc('GOOD', CALC='A*B',
-                INPA = Monitor(self.goodx),
-                INPB = Monitor(self.goody),
-                LOPR = 0,
-                HOPR = 1,
-                PINI = 'YES',
-                EGU = '')
-
-    def out_of_range
-
-    def setFeedbackPID(self):
-        if self.good == 1:
-            scale = 1
-        else:
-            scale = self.fb_pid_scale.get()
-        # Y DCM PITCH
-        catools.caput(self.prefix+':FDBK1.KP', scale * self.kpy1.get())
-        catools.caput(self.prefix+':FDBK1.KI', scale * self.kiy1.get())
-        catools.caput(self.prefix+':FDBK1.KD', scale * self.kdy1.get())
-        # X DCM ROLL
-        catools.caput(self.prefix+':FDBK2.KP', scale * self.kpx1.get())
-        catools.caput(self.prefix+':FDBK2.KI', scale * self.kix1.get())
-        catools.caput(self.prefix+':FDBK2.KD', scale * self.kdx1.get())
 
 
 class XBPM_FSWTfeedback(XBPM_DCMfeedback):
@@ -272,7 +216,7 @@ class XBPM_FSWTfeedback(XBPM_DCMfeedback):
     def create_pid_pvs(self):
         self.kpx2 = builder.aIn('KPX2',
                            initial_value=KPx2,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500.0, HOPR=500.0, PINI='YES')
         self.kix2 = builder.aIn('KIX2',
                            initial_value=KIx2,
                            LOPR=0, HOPR=10.0, PINI='YES')
@@ -288,30 +232,6 @@ class XBPM_FSWTfeedback(XBPM_DCMfeedback):
         self.kdy2 = builder.aIn('KDY2',
                            initial_value=KDy2,
                            LOPR=0, HOPR=10.0, PINI='YES')
-
-    # Set feedback PID values, and a scale if wanted.
-    def setFeedback(self):
-        if self.good == 1:
-            scale = 1
-        else:
-            scale = self.fb_pid_scale.get()
-
-        # X FSWT DOWNSTREAM
-        catools.caput(self.prefix+':FDBK1.KP', scale * self.kpx2.get())
-        catools.caput(self.prefix+':FDBK1.KI', scale * self.kix2.get())
-        catools.caput(self.prefix+':FDBK1.KD', scale * self.kdx2.get())
-        # Y FSWT DOWNSTREAM
-        catools.caput(self.prefix+':FDBK2.KP', scale * self.kpy2.get())
-        catools.caput(self.prefix+':FDBK2.KI', scale * self.kiy2.get())
-        catools.caput(self.prefix+':FDBK2.KD', scale * self.kdy2.get())
-        # X FSWT UPSTREAM
-        catools.caput(self.prefix+':FDBK3.KP', scale * self.kpx2.get())
-        catools.caput(self.prefix+':FDBK3.KI', scale * self.kix2.get())
-        catools.caput(self.prefix+':FDBK3.KD', scale * self.kdx2.get())
-        # Y FSWT UPSTREAM
-        catools.caput(self.prefix+':FDBK4.KP', scale * self.kpy2.get())
-        catools.caput(self.prefix+':FDBK4.KI', scale * self.kiy2.get())
-        catools.caput(self.prefix+':FDBK4.KD', scale * self.kdy2.get())
 
 
 XBPM_DCMfeedback()
