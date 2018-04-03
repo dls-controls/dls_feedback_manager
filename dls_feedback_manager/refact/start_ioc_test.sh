@@ -1,4 +1,4 @@
-#!/bin/env virtualenv
+#!/bin/sh
 
 PYIOC_VERSION=2-11
 PYIOC=$TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
