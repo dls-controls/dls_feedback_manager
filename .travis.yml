@@ -31,11 +31,11 @@ install:
 - sed -i s^/dls_sw/prod/R3.14.12.3/support/devIocStats/3-1-5dls7^$TRAVIS_BUILD_DIR/epicsiocstats^ configure/RELEASE
 - sed -i s^/dls_sw/epics/R3.14.12.3/base^/usr/lib/epics^ configure/RELEASE
 - make
-- export PATH=$PATH:PWD/pythonSoftIoc-2.11/
+- export PATH=$PATH:$(pwd)/pythonSoftIoc-2.11/
 - cd ..
 - chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
 
-script: ./dls_feedback_manager/refact/start_ioc_test.sh
+script: bash ./dls_feedback_manager/refact/start_ioc_test.sh
 
 
 after_success:
