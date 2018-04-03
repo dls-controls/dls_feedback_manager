@@ -23,17 +23,17 @@ KIy2 = 3.636
 KDy2 = 0.0
 
 class XBPM_DCMfeedback:
-
+# XBPM1 feedback
     def __init__(self):
         self.prefix = 'BL04I-MO-DCM-01'
         self.status_options={'stop': 0, 'start': 1, 'pause': 2}
-        self.button_mnt = [self.fb_enable_status.name, self.fb_pause_status.name]
+        self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name]
         self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV', 'test:SR-DI-DCCT-01-SIGNAL',
                              'test:BL04I-PS-SHTR-01:STA']
         self.caput_list=[self.prefix+':FDBK1:AUTOCALC.INPB',self.prefix+':FDBK2:AUTOCALC.INPB',
                 self.prefix+':FDBK1:AUTOCALC.INPC',self.prefix+':FDBK2:AUTOCALC.INPC']
         self.create_PVs()
-        self.create_pid_pvs()
+        self.create_PID_PVs()
         self.feedback_status()
 
     def setup_fb_auto_onoff_pvnames(self):
@@ -46,17 +46,16 @@ class XBPM_DCMfeedback:
         self.fb_run_status.get()
 
     def start_camonitors(self):
-        catools.camonitor(self.button_mnt, self.check_feedback_inputs)
-
+        catools.camonitor(self.button_monitor, self.check_feedback_inputs)
 
     def xbpm_feedback_checks(self):
         catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
 
     def printfunction(self, printstatus, index):
-        if index not in range(len(self.button_mnt)):
+        if index not in range(len(self.button_monitor)):
             print(printstatus)
         else:
-            print(printstatus, self.button_mnt[index], index)
+            print(printstatus, self.button_monitor[index], index)
 
 
     def check_feedback_inputs(self, index):
@@ -126,7 +125,7 @@ class XBPM_DCMfeedback:
                     HOPR = 310.0,
                     PINI = 'YES')
 
-    def create_pid_pvs(self):
+    def create_PID_PVs(self):
         self.kpx1 = builder.aIn('KPX1',
                            initial_value=KPx1,
                            LOPR=-500.0, HOPR=500.0, PINI='YES')
@@ -148,7 +147,7 @@ class XBPM_DCMfeedback:
 
 
 class XBPM_FSWTfeedback(XBPM_DCMfeedback):
-
+# XBPM2 feedback
     def __init__(self):
         XBPM_DCMfeedback.__init__(self)
         self.prefix = 'BL04I-MO-FSWT-01'
@@ -213,7 +212,7 @@ class XBPM_FSWTfeedback(XBPM_DCMfeedback):
                                     ONVL = 1,   ONST = 'Downstream actuator')
 
 
-    def create_pid_pvs(self):
+    def create_PID_PVs(self):
         self.kpx2 = builder.aIn('KPX2',
                            initial_value=KPx2,
                            LOPR=-500.0, HOPR=500.0, PINI='YES')

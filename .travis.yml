@@ -5,7 +5,9 @@ python:
 install:
 - pip install coveralls
 - pip install coverage
+- pip install virtualenv
 - pip install cothread==2.14
+- pip install nose
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
 - cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
 - python epicsdbbuilder/setup.py install
@@ -35,8 +37,7 @@ install:
 - cd ..
 - chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
 
-script: bash ./dls_feedback_manager/refact/start_ioc_test.sh
-
+script: nosetests
 
 after_success:
 - coveralls
