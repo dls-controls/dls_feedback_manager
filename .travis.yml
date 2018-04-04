@@ -37,7 +37,9 @@ install:
 - cd ..
 - chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
 
-script: bash ~/Desktop/gitolite_testing/dls_feedback_manager/dls_feedback_manager/refact/start_ioc_test.sh
+deploy:
+  provider: script
+  script: bash ~/Desktop/gitolite_testing/dls_feedback_manager/dls_feedback_manager/refact/start_ioc_test.sh
 
 after_success:
 - coveralls
