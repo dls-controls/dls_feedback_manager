@@ -38,7 +38,7 @@ install:
 - chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
 - ls dls_feedback_manager
 
-script: ./dls_feedback_manager/refact/start_ioc_test.sh
+script: ./dls_feedback_manager/test_refact/start_ioc_test.sh
 
 after_success:
 - coveralls
