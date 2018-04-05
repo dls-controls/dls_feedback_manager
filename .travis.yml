@@ -36,8 +36,6 @@ install:
 - export PATH=$PATH:$(pwd)/pythonSoftIoc-2.11/
 - cd ..
 - chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
-- pwd
-- ls
 
 script: ./dls_feedback_manager/test_refact/start_ioc_test.sh
 
