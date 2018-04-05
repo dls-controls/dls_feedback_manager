@@ -5,7 +5,7 @@ python:
 install:
 - pip install virtualenv
 - virtualenv --version
-- virtualenv --system-site-packages
+- virtualenv --system-site-packages /home/travis/build/dls-controls/dls_feedback_manager
 - pip install coveralls
 - pip install coverage
 - pip install cothread==2.14
