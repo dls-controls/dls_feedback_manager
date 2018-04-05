@@ -7,7 +7,6 @@ virtualenv:
 
 install:
 - pip install virtualenv
-- virtualenv /home/travis/
 - pip install coveralls
 - pip install coverage
 - pip install cothread==2.14
