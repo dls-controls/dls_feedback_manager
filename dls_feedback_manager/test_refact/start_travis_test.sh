@@ -1,4 +1,4 @@
-#!/home/travis/bin/python
+#!/bin/sh
 
 # Running in travis
 
