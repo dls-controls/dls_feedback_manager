@@ -3,9 +3,9 @@ python:
 - "2.7"
 
 install:
+- pip install virtualenv
 - pip install coveralls
 - pip install coverage
-- pip install virtualenv
 - pip install cothread==2.14
 #- pip install nose
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
