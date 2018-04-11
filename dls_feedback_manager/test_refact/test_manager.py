@@ -7,22 +7,60 @@ import unittest
 
 class XBPM_manager_test(unittest.TestCase):
 
-    def test(self):
-        assert False
+    def setUp(self):
+        self.XBPM1 = REmyxbpmPVs.XBPM_manager('BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0)
+        self.XBPM2 = REmyxbpmPVs.XBPM_manager('BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 3.2, 3.0)
 
-    def test_initial_variables(self):
-        XBPM1 = REmyxbpmPVs.XBPM_manager('BL04I-EA-XBPM-', 01, 90e-9, 110e-9, 1)
-        self.assertEqual(XBPM1.r0, 90e-9)
-        self.assertNotEqual(XBPM1.r0, 0)
+    def test_standard_naming(self):
+    # Test output for one of them to check it's got the correct name/nums
+        self.assertEqual(self.XBPM1.XBPM_prefix+self.XBPM1.XBPM_num, 'BL04I-EA-XBPM-01')
+        self.assertEqual(self.XBPM1.lower_current_limit, 90e-9)
+        self.assertNotEqual(self.XBPM1.lower_current_limit, 0.0)
+        self.assertEqual(self.XBPM1.XBPM_num, '01')
 
-    def test_initial_vars_2(self):
-        XBPM2 = REmyxbpmPVs.XBPM_manager('BL04I-EA-XBPM-', 02, 90e-9, 110e-9, 3.2)
-        self.assertEqual(XBPM2.XBPM_prefix, 'BL04I-EA-XBPM-', "these are equal")
+    def test_regular_expression(self):
+        XBPM = REmyxbpmPVs.XBPM_manager('BL04I-EA-XBMP', '01', 1, 2, 3, 4)
+        self.assertRegexpMatches(self.XBPM.XBPM_prefix+self.XBPM1.XBPM_num, "BL04I-EA-XBPM-01")
 
-    def test_xbpm_vals_name(self):
+    def test_initial_variable_inputs(self):
+        # Floats only for now, change if putting string names of PVs
+        self.assertRaises(AssertionError, REmyxbpmPVs.XBPM_manager('BL04I-EA-XBPM-', '01', 1, 11, "-9", "hi"))
+
+    def test_invalid_threshold_percentage(self):
+        self.assertRaises(AssertionError, REmyxbpmPVs.XBPM_manager('BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, -84))
+
+    def tearDown(self):
         pass
-# test for combining parts together to form PV names
 
 
 if __name__ == '__main__':
     unittest.main()
+
+
+
+"""def test_camonitor_range(self):
+    #how
+        pass
+
+    def test_check_range(self):
+    # how
+        pass
+
+    def test_camonitor_scale(self):
+        # how
+        pass
+
+    def test_curr_limits(self):
+    #   Initial value is between LOPR/HOPR
+        pass
+
+    def test_signals_ok(self):
+    # Name combines properly
+        pass
+
+    def test_not_none(self):
+    # No fields left empty
+        pass """
+
+
+
