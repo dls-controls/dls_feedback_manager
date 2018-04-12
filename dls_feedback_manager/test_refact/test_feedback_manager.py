@@ -4,13 +4,12 @@ import XBPM_feedback_manager
 import unittest
 
 class FeedbackTests(unittest.TestCase):
-	
-	def test_PID_params_not_none(self):
-	# values input
 
-    ############################
+    def test_expected_pv_names(self):
+        self.assertEqual(XBPM_feedback_manager.XBPM_FSWTfeedback.)
 
-    # expected values/outputs e.g. print function strings
+    def test_expected_print_status(self):
+
 
 if __name__ == '__main__':
-	unittest.main()
+    unittest.main()

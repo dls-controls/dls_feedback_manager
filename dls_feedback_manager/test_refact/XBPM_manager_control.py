@@ -10,6 +10,8 @@ from softioc import softioc, builder
 
 import XBPM_range_manager
 import XBPM_feedback_manager
+import test_range_manager
+import test_feedback_manager
 
 # Run XBPM range manager - see file for variable definitions
 
@@ -18,13 +20,19 @@ XBPM2 = XBPM_range_manager.range_manager('BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 
 
 # Run unittests for range manager
 
-
+test_range_manager.RangeTests()
 
 # Run XBPM feedback manager
 
-XBPM_feedback_manager.XBPM_DCMfeedback()
+XBPM_feedback_manager.XBPM_DCMFeedback()
 XBPM_feedback_manager.XBPM_FSWTfeedback()
 
+# Make PVs and start monitors
+
+XBPM_feedback_manager.XBPM_DCMFeedback.make_on_start_up()
+
 # Run unittests for feedback manager
+
+test_feedback_manager.FeedbackTests()
 
 sys.exit()

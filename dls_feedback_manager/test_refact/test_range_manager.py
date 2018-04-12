@@ -3,9 +3,7 @@
 import XBPM_range_manager
 import unittest
 
-
-
-class range_manager_test(unittest.TestCase):
+class RangeTests(unittest.TestCase):
 
     def setUp(self):
         self.XBPM1 = XBPM_range_manager.range_manager('BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0)
@@ -24,7 +22,7 @@ class range_manager_test(unittest.TestCase):
 
     def test_initial_variable_inputs(self):
         # Floats only for now, change if putting string names of PVs
-        self.assertRaises(AssertionError, XBPM_range_manager.range_manager('BL04I-EA-XBPM-', '01', 1, 11, "-9", "hi"))
+        self.assertRaises(AssertionError, XBPM_range_manager.range_manager('BL04I-EA-XBPM-', '01', 1, 11, "-9", 40.0)
 
     def test_invalid_threshold_percentage(self):
         self.assertRaises(AssertionError, XBPM_range_manager.range_manager('BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, -84))

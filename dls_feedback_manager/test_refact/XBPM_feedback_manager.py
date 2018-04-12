@@ -23,21 +23,32 @@ KIy2 = 3.636
 KDy2 = 0.0
 
 
-class XBPM_DCMfeedback:
+class XBPM_DCMFeedback:
 # XBPM1 feedback
     def __init__(self):
         self.prefix = 'BL04I-MO-DCM-01'
         self.status_options={'stop': 0, 'start': 1, 'pause': 2}
+
+        # For running monitors on overall ON/OFF button, GDA PAUSE button
         self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name]
+
+        # Run continuous checks for XBPM1
         self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV', 'test:SR-DI-DCCT-01-SIGNAL',
                              'test:BL04I-PS-SHTR-01:STA']
+
+        # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list=[self.prefix+':FDBK1:AUTOCALC.INPB',self.prefix+':FDBK2:AUTOCALC.INPB',
-                self.prefix+':FDBK1:AUTOCALC.INPC',self.prefix+':FDBK2:AUTOCALC.INPC']
+                         self.prefix+':FDBK1:AUTOCALC.INPC',self.prefix+':FDBK2:AUTOCALC.INPC']
+
+    def make_on_start_up(self):
         self.create_PVs()
         self.create_PID_PVs()
-        self.feedback_status()
+        self.create_feedback_status_PV()
+        self.setup_names()
+        self.start_camonitors()
 
-    def setup_fb_auto_onoff_pvnames(self):
+    def setup_names(self):
+        # Set up feedback auto on/off PV names
         catools.caput(self.caput_list, self.fb_run_status.name + ' CP')
 
     def set_run_status(self, status):
@@ -48,8 +59,6 @@ class XBPM_DCMfeedback:
 
     def start_camonitors(self):
         catools.camonitor(self.button_monitor, self.check_feedback_inputs)
-
-    def xbpm_feedback_checks(self):
         catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
 
     def printfunction(self, printstatus, index):
@@ -57,7 +66,6 @@ class XBPM_DCMfeedback:
             print(printstatus)
         else:
             print(printstatus, self.button_monitor[index], index)
-
 
     def check_feedback_inputs(self, index):
         if (
@@ -78,30 +86,30 @@ class XBPM_DCMfeedback:
             self.printfunction("run stopped", index)
 
 
-    def feedback_status(self):
-            # Feedback status PV (acts as ON/OFF button for IOC).
-            self.fb_enable_status = builder.mbbOut('FB_ENABLE',
+    def create_feedback_status_PV(self):
+        # Feedback status PV (acts as ON/OFF button for IOC).
+        self.fb_enable_status = builder.mbbOut('FB_ENABLE',
                         initial_value = 0,
                         PINI = 'YES',
                         NOBT = 2,
                         ZRVL = 0,   ZRST = 'Stopped',
                         ONVL = 1,   ONST = 'Run')
 
-            # Feedback status PV (acts as PAUSE for feedback).
-            self.fb_pause_status = builder.mbbOut('FB_PAUSE',
+        # Feedback status PV (acts as PAUSE for feedback).
+        self.fb_pause_status = builder.mbbOut('FB_PAUSE',
                         initial_value = 1,
                         PINI = 'YES',
                         NOBT = 2,
                         ZRVL = 0,   ZRST = 'Paused',
                         ONVL = 1,   ONST = 'Ok to Run')
 
-            # Feedback mode PV, acts as button for the different modes (XBPM1, XBPM2)
-            self.fb_mode_status = builder.mbbOut('FB_MODE',
-                        initial_value = 1,
-                        PINI = 'YES',
-                        NOBT = 2,
-                        ZRVL = 0,   ZRST = 'Running on XBPM1',
-                        ONVL = 1,   ONST = 'Running on XBPM1 AND 2')
+        # Feedback mode PV, acts as button for the different modes (XBPM1, XBPM2)
+        self.fb_mode_status = builder.mbbOut('FB_MODE',
+                    initial_value = 1,
+                    PINI = 'YES',
+                    NOBT = 2,
+                    ZRVL = 0,   ZRST = 'Running on XBPM1',
+                    ONVL = 1,   ONST = 'Running on XBPM1 AND 2')
 
 
     def create_PVs(self):
@@ -147,25 +155,23 @@ class XBPM_DCMfeedback:
                            LOPR=0, HOPR=10.0, PINI='YES')
 
 
-class XBPM_FSWTfeedback(XBPM_DCMfeedback):
+class XBPM_FSWTfeedback(XBPM_DCMFeedback):
 # XBPM2 feedback
     def __init__(self):
-        XBPM_DCMfeedback.__init__(self)
+        XBPM_DCMFeedback.__init__(self)
         self.prefix = 'BL04I-MO-FSWT-01'
-        self.monitored = [self.fb_enable_status.name, self.fb_pause_status.name, self.fb_fswt_output.name,
-                          'FE04I-PS-SHTR-02:STA', 'BL04I-EA-XBPM-02:SumAll:MeanValue_RBV']
-        self.caput_list = [self.prefix+':FDBK1:AUTOCALC.INPB',self.prefix+':FDBK2:AUTOCALC.INPB',
-                self.prefix+':FDBK1:AUTOCALC.INPC',self.prefix+':FDBK2:AUTOCALC.INPC',
-                self.prefix+':FDBK3:AUTOCALC.INPB',self.prefix+':FDBK4:AUTOCALC.INPB',
-                self.prefix+':FDBK3:AUTOCALC.INPC',self.prefix+':FDBK4:AUTOCALC.INPC']
-        self.create_PVs()
-        self.feedback_status()
 
-    def printfunction(self, printstatus, index):
-        if index not in range(len(self.monitored)):
-            print(printstatus)
-        else:
-            print(printstatus, self.monitored[index], index)
+        # For running monitors on overall ON/OFF button, GDA PAUSE button, FSWT feedback output button
+        self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name, self.fb_fswt_output.name]
+
+        # Run continuous checks for XBPM2
+        self.xbpm_fbcheck = ['FE04I-PS-SHTR-02:STA', 'BL04I-EA-XBPM-02:SumAll:MeanValue:RBV']
+
+        # For setting up feedback AUTO ON/OFF PV names
+        self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
+                           self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC',
+                           self.prefix + ':FDBK3:AUTOCALC.INPB', self.prefix + ':FDBK4:AUTOCALC.INPB',
+                           self.prefix + ':FDBK3:AUTOCALC.INPC', self.prefix + ':FDBK4:AUTOCALC.INPC']
 
     def check_feedback_inputs(self, index):
         if (
@@ -181,10 +187,6 @@ class XBPM_FSWTfeedback(XBPM_DCMfeedback):
         else:
             self.set_run_status('stop')
             self.printfunction("run stopped", index)
-
-
-    def xbpm_feedback_checks(self):
-        catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
 
 
     def create_PVs(self):
@@ -234,5 +236,5 @@ class XBPM_FSWTfeedback(XBPM_DCMfeedback):
                            LOPR=0, HOPR=10.0, PINI='YES')
 
 
-XBPM_DCMfeedback()
-XBPM_FSWTfeedback()
+if __name__ == '__main__':
+    unittest.main()
