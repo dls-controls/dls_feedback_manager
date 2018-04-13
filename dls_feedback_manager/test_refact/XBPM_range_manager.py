@@ -13,7 +13,7 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 def Monitor(pv):
     return MS(CP(pv))
 
-class range_manager:
+class RangeManager:
 
     def __init__(self, XBPM_prefix='BL04I-EA-XBPM-', XBPM_num='00', lower_current_limit=0.0, upper_current_limit=0.0, scale_factor=0.0, threshold_percentage=0.0):
         # scale_factor is the magnification of the optics lens (XBPM2)
@@ -27,7 +27,7 @@ class range_manager:
         self.xbpm_vals()
 
     def validate_params(self):
-        assert type(self.scale_factor) is not str, "input numerical scale factor "
+        assert type(self.scale_factor) is not str, "input numerical scale factor"
         assert type(self.threshold_percentage) is not str, "input numerical threshold percentage"
         assert 0 <= self.threshold_percentage <= 100, "insert valid percentage"
 

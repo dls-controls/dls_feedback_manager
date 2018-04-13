@@ -25,6 +25,13 @@ KDy2 = 0.0
 
 class XBPM_DCMFeedback:
 # XBPM1 feedback
+    def make_on_start_up(self):
+        self.create_PVs()
+        self.create_PID_PVs()
+        self.create_feedback_status_PV()
+        self.setup_names()
+        self.start_camonitors()
+
     def __init__(self):
         self.prefix = 'BL04I-MO-DCM-01'
         self.status_options={'stop': 0, 'start': 1, 'pause': 2}
@@ -37,15 +44,9 @@ class XBPM_DCMFeedback:
                              'test:BL04I-PS-SHTR-01:STA']
 
         # For setting up the Feedback AUTO ON/OFF PV names
-        self.caput_list=[self.prefix+':FDBK1:AUTOCALC.INPB',self.prefix+':FDBK2:AUTOCALC.INPB',
-                         self.prefix+':FDBK1:AUTOCALC.INPC',self.prefix+':FDBK2:AUTOCALC.INPC']
+        self.caput_list=[self.prefix+':FDBK1:AUTOCALC.INPB', self.prefix+':FDBK2:AUTOCALC.INPB',
+                         self.prefix+':FDBK1:AUTOCALC.INPC', self.prefix+':FDBK2:AUTOCALC.INPC']
 
-    def make_on_start_up(self):
-        self.create_PVs()
-        self.create_PID_PVs()
-        self.create_feedback_status_PV()
-        self.setup_names()
-        self.start_camonitors()
 
     def setup_names(self):
         # Set up feedback auto on/off PV names
@@ -61,12 +62,13 @@ class XBPM_DCMFeedback:
         catools.camonitor(self.button_monitor, self.check_feedback_inputs)
         catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
 
-    def printfunction(self, printstatus, index):
+    def print_function(self, printstatus, index):
         if index not in range(len(self.button_monitor)):
             print(printstatus)
         else:
             print(printstatus, self.button_monitor[index], index)
 
+    # What to do if any PVs change
     def check_feedback_inputs(self, index):
         if (
             catools.caget('test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV') > self.minXCurr.get() and
@@ -77,15 +79,34 @@ class XBPM_DCMFeedback:
             self.fb_pause_status.get() == 1
         ):
             self.set_run_status('start')
-            self.printfunction("run started", index)
+            self.print_function("Run for XBPM1 Started", index)
         elif self.fb_pause_status.get() == 0:
             self.set_run_status('pause')
-            self.printfunction("run paused", index)
+            self.print_function("Run for XBPM1 Paused", index)
         else:
             self.set_run_status('stop')
-            self.printfunction("run stopped", index)
+            self.print_function("Run for XBPM1 Stopped", index)
 
 
+    # Check the status of the ENABLE button for feedback.
+    # Set feedback on or off as is appropriate.
+    def check_enable_status(self, val):
+    # SHOULD THIS VAL == STATUS OPTION?
+        if val == 0:
+            print "Feedback ENABLE button set to OFF (Stopped)"
+            self.fb_enable_status.set(0)
+        elif val == 1:
+            print "Feedback ENABLE button set to ON (Running)"
+            if self.fb_mode_status == 0:
+                print "Feedback mode is XBPM1 operation only"
+                self.fb_enable_status.set(1)
+                # at this point, fswt should be set to 0
+                # xbpm2 cant run on its own
+            elif self.fb_mode_status == 1:
+                print "Feedback mode is XBPM1 and XBPM2 operation"
+                self.fb_enable_status(1)
+
+    # What to do if any PVs change
     def create_feedback_status_PV(self):
         # Feedback status PV (acts as ON/OFF button for IOC).
         self.fb_enable_status = builder.mbbOut('FB_ENABLE',
@@ -180,14 +201,39 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
             self.fb_mode_status.get() == 1
         ):
             self.set_run_status('start')
-            self.printfunction("run started", index)
+            self.print_function("run started", index)
         elif self.fb_pause_status.get() == 0:
             self.set_run_status('pause')
-            self.printfunction("run paused", index)
+            self.print_function("run paused", index)
         else:
             self.set_run_status('stop')
-            self.printfunction("run stopped", index)
+            self.print_function("run stopped", index)
 
+    # Check the status of the ENABLE button for feedback.
+    # Set feedback on or off as is appropriate.
+    def check_enable_status(self, val):
+        # SHOULD THIS VAL == STATUS OPTION?
+        if val == 0:
+            print "Feedback ENABLE button set to OFF (Stopped)"
+            self.fb_enable_status.set(0)
+        elif val == 1:
+            if self.fb_mode_status == 0:
+                print "Feedback mode is XBPM1 operation only"
+                self.fb_enable_status.set(0)
+            elif self.fb_mode_status == 1:
+                print "Feedback ENABLE button set to ON (Running)"
+                print "Feedback mode is XBPM1 and XBPM2 operation"
+                self.fb_enable_status.set(1)
+        else:
+            assert 0<=val<=1, "Enable button fail"
+
+    def enable_status_checker(self):
+    # Makes sure that if FSWT is on, DCM is also on
+    # Otherwise, if DCM is off, FSWT is also off
+        if XBPM_DCMFeedback.create_feedback_status_PV(self.fb_enable_status == 0):
+            assert XBPM_FSWTfeedback.create_feedback_status_PV(self.fb_enable_status(0)), "Both XBPM1 and XBPM2 are off"
+        elif XBPM_FSWTfeedback.create_feedback_status_PV(self.fb_enable_status(1)):
+            assert XBPM_DCMFeedback.create_feedback_status_PV(self.fb_enable_status(1)), "Both XBPM1 and XBPM2 are on"
 
     def create_PVs(self):
 
