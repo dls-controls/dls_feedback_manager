@@ -13,6 +13,8 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 def Monitor(pv):
     return MS(CP(pv))
 
+import unittest
+
 class RangeManager:
 
     def __init__(self, XBPM_prefix='BL04I-EA-XBPM-', XBPM_num='00', lower_current_limit=0.0, upper_current_limit=0.0, scale_factor=0.0, threshold_percentage=0.0):

@@ -1,3 +1,9 @@
+
+from pkg_resources import require
+require('cothread==2.14')
+require('numpy==1.11.1')
+require('epicsdbbuilder==1.2')
+
 from cothread import catools
 from softioc import builder
 from epicsdbbuilder import records, MS, CP, ImportRecord
@@ -5,6 +11,7 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 def Monitor(pv):
     return MS(CP(pv))
 
+import unittest
 
 # XBPM1 PID parameters
 KPx1 = -1.800e-4
@@ -35,16 +42,15 @@ class XBPM_DCMFeedback:
         # Run continuous checks for XBPM1
         self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV', 'test:SR-DI-DCCT-01-SIGNAL',
                              'test:BL04I-PS-SHTR-01:STA']
-        # For setting up the Feedback AUTO ON/OFF PV names
-        self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
-                           self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
         self.start_camonitors()
-
 
     def __init__(self):
 
         self.prefix = 'BL04I-MO-DCM-01'
         self.make_on_start_up()
+        # For setting up the Feedback AUTO ON/OFF PV names
+        self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
+                           self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
         self.setup_names()
         self.status_options={'stop': 0, 'start': 1, 'pause': 2}
 
