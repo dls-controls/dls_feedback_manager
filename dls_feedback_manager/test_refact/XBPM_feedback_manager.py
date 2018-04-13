@@ -25,28 +25,28 @@ KDy2 = 0.0
 
 class XBPM_DCMFeedback:
 # XBPM1 feedback
+
     def make_on_start_up(self):
         self.create_PVs()
         self.create_PID_PVs()
         self.create_feedback_status_PV()
-        self.setup_names()
-        self.start_camonitors()
-
-    def __init__(self):
-        self.prefix = 'BL04I-MO-DCM-01'
-        self.status_options={'stop': 0, 'start': 1, 'pause': 2}
-
         # For running monitors on overall ON/OFF button, GDA PAUSE button
         self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name]
-
         # Run continuous checks for XBPM1
         self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV', 'test:SR-DI-DCCT-01-SIGNAL',
                              'test:BL04I-PS-SHTR-01:STA']
-
         # For setting up the Feedback AUTO ON/OFF PV names
-        self.caput_list=[self.prefix+':FDBK1:AUTOCALC.INPB', self.prefix+':FDBK2:AUTOCALC.INPB',
-                         self.prefix+':FDBK1:AUTOCALC.INPC', self.prefix+':FDBK2:AUTOCALC.INPC']
+        self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
+                           self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
+        self.start_camonitors()
 
+
+    def __init__(self):
+
+        self.prefix = 'BL04I-MO-DCM-01'
+        self.make_on_start_up()
+        self.setup_names()
+        self.status_options={'stop': 0, 'start': 1, 'pause': 2}
 
     def setup_names(self):
         # Set up feedback auto on/off PV names
