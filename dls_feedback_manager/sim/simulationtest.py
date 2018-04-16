@@ -7,6 +7,7 @@ require('numpy==1.11.1')
 require('epicsdbbuilder==1.0')
 
 from softioc import softioc, builder
+from epicsdbbuilder import records, MS, CP, ImportRecord
 
 
 """#builder.SetDeviceName('IOC-TEST')
@@ -43,8 +44,6 @@ x1BLss = builder.mbbOut('BL04I-PS-SHTR-01:STA',
 #xbpm2
 x2sigcurr = builder.aOut('BL04I-EA-XBPM-02:SumAll:MeanValue_RBV',
                     initial_value = 1.02991e-06)
-xstat = builder.mbbOut('BL04I-TS-XBPM-01:FB_RUN1',
-                       initial_value = 0)
 
 #ID gap
 x1SF = builder.aOut('BL04I-MO-DCM-01:ENERGY',
@@ -55,6 +54,51 @@ x1r = builder.mbbOut('BL04I-EA-XBPM-01:DRV:Range',
                       initial_value = 0)
 x2r = builder.mbbOut('BL04I-EA-XBPM-02:DRV:Range',
                       initial_value = 0)
+
+# Testing alongside ioc
+
+rc1 = records.calc('BL04I-MO-DCM-01:FDBK1:AUTOCALC')
+rc2 = records.calc('BL04I-MO-DCM-01:FDBK2:AUTOCALC')
+rc5 = records.calc('BL04I-MO-FSWT-01:FDBK1:AUTOCALC')
+rc6 = records.calc('BL04I-MO-FSWT-01:FDBK2:AUTOCALC')
+rc9 = records.calc('BL04I-MO-FSWT-01:FDBK3:AUTOCALC')
+rc10 = records.calc('BL04I-MO-FSWT-01:FDBK4:AUTOCALC')
+
+
+"""position_threshold_ok_xbpm1 = records.calc('XBPM1POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
+            INPA = Monitor(threshold_percentage_xbpm1),
+            INPB = Monitor(xbpm1_normx),
+            INPC = Monitor(xbpm1_normy),
+            LOPR = 0,
+            HOPR = 1,
+            PINI = 'YES',
+            EGU = '')
+            
+position_threshold_ok_xbpm2 = records.calc('XBPM2POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
+            INPA = Monitor(threshold_percentage_xbpm2),
+            INPB = Monitor(xbpm2_normx),
+            INPC = Monitor(xbpm2_normy),
+            LOPR = 0,
+            HOPR = 1,
+            PINI = 'YES',
+            EGU = '')  
+
+# XBPM signal chain check PVs
+xbpm1SignalsOk = records.calc('XBPM1SIGNALS_OK', CALC='A>B',
+            INPA = Monitor(xbpm1_sum_mean_value),
+            INPB = Monitor(minXCurr),
+            LOPR = 0,
+            HOPR = 1,
+            PINI = 'YES',
+            EGU = '') 
+            
+xbpm2SignalsOk = records.calc('XBPM2SIGNALS_OK', CALC='A>B',
+            INPA = Monitor(xbpm2_sum_mean_value),
+            INPB = Monitor(minXCurr),
+            LOPR = 0,
+            HOPR = 1,
+            PINI = 'YES',
+            EGU = '') """
 
 # Create the identity PVs
 

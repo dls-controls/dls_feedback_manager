@@ -8,5 +8,5 @@ export EPICS_CA_ADDR_LIST=127.0.0.1
 #export EPICS_CA_AUTO_ADDR_LIST=NO
 
 cd "$(dirname "$0")"
-exec $PYIOC XBPM_test_control.py "$@"
+exec $PYIOC ### "$@"
 

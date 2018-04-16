@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# Running in terminal
-
 PYIOC_VERSION=2-11
 PYIOC=/dls_sw/prod/R3.14.12.3/support/pythonSoftIoc/2-11/pythonIoc
 export EPICS_CA_SERVER_PORT=6164
