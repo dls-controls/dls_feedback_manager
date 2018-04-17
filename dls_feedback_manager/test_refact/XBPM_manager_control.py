@@ -20,8 +20,9 @@ XBPM2 = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 3
 
 
 # Run XBPM feedback manager
-DCM_fdbk = XBPM_feedback_manager.XBPM_DCMFeedback()
-FSWT_fdbk = XBPM_feedback_manager.XBPM_FSWTfeedback()
+shared_PVs = XBPM_feedback_manager.XBPMSharedPVs()
+DCM_fdbk = XBPM_feedback_manager.XBPM_DCMFeedback(shared_PVs)
+FSWT_fdbk = XBPM_feedback_manager.XBPM_FSWTfeedback(shared_PVs)
 
 
 softioc.interactive_ioc(globals())
