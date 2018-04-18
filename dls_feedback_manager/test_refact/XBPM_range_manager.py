@@ -34,8 +34,8 @@ class RangeManager:
 
     ## Sets restrictions for input values
     def validate_params(self):
-        assert type(self.scale_factor) is not str, "input numerical scale factor"
-        assert type(self.threshold_percentage) is not str, "input numerical threshold percentage"
+        assert type(self.scale_factor) is not str, "input numerical type scale factor"
+        assert type(self.threshold_percentage) is not str, "input numerical type threshold percentage"
         assert 0 <= self.threshold_percentage <= 100, "insert valid percentage"
         assert 01 <= int(self.XBPM_num) <= 9
 

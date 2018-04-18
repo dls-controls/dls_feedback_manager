@@ -38,13 +38,10 @@ class XBPMSharedPVs:
     def __init__(self):
         self.create_feedback_status_PV()
         self.xbpm_current()
+        self.status_options = {0:'Stopped', 1:'Run', 2:'Paused'}
 
-    ## Dictionary for type of status.
-    def status(self):
-        self.status_options = {'Stopped': 0, 'Run': 1, 'Paused': 2}
-
-    ## Restricts caput to anything other than options given.
-    def validate_params(self):
+    ##  Restricts caput to anything other than options given.
+    def validate_status_options(self):
        assert self.status_options in [0, 1, 2]
 
     ## What to do if any PVs change.
@@ -89,22 +86,25 @@ class XBPM_DCMFeedback:
     ## Constructor.
     #  Sets the prefix for XBPM1.
     def __init__(self, XBPMSharedPVs):
-        self.XBPMSharedPVs = XBPMSharedPVs()
-        self.make_on_start_up(XBPMSharedPVs)
+        self.XBPMSharedPVs = XBPMSharedPVs
+        self.make_on_start_up()
         self.prefix = 'test:BL04I-MO-DCM-01'
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
                            self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
-        print(self.prefix + " constructor successful")
         self.setup_names()
+
+    def success(self):
+        # once the constructor has finished...
+        print(self.prefix + " constructor successful")
 
     ## Creates PVs and starts camonitors.
     #  Gets called in the constructor.
-    def make_on_start_up(self, XBPMSharedPVs):
+    def make_on_start_up(self):
         self.create_PVs()
         self.create_PID_PVs()
         # For running monitors on overall ON/OFF button, GDA PAUSE button
-        self.button_monitor = [XBPMSharedPVs.fb_enable_status.name, XBPMSharedPVs.fb_pause_status.name]
+        self.button_monitor = [self.XBPMSharedPVs.fb_enable_status.name, self.XBPMSharedPVs.fb_pause_status.name]
         # Run continuous checks for XBPM1
         self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV', 'test:SR-DI-DCCT-01-SIGNAL',
                              'test:BL04I-PS-SHTR-01:STA']
@@ -131,10 +131,10 @@ class XBPM_DCMFeedback:
     ## Print the status.
     #  State which item in the list is being referred to.
     def print_function(self, printstatus, index):
-        if index not in range(len(self.XBPMSharedPVs.button_monitor)):
+        if index not in range(len(self.button_monitor)):
             print(printstatus)
         else:
-            print(printstatus, self.XBPMSharedPVs.button_monitor[index], index)
+            print(printstatus, self.button_monitor[index], index)
 
     ## What to do if any PVs change.
     #  Define conditions for setting new status.
@@ -220,9 +220,9 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
 
     ## Constructor.
     #  Sets new prefix for FSWT.
-    def __init__(self):
+    def __init__(self, XBPMSharedPVs):
         XBPM_DCMFeedback.__init__(self, XBPMSharedPVs)
-        self.XBPMSharedPVs = XBPMSharedPVs()
+        self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = 'BL04I-MO-FSWT-01'
 
         # For running monitors on overall ON/OFF button, GDA PAUSE button, FSWT feedback output button
@@ -273,14 +273,6 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
         else:
             assert 0<=val<=1, "Enable button fail"
 
-    """## Ensure that if FSWT is on, DCM must also be on
-    #  If DCM is off, FSWT must also be off
-    def enable_status_checker(self, XBPMSharedPVs):
-        if XBPM_DCMFeedback.create_feedback_status_PV(self.fb_enable_status == 0):
-            assert XBPM_FSWTfeedback.create_feedback_status_PV(self.fb_enable_status(0)), "Both XBPM1 and XBPM2 are off"
-        elif XBPM_FSWTfeedback.create_feedback_status_PV(self.fb_enable_status(1)):
-            assert XBPM_DCMFeedback.create_feedback_status_PV(self.fb_enable_status(1)), "Both XBPM1 and XBPM2 are on"
-    """
 
     ## Created in the constructor.
     #  Used in check_feedback_inputs to specify conditions for setting new status
@@ -325,6 +317,13 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
                            initial_value=KDy2,
                            LOPR=0, HOPR=10.0, PINI='YES')
 
+## Ensure that if FSWT is on, DCM must also be on
+    #  If DCM is off, FSWT must also be off
+    def enable_status_checker(self):
+        if XBPM_DCMFeedback.fb_enable_status == 0:
+            assert XBPM_FSWTfeedback.create_feedback_status_PV(self.XBPMSharedPVs.fb_enable_status(0)), "Both XBPM1 and XBPM2 are off"
+        elif XBPM_FSWTfeedback.create_feedback_status_PV(self.XBPMSharedPVs.fb_enable_status(1)):
+            assert XBPM_DCMFeedback.create_feedback_status_PV(self.XBPMSharedPVs.fb_enable_status(1)), "Both XBPM1 and XBPM2 are on"
 
 if __name__ == '__main__':
     unittest.main()
