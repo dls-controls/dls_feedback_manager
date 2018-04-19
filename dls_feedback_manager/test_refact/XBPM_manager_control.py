@@ -8,10 +8,10 @@ require('epicsdbbuilder==1.2')
 
 from softioc import softioc, builder
 
+builder.SetDeviceName('test:BL04I-EA-FDBK-01')
+
 import XBPM_range_manager
 import XBPM_feedback_manager
-
-softioc.iocInit()
 
 
 # Run XBPM range manager
@@ -24,6 +24,7 @@ shared_PVs = XBPM_feedback_manager.XBPMSharedPVs()
 DCM_fdbk = XBPM_feedback_manager.XBPM_DCMFeedback(shared_PVs)
 FSWT_fdbk = XBPM_feedback_manager.XBPM_FSWTfeedback(shared_PVs)
 
-
+builder.LoadDatabase()
+softioc.iocInit()
 softioc.interactive_ioc(globals())
 sys.exit()

@@ -15,8 +15,6 @@ def Monitor(pv):
 
 import unittest
 
-builder.SetDeviceName('test')
-
 class RangeManager:
 
     ## Constructor.

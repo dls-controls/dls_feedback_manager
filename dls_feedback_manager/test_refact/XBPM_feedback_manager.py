@@ -4,6 +4,7 @@ require('cothread==2.14')
 require('numpy==1.11.1')
 require('epicsdbbuilder==1.2')
 
+import cothread
 from cothread import catools
 from softioc import builder
 from epicsdbbuilder import records, MS, CP, ImportRecord
@@ -29,15 +30,13 @@ KPy2 = 1.080e-4
 KIy2 = 3.636
 KDy2 = 0.0
 
-builder.SetDeviceName('test')
-
 ## PVs used for both DCM and FSWT.
 class XBPMSharedPVs:
 
     ## Constructor.
     def __init__(self):
         self.create_feedback_status_PV()
-        self.xbpm_current()
+        self.create_xbpm_current()
         self.status_options = {0:'Stopped', 1:'Run', 2:'Paused'}
 
     ##  Restricts caput to anything other than options given.
@@ -73,7 +72,7 @@ class XBPMSharedPVs:
 
 
     ## Limits for XBPM current
-    def xbpm_current(self):
+    def create_xbpm_current(self):
         self.minXCurr = builder.aIn('MIN_XBPMCURRENT',
                                     initial_value=10e-9,
                                     LOPR=0,
@@ -88,8 +87,8 @@ class XBPM_DCMFeedback:
     #  Sets the prefix for XBPM1.
     def __init__(self, XBPMSharedPVs):
         self.XBPMSharedPVs = XBPMSharedPVs
-        self.make_on_start_up()
         self.prefix = 'test:BL04I-MO-DCM-01'
+        self.make_on_start_up()
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
                            self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
@@ -125,6 +124,7 @@ class XBPM_DCMFeedback:
     def start_camonitors(self):
         catools.camonitor(self.button_monitor, self.check_feedback_inputs)
         catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
+        catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name, self.check_enable_status)
 
     ## Print the status.
     #  State which item in the list is being referred to.
@@ -157,7 +157,7 @@ class XBPM_DCMFeedback:
 
     ## Check the status of the ENABLE button for feedback.
     #  Set feedback on or off as is appropriate.
-    def check_enable_status(self):
+    def check_enable_status(self, val):
         if self.XBPMSharedPVs.fb_enable_status.get() == 0:
             print "Feedback ENABLE button set to OFF (Stopped)"
             self.set_run_status(0)
@@ -212,7 +212,6 @@ class XBPM_DCMFeedback:
                            initial_value=KDy1,
                            LOPR=0, HOPR=10.0, PINI='YES')
 
-    def enable_button(self):
 
 
 ## XBPM2 feedback
@@ -241,6 +240,7 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
     ## What to do if any PVs change.
     #  Define conditions for setting new status.
     def check_feedback_inputs(self, val, index):
+
         if (
             catools.caget('test:BL04I-EA-XBPM-02:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
             self.fb_run_status.get() == 1 and
@@ -258,7 +258,7 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
 
     # Check the status of the ENABLE button for feedback.
     # Set feedback on or off as is appropriate.
-    def check_enable_status(self):
+    def check_enable_status(self, val):
         if self.XBPMSharedPVs.fb_enable_status.get() == 0:
             print "Feedback ENABLE button set to OFF (Stopped)"
             self.set_run_status(0)
