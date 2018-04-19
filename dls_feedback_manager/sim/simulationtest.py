@@ -64,8 +64,28 @@ rc6 = records.calc('BL04I-MO-FSWT-01:FDBK2:AUTOCALC')
 rc9 = records.calc('BL04I-MO-FSWT-01:FDBK3:AUTOCALC')
 rc10 = records.calc('BL04I-MO-FSWT-01:FDBK4:AUTOCALC')
 
+"""fb_enable_status = builder.mbbOut('BL04I-MO-DCM-01:FB_ENABLE',
+            initial_value = 0,
+            PINI = 'YES',
+            NOBT = 2,
+            ZRVL = 0,   ZRST = 'Stopped',
+            ONVL = 1,   ONST = 'Run')
 
-"""position_threshold_ok_xbpm1 = records.calc('XBPM1POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
+fb_pause_status = builder.mbbOut('BL04I-MO-DCM-01:FB_PAUSE',
+                        initial_value = 1,
+                        PINI = 'YES',
+                        NOBT = 2,
+                        ZRVL = 0,   ZRST = 'Paused',
+                        ONVL = 1,   ONST = 'Ok to Run')
+
+fb_mode_status = builder.mbbOut('BL04I-MO-DCM-01:FB_MODE',
+                    initial_value = 1,
+                    PINI = 'YES',
+                    NOBT = 2,
+                    ZRVL = 0,   ZRST = 'Running on XBPM1',
+                    ONVL = 1,   ONST = 'Running on XBPM1 AND 2')
+
+position_threshold_ok_xbpm1 = records.calc('XBPM1POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
             INPA = Monitor(threshold_percentage_xbpm1),
             INPB = Monitor(xbpm1_normx),
             INPC = Monitor(xbpm1_normy),

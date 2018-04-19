@@ -58,8 +58,8 @@ XBPM2 = XBPM_manager('BL04I-EA-XBPM-', 02)
 
 list_of_XBPMs = [XBPM1, XBPM2]
 
-for i in list_of_XBPMs:
-    i.xbpm_vals()
+#for i in list_of_XBPMs:
+#i.xbpm_vals()
 
 
 ##################

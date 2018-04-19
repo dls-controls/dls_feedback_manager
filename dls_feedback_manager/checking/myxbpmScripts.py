@@ -89,31 +89,6 @@ def checkRange2(val):
         print(r, "r is not 0 or 1")
 
 
-
-# STOP feedback if requested
-def setRunStopped1():
-    myxbpmPVs.fb_run1_status.set(0)
-
-def setRunStopped2():
-    myxbpmPVs.fb_run2_status.set(0)
-
-
-# START (or restart) feedback if requested
-def setRunStart1():
-    myxbpmPVs.fb_run1_status.set(1)
-
-def setRunStart2():
-    myxbpmPVs.fb_run2_status.set(1)
-
-
-# PAUSE feedback if requested 
-def setRunPaused1():
-    myxbpmPVs.fb_run1_status.set(2)
-
-def setRunPaused2():
-    myxbpmPVs.fb_run2_status.set(2)
-
-
 def printfunction(printstatus, index):
     if index not in range(len(camon_listFB)):
         print(printstatus)

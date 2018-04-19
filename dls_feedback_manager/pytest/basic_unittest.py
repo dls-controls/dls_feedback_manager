@@ -21,10 +21,10 @@ class numtest(unittest.TestCase):
 
 	def test_zero(self):	
 		x = y = 0
-		self.assertIs(calc(x,y),0, "ans should be bigger than zero")	
+		self.assertIs(calc(x,y),0, "ans should be bigger than zero")
 
-        def test_none(self):
-                self.assertIsNone(return_none(), "should be none")
+	def test_none(self):
+		self.assertIsNone(return_none(), "should be none")
 
 #        def test_not_none(self):
 #                self.assertIsNotNone(return_none(), "should not be none")
