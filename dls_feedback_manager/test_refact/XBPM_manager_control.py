@@ -15,14 +15,17 @@ import XBPM_feedback_manager
 
 
 # Run XBPM range manager
-XBPM1 = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0)
-XBPM2 = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 3.2, 3.0)
+XBPM1 = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0, 'BL04I-MO-DCM-01:ENERGY')
+XBPM2 = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 3.2, 3.0, 'BL04I-MO-DCM-01:ENERGY')
+
 
 
 # Run XBPM feedback manager
 shared_PVs = XBPM_feedback_manager.XBPMSharedPVs()
-DCM_fdbk = XBPM_feedback_manager.XBPM_DCMFeedback(shared_PVs)
-FSWT_fdbk = XBPM_feedback_manager.XBPM_FSWTfeedback(shared_PVs)
+
+DCM_fdbk = XBPM_feedback_manager.XBPM_DCMFeedback(shared_PVs, 'test:BL04I-MO-DCM-01')
+FSWT_fdbk = XBPM_feedback_manager.XBPM_FSWTfeedback(shared_PVs, 'test:BL04I-MO-FSWT-01', 'test:BL04I-MO-DCM-01') # This needs fixing
+
 
 builder.LoadDatabase()
 softioc.iocInit()

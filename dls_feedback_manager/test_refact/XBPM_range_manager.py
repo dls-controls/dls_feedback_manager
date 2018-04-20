@@ -18,15 +18,24 @@ import unittest
 class RangeManager:
 
     ## Constructor.
-    def __init__(self, XBPM_prefix='BL04I-EA-XBPM-', XBPM_num='00', lower_current_limit=0.0, upper_current_limit=0.0, scale_factor=0.0, threshold_percentage=0.0):
+    def __init__(self, XBPM_prefix='', XBPM_num='', lower_current_limit=0.0, upper_current_limit=0.0,
+                        scale_factor=0.0, threshold_percentage=0.0, ID_energy=''):
         self.XBPM_prefix = XBPM_prefix
         self.XBPM_num = XBPM_num
         self.lower_current_limit = lower_current_limit
         self.upper_current_limit = upper_current_limit
         self.scale_factor = scale_factor
         self.threshold_percentage = threshold_percentage
+        self.ID_energy = ID_energy
         self.validate_params()
         self.xbpm_vals()
+        self.norm()
+        self.position_threshold()
+        self.camonitor_range()
+        if len(ID_energy) > 0:
+            self.camonitor_scale()
+        self.curr_limits()
+        self.signals_ok()
         print(self.XBPM_prefix + self.XBPM_num + ' constructor successful')
 
 
@@ -41,13 +50,13 @@ class RangeManager:
     ## Imported records of readback values
     def xbpm_vals(self):
 
-        self.dx_mean_value = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':DiffX:MeanValue_RBV')
-        self.sx_mean_value = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':SumX:MeanValue_RBV')
-        self.dy_mean_value = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':DiffY:MeanValue_RBV')
-        self.sy_mean_value = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':SumY:MeanValue_RBV')
-        self.xbpm_sum_mean_value = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':SumAll:MeanValue_RBV')
-        self.xbpm_x_beamsize = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':DRV:PositionScaleX')
-        self.xbpm_y_beamsize = ImportRecord(self.XBPM_prefix + (self.XBPM_num) + ':DRV:PositionScaleY')
+        self.dx_mean_value = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':DiffX:MeanValue_RBV')
+        self.sx_mean_value = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':SumX:MeanValue_RBV')
+        self.dy_mean_value = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':DiffY:MeanValue_RBV')
+        self.sy_mean_value = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':SumY:MeanValue_RBV')
+        self.xbpm_sum_mean_value = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':SumAll:MeanValue_RBV')
+        self.xbpm_x_beamsize = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':DRV:PositionScaleX')
+        self.xbpm_y_beamsize = ImportRecord(self.XBPM_prefix + self.XBPM_num + ':DRV:PositionScaleY')
 
 
     ## "Normalised" position PVs
@@ -91,26 +100,26 @@ class RangeManager:
 
     ## Monitor XBPM signal currents.
     def camonitor_range(self):
-        catools.camonitor(self.XBPM_prefix + (self.XBPM_num)+':SumAll:MeanValue_RBV', self.check_range)
-        catools.camonitor(self.XBPM_prefix + (self.XBPM_num)+':SumAll:MeanValue_RBV', self.check_range)
+        catools.camonitor(self.XBPM_prefix + self.XBPM_num+':SumAll:MeanValue_RBV', self.check_range)
+        catools.camonitor(self.XBPM_prefix + self.XBPM_num+':SumAll:MeanValue_RBV', self.check_range)
 
 
     ## Gets current range for flipping between tetramms
     #  Won't flip into 'higher current mode' until current is higher than lower_current_limit
     #  Won't flip into 'lower current mode' until current is lower than upper_current_limit
     def check_range(self, val):
-        self.r = catools.caget(self.XBPM_prefix + (self.XBPM_num) + ':DRV:Range')
+        self.r = catools.caget(self.XBPM_prefix + self.XBPM_num + ':DRV:Range')
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
-                catools.caput(self.XBPM_prefix + (self.XBPM_num) + ':DRV:Range', 1)
+                catools.caput(self.XBPM_prefix + self.XBPM_num + ':DRV:Range', 1)
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
-                catools.caput(self.XBPM_prefix + (self.XBPM_num) + 'DRV:Range', 0)
+                catools.caput(self.XBPM_prefix + self.XBPM_num + 'DRV:Range', 0)
 
 
     ## Run monitor on the ID gap. XBPM1; change scale factors if ID energy changes.
     def camonitor_scale(self):
-        catools.camonitor('BL04I-MO-DCM-01:ENERGY', self.set_vertical_XBPM_scale_factor)
+        catools.camonitor(self.ID_energy, self.set_vertical_XBPM_scale_factor)
 
 
     ## Set the vertical XBPM scale factor [um] based on the DCM energy [keV]
@@ -121,8 +130,8 @@ class RangeManager:
     def set_vertical_XBPM_scale_factor(self, energy):
         ky = (-26 * energy + 1120) / self.scale_factor
         kx = 1200 / self.scale_factor
-        catools.caput(self.XBPM_prefix + (self.XBPM_num) + ':DRV:PositionScaleY', ky)
-        catools.caput(self.XBPM_prefix + (self.XBPM_num) + ':DRV:PositionScaleX', kx)
+        catools.caput(self.XBPM_prefix + self.XBPM_num + ':DRV:PositionScaleY', ky)
+        catools.caput(self.XBPM_prefix + self.XBPM_num + ':DRV:PositionScaleX', kx)
 
 
     ## Limits for XBPM current and DCCT current.
@@ -158,9 +167,3 @@ class RangeManager:
 
 if __name__ == '__main__':
     unittest.main()
-
-
-"""
-IOC_NAME = 'test:BL04I-EA-%s-01'
-
-builder.SetDeviceName(IOC_NAME % 'FDBK') """

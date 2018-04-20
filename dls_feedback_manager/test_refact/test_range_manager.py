@@ -25,7 +25,7 @@ class RangeTests(unittest.TestCase):
 
     ## Expected format for PV name
     def test_regular_expression(self):
-        XBPM = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '00', 1, 2, 3, 4)
+        XBPM = XBPM_range_manager.RangeManager('BL04I-EA-XBMP-', '02', 1, 2, 3, 4)
         self.assertRegexpMatches(XBPM.XBPM_prefix+XBPM.XBPM_num, "BL04I-EA-XBPM-01")
 
     ## Error is raised as XBPM number is not between 1 and 9
