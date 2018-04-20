@@ -38,6 +38,8 @@ class XBPMSharedPVs:
         self.create_feedback_status_PV()
         self.create_xbpm_current()
         self.status_options = {0:'Stopped', 1:'Run', 2:'Paused'}
+        # For running monitors on overall ON/OFF button, GDA PAUSE button
+        self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name]
 
     ##  Restricts caput to anything other than options given.
     def validate_status_options(self):
@@ -101,8 +103,7 @@ class XBPM_DCMFeedback:
     def make_on_start_up(self):
         self.create_PVs()
         self.create_PID_PVs()
-        # For running monitors on overall ON/OFF button, GDA PAUSE button
-        self.button_monitor = [self.XBPMSharedPVs.fb_enable_status.name, self.XBPMSharedPVs.fb_pause_status.name]
+
         # Run continuous checks for XBPM1
         self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV', 'test:SR-DI-DCCT-01-SIGNAL',
                              'test:BL04I-PS-SHTR-01:STA']
@@ -149,26 +150,26 @@ class XBPM_DCMFeedback:
                            LOPR=-500.0, HOPR=500.0, PINI='YES')
         self.kix1 = builder.aIn('KIX1',
                            initial_value=KIx1,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500, HOPR=500, PINI='YES')
         self.kdx1 = builder.aIn('KDX1',
                            initial_value=KDx1,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500, HOPR=500, PINI='YES')
         self.kpy1 = builder.aIn('KPY1',
                            initial_value=KPy1,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500, HOPR=500, PINI='YES')
         self.kiy1 = builder.aIn('KIY1',
                            initial_value=KIy1,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500, HOPR=500, PINI='YES')
         self.kdy1 = builder.aIn('KDY1',
                            initial_value=KDy1,
-                           LOPR=0, HOPR=10.0, PINI='YES')
+                           LOPR=-500, HOPR=500, PINI='YES')
 
 
     ## Monitor the feedback enable/pause buttons and checks the feedback input to set a new feedback status.
     def start_camonitors(self):
         catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name, self.check_enable_status)
         #catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name, XBPM_FSWTfeedback.enable_status_checker)
-        catools.camonitor(self.button_monitor, self.check_feedback_inputs)
+        catools.camonitor(self.XBPMSharedPVs.button_monitor, self.check_feedback_inputs)
         catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
 
 
@@ -229,9 +230,6 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = FSWT_prefix
 
-        # For running monitors on overall ON/OFF button, GDA PAUSE button, FSWT feedback output button
-        self.button_monitor = [self.XBPMSharedPVs.fb_enable_status.name, self.XBPMSharedPVs.fb_pause_status.name, self.fb_fswt_output.name]
-
         # Run continuous checks for XBPM2
         self.xbpm_fbcheck = ['FE04I-PS-SHTR-02:STA', 'BL04I-EA-XBPM-02:SumAll:MeanValue:RBV']
 
@@ -254,13 +252,6 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
                                             ONVL=1, ONST='Run',
                                             TWVL=2, TWST='Paused')
 
-        # Feedback FWST mode PV, acts as button for the different actuators (UPSTREAM, DOWNSTREAM)
-        self.fb_fswt_output = builder.mbbOut('FB_FSWTOUTPUT',
-                                             initial_value=1,
-                                             PINI='YES',
-                                             NOBT=2,
-                                             ZRVL=0, ZRST='Upstream actuator',
-                                             ONVL=1, ONST='Downstream actuator')
 
     ## Created in constructor.
     #  Set limits for each PID parameter.
@@ -270,19 +261,19 @@ class XBPM_FSWTfeedback(XBPM_DCMFeedback):
                                 LOPR=-500.0, HOPR=500.0, PINI='YES')
         self.kix2 = builder.aIn('KIX2',
                                 initial_value=KIx2,
-                                LOPR=0, HOPR=10.0, PINI='YES')
+                                LOPR=-500, HOPR=500, PINI='YES')
         self.kdx2 = builder.aIn('KDX2',
                                 initial_value=KDx2,
-                                LOPR=0, HOPR=10.0, PINI='YES')
+                                LOPR=-500, HOPR=500, PINI='YES')
         self.kpy2 = builder.aIn('KPY2',
                                 initial_value=KPy2,
-                                LOPR=0, HOPR=10.0, PINI='YES')
+                                LOPR=-500, HOPR=500, PINI='YES')
         self.kiy2 = builder.aIn('KIY2',
                                 initial_value=KIy2,
-                                LOPR=0, HOPR=10.0, PINI='YES')
+                                LOPR=-500, HOPR=500, PINI='YES')
         self.kdy2 = builder.aIn('KDY2',
                                 initial_value=KDy2,
-                                LOPR=0, HOPR=10.0, PINI='YES')
+                                LOPR=-500, HOPR=500, PINI='YES')
 
 
     # Check the status of the ENABLE button for feedback.
