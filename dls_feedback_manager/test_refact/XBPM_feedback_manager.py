@@ -318,7 +318,7 @@ class XBPM2_feedback(XBPM1_feedback):
             self.set_run_status(0)
             self.print_function("Run for XBPM2 Stopped")
 
-        if (
+        """if (
             catools.caget('test:BL'+self.XBPMSharedPVs.BL_num+'I-EA-XBPM-02:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
             self.fb_run_status.get() == 1 and
             self.XBPMSharedPVs.XBPM1_feedback.fb_run_status.get() == 1 and
@@ -332,7 +332,7 @@ class XBPM2_feedback(XBPM1_feedback):
         else:
             self.set_run_status(0)
             self.print_function("Run for XBPM1 and XBPM2 Stopped")
-
+"""
 
 if __name__ == '__main__':
     unittest.main()

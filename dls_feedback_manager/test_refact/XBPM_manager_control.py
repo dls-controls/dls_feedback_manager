@@ -15,8 +15,8 @@ import XBPM_feedback_manager
 
 
 # Run XBPM range manager
-#XBPM1 = XBPM_range_manager.RangeManager('test:BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0, 'test:BL04I-MO-DCM-01:ENERGY')
-#XBPM2 = XBPM_range_manager.RangeManager('test:BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 1.0, 3.0, '')
+XBPM1 = XBPM_range_manager.RangeManager('test:BL04I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0, 'test:BL04I-MO-DCM-01:ENERGY')
+XBPM2 = XBPM_range_manager.RangeManager('test:BL04I-EA-XBPM-', '02', 90e-9, 110e-9, 1.0, 3.0, '')
 
 
 

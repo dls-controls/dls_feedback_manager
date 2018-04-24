@@ -24,20 +24,22 @@ class RangeManager:
         self.scale_factor = scale_factor
         self.threshold_percentage = threshold_percentage
         self.id_energy = id_energy
-        self.validate_params()
-        self.curr_limits()
-        self.xbpm_vals()
-        self.norm()
-        self.position_threshold()
-
+        self.call_on_start()
+ 
         self.signals_ok()
         self.camonitor_range()
 
         if len(id_energy) > 0:
             self.camonitor_scale()
 
-        print(self.xbpm_prefix + self.xbpm_num + ' constructor successful')
+    def call_on_start(self):
+        self.xbpm_vals()
+        self.norm()
+        self.position_threshold()
+        self.curr_limits()
+        self.validate_params()
 
+        print(self.xbpm_prefix + self.xbpm_num + ' constructor successful')
 
     ## Sets restrictions for input values
     def validate_params(self):
