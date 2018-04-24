@@ -2,6 +2,7 @@
 
 import XBPM_range_manager
 import unittest
+import re
 
 ## @package dls_feedback_manager
 # Unittests for XBPM Range Manager.
@@ -18,20 +19,20 @@ class RangeTests(unittest.TestCase):
     ## Method to ensure PV name combines correctly.
     #  Parameters are defined using user input values in XBPM_manager_control.
     def test_standard_naming(self):
-        self.assertEqual(self.XBPM1.XBPM_prefix+self.XBPM1.XBPM_num, 'BL04I-EA-XBPM-01')
+        self.assertEqual(self.XBPM1.xbpm_prefix+self.XBPM1.xbpm_num, 'BL04I-EA-XBPM-01')
         self.assertEqual(self.XBPM1.lower_current_limit, 90e-9)
         self.assertNotEqual(self.XBPM1.lower_current_limit, 0.0)
-        self.assertEqual(self.XBPM1.XBPM_num, '01')
+        self.assertEqual(self.XBPM1.xbpm_num, '01')
 
     ## Expected format for PV name
     def test_regular_expression(self):
         XBPM = XBPM_range_manager.RangeManager('BL04I-EA-XBMP-', '02', 1, 2, 3, 4)
-        self.assertRegexpMatches(XBPM.XBPM_prefix+XBPM.XBPM_num, "BL04I-EA-XBPM-01")
+        self.assertRegexpMatches(XBPM.xbpm_prefix+XBPM.xbpm_num, "BL04I-EA-XBPM-01")
 
     ## Error is raised as XBPM number is not between 1 and 9
     def test_XBPM_num(self):
         XBPM = XBPM_range_manager.RangeManager('BL04I-EA-XBPM-', '00', 1, 2, 3, 4)
-        self.assertRaises(AssertionError, XBPM.XBPM_num)
+        self.assertRaises(AssertionError, XBPM.xbpm_num)
 
     ## Makes sure error is raised when incorrect value for scale factor is set.
     def test_initial_variable_inputs(self):

@@ -12,17 +12,17 @@ class FeedbackTests(unittest.TestCase):
 
     def setUp(self):
         self.shared_PVs = XBPM_feedback_manager.XBPMSharedPVs()
-        self.DCM_fdbk = XBPM_feedback_manager.XBPM_DCMFeedback(self.shared_PVs)
-        self.FSWT_fdbk = XBPM_feedback_manager.XBPM_FSWTfeedback(self.shared_PVs)
+        self.XBPM1_fdbk = XBPM_feedback_manager.XBPM1_Feedback(self.shared_PVs, self.xbpm1_prefix)
+        self.XBPM2_fdbk = XBPM_feedback_manager.XBPM2_Feedback(self.shared_PVs, self.xbpm2_prefix)
 
     ## Method to ensure the prefix gets formatted correctly.
     def test_expected_pv_names(self):
-        self.assertEqual(self.DCM_fdbk.prefix, 'BL04I-MO-FSWT-01')
-        print("DCM prefix is " + self.DCM_fdbk.prefix)
-        self.assertEqual(self.FSWT_fdbk.prefix, 'BL04I-MO-FSWT-01')
+        self.assertEqual(self.XBPM1_fdbk.prefix, 'BL04I-MO-FSWT-01')
+        print("DCM prefix is " + self.XBPM1_fdbk.prefix)
+        self.assertEqual(self.XBPM2_fdbk.prefix, 'BL04I-MO-FSWT-01')
 
     def test_validate_status_options(self):
-        self.assertTrue(self.shared_PVs.status_options in range(0,4))
+        self.assertTrue(self.shared_PVs.status_options in range(0, 4))
 
     """def test_example_of_setup_name(self):
         pass

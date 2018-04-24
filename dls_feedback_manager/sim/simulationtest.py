@@ -7,7 +7,7 @@ require('numpy==1.11.1')
 require('epicsdbbuilder==1.0')
 
 from softioc import softioc, builder
-from epicsdbbuilder import records, MS, CP, ImportRecord
+from epicsdbbuilder import records #, MS, CP, ImportRecord
 
 
 """#builder.SetDeviceName('IOC-TEST')
@@ -55,14 +55,22 @@ x1r = builder.mbbOut('BL04I-EA-XBPM-01:DRV:Range',
 x2r = builder.mbbOut('BL04I-EA-XBPM-02:DRV:Range',
                       initial_value = 0)
 
-# Testing alongside ioc
+#drvpositionscale
+x1psy = builder.mbbOut('BL04I-EA-XBPM-01:DRV:PositionScaleY', initial_value=1)
+x1psx = builder.mbbOut('BL04I-EA-XBPM-01:DRV:PositionScaleX', initial_value=1)
+x2psy = builder.mbbOut('BL04I-EA-XBPM-02:DRV:PositionScaleY', initial_value=1)
+x2psx = builder.mbbOut('BL04I-EA-XBPM-02:DRV:PositionScaleX', initial_value=1)
 
-rc1 = records.calc('BL04I-MO-DCM-01:FDBK1:AUTOCALC')
-rc2 = records.calc('BL04I-MO-DCM-01:FDBK2:AUTOCALC')
-rc5 = records.calc('BL04I-MO-FSWT-01:FDBK1:AUTOCALC')
-rc6 = records.calc('BL04I-MO-FSWT-01:FDBK2:AUTOCALC')
-rc9 = records.calc('BL04I-MO-FSWT-01:FDBK3:AUTOCALC')
-rc10 = records.calc('BL04I-MO-FSWT-01:FDBK4:AUTOCALC')
+
+# Testing alongside ioc
+A = 1
+rc1 = records.calc('BL04I-MO-DCM-01:FDBK1:AUTOCALC', CALC=A)
+rc2 = records.calc('BL04I-MO-DCM-01:FDBK2:AUTOCALC', CALC=A)
+rc5 = records.calc('BL04I-MO-FSWT-01:FDBK1:AUTOCALC', CALC=A)
+rc6 = records.calc('BL04I-MO-FSWT-01:FDBK2:AUTOCALC', CALC=A)
+rc9 = records.calc('BL04I-MO-FSWT-01:FDBK3:AUTOCALC', CALC=A)
+rc10 = records.calc('BL04I-MO-FSWT-01:FDBK4:AUTOCALC', CALC=A)
+
 
 """fb_enable_status = builder.mbbOut('BL04I-MO-DCM-01:FB_ENABLE',
             initial_value = 0,
