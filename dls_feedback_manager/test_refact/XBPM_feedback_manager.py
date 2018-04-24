@@ -34,8 +34,7 @@ KDy2 = 0.0
 class XBPMSharedPVs:
 
     ## Constructor.
-    def __init__(self, BL_num=''):
-        self.BL_num = BL_num
+    def __init__(self):
         self.create_feedback_status_PV()
         self.create_xbpm_current()
         self.status_options = {0:'Stopped', 1:'Run', 2:'Paused'}
@@ -98,21 +97,21 @@ class XBPM1_feedback:
     def __init__(self, XBPMSharedPVs, xbpm1_prefix):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
+
+        print(self.prefix + " constructor successful")
+
+    def make_on_startup(self):
         self.create_PVs()
         self.create_PID_PVs()
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
                            self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
         self.setup_names()
-        print(self.prefix + " constructor successful")
-
-
         # Run continuous checks for XBPM1
-        self.xbpm_fbcheck = ['test:BL'+self.XBPMSharedPVs.BL_num+'I-EA-XBPM-01:SumAll:MeanValue_RBV',
+        self.xbpm_fbcheck = ['test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV',
                              'test:SR-DI-DCCT-01-SIGNAL',
-                             'test:BL'+self.XBPMSharedPVs.BL_num+'I-PS-SHTR-01:STA']
+                             'test:BL04I-PS-SHTR-01:STA']
         self.start_camonitors()
-
 
     ## Set up feedback auto on/off PV names
     def setup_names(self):
@@ -199,10 +198,10 @@ class XBPM1_feedback:
     #  Define conditions for setting new status.
     def check_feedback_inputs(self, val, index):
         if (
-            catools.caget('test:BL'+self.XBPMSharedPVs.BL_num+'I-EA-XBPM-01:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
-            catools.caget('test:SR-DI-DCCT-01:SIGNAL') > self.XBPMSharedPVs.XBPM1_feedback.get() and
-            catools.caget('test:FE'+self.XBPMSharedPVs.BL_num+'I-PS-SHTR-02:STA') == 1 and
-            catools.caget('test:BL'+self.XBPMSharedPVs.BL_num+'I-PS-SHTR-01:STA') == 1 and
+            catools.caget('test:BL04I-EA-XBPM-01:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
+            catools.caget('test:SR-DI-DCCT-01:SIGNAL') > self.XBPMSharedPVs.minSRCurr.get() and
+            catools.caget('test:FE04I-PS-SHTR-02:STA') == 1 and
+            catools.caget('test:BL04I-PS-SHTR-01:STA') == 1 and
             self.XBPMSharedPVs.fb_enable_status.get() == 1 and
             self.XBPMSharedPVs.fb_pause_status.get() == 1 and
             self.XBPMSharedPVs.fb_mode_status.get() == 0
@@ -229,17 +228,22 @@ class XBPM2_feedback(XBPM1_feedback):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
 
-        # Run continuous checks for XBPM2
-        self.xbpm_fbcheck = ['FE'+self.XBPMSharedPVs.BL_num+'I-PS-SHTR-02:STA',
-                             'BL'+self.XBPMSharedPVs.BL_num+'I-EA-XBPM-02:SumAll:MeanValue:RBV']
+        print(self.prefix + " constructor successful")
+
+    def make_on_startup(self):
+        self.create_PVs()
+        self.create_PID_PVs()
 
         # For setting up feedback AUTO ON/OFF PV names
         self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
                            self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC',
                            self.prefix + ':FDBK3:AUTOCALC.INPB', self.prefix + ':FDBK4:AUTOCALC.INPB',
                            self.prefix + ':FDBK3:AUTOCALC.INPC', self.prefix + ':FDBK4:AUTOCALC.INPC']
-        print(self.prefix + " constructor successful")
-
+        self.setup_names()
+        # Run continuous checks for XBPM2
+        self.xbpm_fbcheck = ['FE04I-PS-SHTR-02:STA',
+                             'BL04I-EA-XBPM-02:SumAll:MeanValue:RBV']
+        self.start_camonitors()
 
     ## Created in the constructor.
     #  Used in check_feedback_inputs to specify conditions for setting new status
@@ -299,18 +303,17 @@ class XBPM2_feedback(XBPM1_feedback):
     ## What to do if any PVs change.
     #  Define conditions for setting new status.
     def check_feedback_inputs(self, val, index):
-        if (
-            catools.caget('test:BL'+self.XBPMSharedPVs.BL_num+'I-EA-XBPM-02:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
-            catools.caget('test:SR-DI-DCCT-01:SIGNAL') > self.XBPMSharedPVs.minSRCurr.get() and
-            catools.caget('test:FE'+self.XBPMSharedPVs.BL_num+'I-PS-SHTR-02:STA') == 1 and
-            catools.caget('test:BL'+self.XBPMSharedPVs.BL_num+'I-PS-SHTR-01:STA') == 1 and
-            self.XBPMSharedPVs.fb_enable_status.get() == 1 and
-            self.XBPMSharedPVs.fb_pause_status.get() == 1 and
-            self.XBPMSharedPVs.fb_mode_status.get() == 2 and
-            self.XBPMSharedPVs.XBPM1_feedback.fb_run_status.get() == 0
+        if (catools.caget('test:BL04I-EA-XBPM-02:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
+                self.fb_run_status.get() == 1
         ):
-            self.set_run_status(1)
-            self.print_function("Run for XBPM2 Started")
+            if self.XBPMSharedPVs.fb_mode_status.get() == 1:
+                self.set_run_status(1)
+                self.print_function("Run for XBPM2 Started")
+
+            elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
+                self.set_run_status(1)
+                self.print_function("Run for XBPM2 Started")
+
         elif self.XBPMSharedPVs.fb_pause_status.get() == 0:
             self.set_run_status(2)
             self.print_function("Run for XBPM2 Paused")
@@ -318,21 +321,6 @@ class XBPM2_feedback(XBPM1_feedback):
             self.set_run_status(0)
             self.print_function("Run for XBPM2 Stopped")
 
-        """if (
-            catools.caget('test:BL'+self.XBPMSharedPVs.BL_num+'I-EA-XBPM-02:SumAll:MeanValue_RBV') > self.XBPMSharedPVs.minXCurr.get() and
-            self.fb_run_status.get() == 1 and
-            self.XBPMSharedPVs.XBPM1_feedback.fb_run_status.get() == 1 and
-            self.XBPMSharedPVs.fb_mode_status.get() == 1
-        ):
-            self.set_run_status(1)
-            self.print_function("Run for XBPM1 and XBPM2 Started")
-        elif self.XBPMSharedPVs.fb_pause_status.get() == 0:
-            self.set_run_status(2)
-            self.print_function("Run for XBPM1 and XBPM2 Paused")
-        else:
-            self.set_run_status(0)
-            self.print_function("Run for XBPM1 and XBPM2 Stopped")
-"""
 
 if __name__ == '__main__':
     unittest.main()

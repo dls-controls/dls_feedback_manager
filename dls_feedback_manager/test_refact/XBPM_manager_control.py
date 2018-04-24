@@ -21,9 +21,11 @@ XBPM2 = XBPM_range_manager.RangeManager('test:BL04I-EA-XBPM-', '02', 90e-9, 110e
 
 
 # Run XBPM feedback manager
-shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('04')
+shared_PVs = XBPM_feedback_manager.XBPMSharedPVs()
 XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(shared_PVs, 'test:BL04I-MO-DCM-01')
+XBPM1_fdbk.make_on_startup()
 XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(shared_PVs, 'test:BL04I-MO-FSWT-01', 'test:BL04I-MO-DCM-01') # This needs fixing
+XBPM2_fdbk.make_on_startup()
 
 
 builder.LoadDatabase()
