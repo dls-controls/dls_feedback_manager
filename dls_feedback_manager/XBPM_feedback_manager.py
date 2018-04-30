@@ -27,6 +27,7 @@ class XBPMSharedPVs:
         # For running monitors on overall ON/OFF button, GDA PAUSE button
         self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name]
 
+
     ##  Restricts caput to anything other than options given.
     def validate_status_options(self):
         assert self.status_options in [0, 1, 2]
@@ -90,7 +91,7 @@ class XBPM1_feedback:
     def __init__(self, XBPMSharedPVs, xbpm1_prefix):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
-        self.set_feedback_PID()
+        self.feedback_prefix = [self.prefix + ':FDBK1', self.prefix + ':FDBK2']
 
         print(self.prefix + " constructor successful")
 
@@ -98,9 +99,9 @@ class XBPM1_feedback:
     def make_on_startup(self):
         self.create_PVs()
         self.create_PID_PVs()
+        self.set_feedback_PID()
         # For setting up the Feedback AUTO ON/OFF PV names
-        self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
-                           self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC']
+        self.caput_list = [self.feedback_prefix+':AUTOCALC.INPB', self.feedback_prefix+':AUTOCALC.INPC']
         self.setup_names()
         # Run continuous checks for XBPM1
         self.xbpm_fbcheck = ['test:BL'+self.XBPMSharedPVs.beamline_num+'I-EA-XBPM-01:SumAll:MeanValue_RBV',
@@ -158,7 +159,6 @@ class XBPM1_feedback:
         catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name, self.check_enable_status)
         catools.camonitor(self.XBPMSharedPVs.button_monitor, self.check_feedback_inputs)
         catools.camonitor(self.xbpm_fbcheck, self.check_feedback_inputs)
-        #catools.camonitor(self.XBPMSharedPVs.topup_countdown, self.pause_for_topup)
 
 
     ## Check the status of the ENABLE button for feedback.
@@ -195,14 +195,13 @@ class XBPM1_feedback:
         ): 
             self.set_run_status(1)
             print "Run for XBPM1 Started"
-        elif (self.XBPMSharedPVs.fb_pause_status.get() == 0 and
-            self.XBPMSharedPVs.fb_enable_status.get() == 1):
-            if self.XBPMSharedPVs.fb_mode_status.get() == 2:
-                self.set_run_status(0)
-                print "Run for XBPM1 Stopped"
-            else:
-                self.set_run_status(2)
-                print "Run for XBPM1 Paused"
+
+        elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
+              self.XBPMSharedPVs.fb_pause_status.get() == 0 and
+              self.XBPMSharedPVs.fb_mode_status.get() in (0, 1)
+              ):
+            self.set_run_status(2)
+            print "Run for XBPM1 Paused"
         else:
             self.set_run_status(0)
             print "Run for XBPM1 Stopped"
@@ -210,19 +209,14 @@ class XBPM1_feedback:
     ## Set feedback PID values, and a scale if wanted.
     def set_feedback_PID(self):
         # Y XBPM1
-        catools.caput(self.prefix+':FDBK1.KP', self.kpy1.get())
-        catools.caput(self.prefix+':FDBK1.KI', self.kiy1.get())
-        catools.caput(self.prefix+':FDBK1.KD', self.kdy1.get())
+        catools.caput(self.feedback_prefix[0]+'.KP', self.kpy1.get())
+        catools.caput(self.feedback_prefix[0]+'.KI', self.kiy1.get())
+        catools.caput(self.feedback_prefix[0]+'.KD', self.kdy1.get())
         # X XBPM1
-        catools.caput(self.prefix+':FDBK2.KP', self.kpx1.get())
-        catools.caput(self.prefix+':FDBK2.KI', self.kix1.get())
-        catools.caput(self.prefix+':FDBK2.KD', self.kdx1.get())
+        catools.caput(self.feedback_prefix[1]+'.KP', self.kpx1.get())
+        catools.caput(self.feedback_prefix[1]+'.KI', self.kix1.get())
+        catools.caput(self.feedback_prefix[1]+'.KD', self.kdx1.get())
 
-    """## Pauses feedback when topping up electrons
-    def pause_for_topup(self):
-        if self.XBPMSharedPVs.topup_countdown.get() < 3:
-            self.XBPMSharedPVs.fb_pause_status.set(0)
-    """
 
 ## XBPM2 feedback
 class XBPM2_feedback(XBPM1_feedback):
@@ -234,6 +228,8 @@ class XBPM2_feedback(XBPM1_feedback):
         XBPM1_feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix)
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
+        self.feedback_prefix = [self.prefix + ':FDBK1', self.prefix + ':FDBK2', self.prefix + ':FDBK3',
+                                self.prefix + ':FDBK4']
 
         print(self.prefix + " constructor successful")
 
@@ -243,10 +239,7 @@ class XBPM2_feedback(XBPM1_feedback):
         self.create_PID_PVs()
 
         # For setting up feedback AUTO ON/OFF PV names
-        self.caput_list = [self.prefix + ':FDBK1:AUTOCALC.INPB', self.prefix + ':FDBK2:AUTOCALC.INPB',
-                           self.prefix + ':FDBK1:AUTOCALC.INPC', self.prefix + ':FDBK2:AUTOCALC.INPC',
-                           self.prefix + ':FDBK3:AUTOCALC.INPB', self.prefix + ':FDBK4:AUTOCALC.INPB',
-                           self.prefix + ':FDBK3:AUTOCALC.INPC', self.prefix + ':FDBK4:AUTOCALC.INPC']
+        self.caput_list = [self.feedback_prefix + ':AUTOCALC.INPB', self.feedback_prefix + ':AUTOCALC.INPC']
         self.setup_names()
         # Run continuous checks for XBPM2
         self.xbpm_fbcheck = ['FE'+self.XBPMSharedPVs.beamline_num+'I-PS-SHTR-02:STA',
@@ -314,19 +307,18 @@ class XBPM2_feedback(XBPM1_feedback):
     def check_feedback_inputs(self, val, index):
         if (catools.caget('test:BL'+self.XBPMSharedPVs.beamline_num+'I-EA-XBPM-02:SumAll:MeanValue_RBV')
                 > self.XBPMSharedPVs.minXCurr.get() and
-                self.fb_run_status.get() == 1
+                self.XBPMSharedPVs.fb_enable_status.get() == 1 and
+                self.XBPMSharedPVs.fb_pause_status.get() == 1 and
+                self.XBPMSharedPVs.fb_mode_status.get() in (1, 2)
         ):
-            if self.XBPMSharedPVs.fb_mode_status.get() in (1, 2):
-                if self.XBPMSharedPVs.fb_pause_status.get() == 0:
-                    self.set_run_status(2)
-                    print "Run for XBPM2 Paused"
-                else:
-                    self.set_run_status(1)
-                    print "Run for XBPM2 Started"
-        elif (self.fb_run_status.get() == 2 and
-              self.XBPMSharedPVs.fb_pause_status.get() == 1):
             self.set_run_status(1)
             print "Run for XBPM2 Started"
+        elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
+              self.XBPMSharedPVs.fb_pause_status.get() == 0 and
+              self.XBPMSharedPVs.fb_mode_status.get() in (1, 2)
+        ):
+            self.set_run_status(2)
+            print "Run for XBPM2 Paused"
         else:
             self.set_run_status(0)
             print "Run for XBPM2 Stopped"
@@ -334,14 +326,10 @@ class XBPM2_feedback(XBPM1_feedback):
     ## Set feedback PID values, and a scale if wanted.
     def set_feedback_PID(self):
         # Y XBPM2
-        catools.caput(self.prefix+':FDBK3.KP', self.kpy2.get())
-        catools.caput(self.prefix+':FDBK3.KI', self.kiy2.get())
-        catools.caput(self.prefix+':FDBK3.KD', self.kdy2.get())
+        catools.caput(self.feedback_prefix[2]+'.KP', self.kpy2.get())
+        catools.caput(self.feedback_prefix[2]+'.KI', self.kiy2.get())
+        catools.caput(self.feedback_prefix[2]+'.KD', self.kdy2.get())
         # X XBPM2
-        catools.caput(self.prefix+':FDBK4.KP', self.kpx2.get())
-        catools.caput(self.prefix+':FDBK4.KI', self.kix2.get())
-        catools.caput(self.prefix+':FDBK4.KD', self.kdx2.get())
-
-
-if __name__ == '__main__':
-    unittest.main()
+        catools.caput(self.feedback_prefix[3]+'.KP', self.kpx2.get())
+        catools.caput(self.feedback_prefix[3]+'.KI', self.kix2.get())
+        catools.caput(self.feedback_prefix[3]+'.KD', self.kdx2.get())

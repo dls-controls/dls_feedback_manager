@@ -40,13 +40,16 @@ shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('03', xbpm_pid_params)
 ## Run XBPM range manager
 #  Input PV prefix, XBPM number, lower and upper current limits, TetrAMM scale factor, position threshold percentage and
 #  ID energy gap PV name.
-XBPM1 = XBPM_range_manager.RangeManager(shared_PVs, 'test:BL03I-EA-XBPM-', '01', 90e-9, 110e-9, 1.0, 3.0,
-                                        'test:BL03I-MO-DCM-01:ENERGY')
-XBPM2 = XBPM_range_manager.RangeManager(shared_PVs, 'test:BL03I-EA-XBPM-', '02', 90e-9, 110e-9, 1.0, 3.0, '')
+XBPM1 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix='test:BL03I-EA-XBPM-', xbpm_num='01',
+                                            lower_current_limit=90e-9, upper_current_limit=110e-9,
+                                            scale_factor=1.0, threshold_percentage=3.0,
+                                            id_energy='test:BL03I-MO-DCM-01:ENERGY')
+XBPM2 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix='test:BL03I-EA-XBPM-', xbpm_num='02',
+                                            lower_current_limit=90e-9, upper_current_limit=110e-9,
+                                            scale_factor=1.0, threshold_percentage=3.0, id_energy='')
 
 
 ## Run XBPM feedback manager
-#  For XBPM2, FSWT is for I04, change to -DCM-02 for I03
 XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(shared_PVs, 'test:BL03I-MO-DCM-01')
 XBPM1_fdbk.make_on_startup()
 XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(shared_PVs, 'test:BL03I-MO-DCM-01', 'test:BL03I-MO-DCM-01')  # fix
