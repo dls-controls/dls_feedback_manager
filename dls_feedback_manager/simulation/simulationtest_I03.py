@@ -62,12 +62,15 @@ x2psy = builder.mbbOut('BL03I-EA-XBPM-02:DRV:PositionScaleY', initial_value=1)
 x2psx = builder.mbbOut('BL03I-EA-XBPM-02:DRV:PositionScaleX', initial_value=1)
 
 
-# Testing alongside ioc
+# Autocalc feedbacks
 A = 1
 rc1 = records.calc('BL03I-MO-DCM-01:FDBK1:AUTOCALC', CALC=A)
 rc2 = records.calc('BL03I-MO-DCM-01:FDBK2:AUTOCALC', CALC=A)
 rc5 = records.calc('BL03I-MO-DCM-01:FDBK3:AUTOCALC', CALC=A)
 rc6 = records.calc('BL03I-MO-DCM-01:FDBK4:AUTOCALC', CALC=A)
+
+# PID params
+BL03I-MO-DCM-01:FDBK1.KP  # complaint about 'bad character'?
 
 
 """fb_enable_status = builder.mbbOut('BL03I-MO-DCM-01:FB_ENABLE',

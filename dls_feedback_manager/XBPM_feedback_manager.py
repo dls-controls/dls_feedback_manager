@@ -18,8 +18,7 @@ import unittest
 class XBPMSharedPVs:
 
     ## Constructor.
-    def __init__(self, beamline_num, xbpm_pid_params):
-        self.xbpm_pid_params = xbpm_pid_params
+    def __init__(self, beamline_num):
         self.beamline_num = beamline_num
         self.create_feedback_status_PV()
         self.create_xbpm_current()
@@ -88,9 +87,10 @@ class XBPM1_feedback:
 
     ## Constructor.
     #  Imports XBPMSharedPVs class and sets the prefix for XBPM1.
-    def __init__(self, XBPMSharedPVs, xbpm1_prefix):
+    def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
+        self.xbpm1_pid_params = xbpm1_pid_params
         self.feedback_prefix = [self.prefix + ':FDBK1', self.prefix + ':FDBK2']
 
         print(self.prefix + " constructor successful")
@@ -223,11 +223,11 @@ class XBPM2_feedback(XBPM1_feedback):
 
     ## Constructor.
     #  Overrides prefix.
-    #  Recreates feedback enable and pause buttons.
-    def __init__(self, XBPMSharedPVs, xbpm2_prefix, xbpm1_prefix):  # Solve prefix problem
-        XBPM1_feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix)
+    def __init__(self, XBPMSharedPVs, xbpm2_prefix, xbpm1_prefix, xbpm2_pid_params):  # Solve prefix problem
+        XBPM1_feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm2_pid_params)
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
+        self.xbpm2_pid_params = xbpm2_pid_params
         self.feedback_prefix = [self.prefix + ':FDBK1', self.prefix + ':FDBK2', self.prefix + ':FDBK3',
                                 self.prefix + ':FDBK4']
 

@@ -8,7 +8,7 @@ setup(
 #    install_requires = ['cothread'], # require statements go here
     name = 'dls_feedback_manager',
     version = version,
-    description = 'Module',
+    description = 'Refactored python soft ioc module',
     author = 'sfx44126',
     author_email = 'sfx44126@fed.cclrc.ac.uk',
     packages = ['dls_feedback_manager'],

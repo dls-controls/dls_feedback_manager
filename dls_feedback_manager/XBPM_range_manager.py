@@ -13,14 +13,14 @@ def Monitor(pv):
     return MS(CP(pv))
 
 ## XBPM range manager
-class RangeManager:
+class XBPMRangeManager:
 
     ## Constructor.
     #  Inputs from XBPM manager control replace defaults.
-    def __init__(self, shared_PVs, xbpm_prefix='', xbpm_num='', lower_current_limit=0.0, upper_current_limit=0.0,
+    def __init__(self, shared_PVs, pv_prefix='', xbpm_num='', lower_current_limit=0.0, upper_current_limit=0.0,
                  scale_factor=0.0, threshold_percentage=0.0, id_energy=''):
         self.shared_PVs = shared_PVs
-        self.xbpm_prefix = xbpm_prefix
+        self.pv_prefix = pv_prefix
         self.xbpm_num = xbpm_num
         self.lower_current_limit = lower_current_limit
         self.upper_current_limit = upper_current_limit
@@ -32,6 +32,7 @@ class RangeManager:
         if len(id_energy) > 0:
             self.camonitor_scale()
 
+
     ## Creates PVs and starts camonitors.
     def call_on_start(self):
         self.xbpm_vals()
@@ -41,8 +42,7 @@ class RangeManager:
         self.signals_ok()
         self.camonitor_range()
 
-
-        print(self.xbpm_prefix + self.xbpm_num + ' PVs made and camonitors started')
+        print(self.pv_prefix + self.xbpm_num + ' PVs made and camonitors started')
 
     ## Sets restrictions for input values
     def validate_params(self):
@@ -53,13 +53,13 @@ class RangeManager:
 
     ## Imported records of readback values
     def xbpm_vals(self):
-        self.dx_mean_value = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':DiffX:MeanValue_RBV')
-        self.sx_mean_value = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':SumX:MeanValue_RBV')
-        self.dy_mean_value = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':DiffY:MeanValue_RBV')
-        self.sy_mean_value = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':SumY:MeanValue_RBV')
-        self.xbpm_sum_mean_value = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':SumAll:MeanValue_RBV')
-        self.xbpm_x_beamsize = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':DRV:PositionScaleX')
-        self.xbpm_y_beamsize = ImportRecord(self.xbpm_prefix + str(self.xbpm_num) + ':DRV:PositionScaleY')
+        self.dx_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':DiffX:MeanValue_RBV')
+        self.sx_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':SumX:MeanValue_RBV')
+        self.dy_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':DiffY:MeanValue_RBV')
+        self.sy_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':SumY:MeanValue_RBV')
+        self.xbpm_sum_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':SumAll:MeanValue_RBV')
+        self.xbpm_x_beamsize = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':DRV:PositionScaleX')
+        self.xbpm_y_beamsize = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':DRV:PositionScaleY')
 
     ## "Normalised" beam position PVs
     def norm(self):
@@ -113,22 +113,22 @@ class RangeManager:
 
     ## Monitor XBPM signal currents.
     def camonitor_range(self):
-        catools.camonitor(self.xbpm_prefix + self.xbpm_num +':SumAll:MeanValue_RBV', self.check_range)
-        catools.camonitor(self.xbpm_prefix + self.xbpm_num +':SumAll:MeanValue_RBV', self.check_range)
+        catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
+        catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
 
 
     ## Gets current range for flipping between TetrAMM current ranges
     #  Won't flip into 'higher current range' until current is higher than lower_current_limit
     #  Won't flip into 'lower current range' until current is lower than upper_current_limit
     def check_range(self, val):
-        self.r = catools.caget(self.xbpm_prefix + self.xbpm_num + ':DRV:Range')
+        self.r = catools.caget(self.pv_prefix + self.xbpm_num + ':DRV:Range')
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
-                catools.caput(self.xbpm_prefix + self.xbpm_num + ':DRV:Range', 1)
+                catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 1)
                 print("Current range set to +-120nA")
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
-                catools.caput(self.xbpm_prefix + self.xbpm_num + ':DRV:Range', 0)
+                catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 0)
                 print("Current range set to +-120uA")
 
 
@@ -145,11 +145,7 @@ class RangeManager:
     def set_vertical_xbpm_scale_factor(self, energy):
         ky = (-26 * energy + 1120) / self.scale_factor
         kx = 1200 / self.scale_factor
-        catools.caput(self.xbpm_prefix + str(self.xbpm_num) + ':DRV:PositionScaleY', ky)
+        catools.caput(self.pv_prefix + str(self.xbpm_num) + ':DRV:PositionScaleY', ky)
         print("Position scale Y set to " + str(ky))
-        catools.caput(self.xbpm_prefix + str(self.xbpm_num) + ':DRV:PositionScaleX', kx)
+        catools.caput(self.pv_prefix + str(self.xbpm_num) + ':DRV:PositionScaleX', kx)
         print("Position scale X set to " + str(kx))
-
-
-if __name__ == '__main__':
-    unittest.main()

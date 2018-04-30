@@ -15,10 +15,10 @@ import XBPM_feedback_manager
 
 ## XBPM1 and XBPM2 PID parameters (mirrors)
 #  Initial values used in feedback manager
-xbpm_pid_params = {"KPx1": 1.80e-5,  "KIx1": 0.830, "KDx1": 0.000,
-                   "KPy1": -4.00e-5, "KIy1": 0.830, "KDy1": 0.000,
-                   "KPx2": 1.80e-5,  "KIx2": 0.830, "KDx2": 0.000,
-                   "KPy2": -4.00e-5, "KIy2": 0.830, "KDy2": 0.000}
+xbpm1_pid_params = {"KPx1": 1.80e-5,  "KIx1": 0.830, "KDx1": 0.000,
+                    "KPy1": -4.00e-5, "KIy1": 0.830, "KDy1": 0.000}
+xbpm2_pid_params = {"KPx2": 1.80e-5,  "KIx2": 0.830, "KDx2": 0.000,
+                    "KPy2": -4.00e-5, "KIy2": 0.830, "KDy2": 0.000}
 
 
 ## XBPM2 PID parameters DCM
@@ -35,7 +35,7 @@ xbpm_pid_params = {"KPx1": 1.80e-5,  "KIx1": 0.830, "KDx1": 0.000,
 #  Also gets used in the range manager to create the minimum current PVs.
 #  It contains one argument, the beamline number (to be given as a string).
 #  This gets inserted into the feedback manager to avoid being repetitively set throughout the file.
-shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('03', xbpm_pid_params)
+shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('03')
 
 ## Run XBPM range manager
 #  Input PV prefix, XBPM number, lower and upper current limits, TetrAMM scale factor, position threshold percentage and
@@ -50,9 +50,10 @@ XBPM2 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix='test:BL03I-EA
 
 
 ## Run XBPM feedback manager
-XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(shared_PVs, 'test:BL03I-MO-DCM-01')
+XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(shared_PVs, 'test:BL03I-MO-DCM-01', xbpm1_pid_params)
 XBPM1_fdbk.make_on_startup()
-XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(shared_PVs, 'test:BL03I-MO-DCM-01', 'test:BL03I-MO-DCM-01')  # fix
+XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(shared_PVs, 'test:BL03I-MO-DCM-01', 'test:BL03I-MO-DCM-01',  # fix
+                                                  xbpm2_pid_params)
 XBPM2_fdbk.make_on_startup()
 
 
