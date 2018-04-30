@@ -1,0 +1,564 @@
+4 0 1
+beginScreenProperties
+major 4
+minor 0
+release 1
+x 2282
+y 65
+w 320
+h 340
+font "helvetica-medium-r-12.0"
+ctlFont "helvetica-medium-r-12.0"
+btnFont "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 3
+ctlBgColor2 index 14
+topShadowColor index 1
+botShadowColor index 11
+title "$(BLname)"
+showGrid
+snapToGrid
+gridSize 8
+disableScroll
+endScreenProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 8
+y 224
+w 304
+h 104
+lineColor index 14
+fill
+fillColor index 3
+visMin "1"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 8
+y 64
+w 304
+h 136
+lineColor index 14
+fill
+fillColor index 3
+visMin "1"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 16
+y 80
+w 112
+h 64
+lineColor index 14
+fill
+fillColor index 20
+visPv "$(P)-EA-FDBK-01:FB_PAUSE"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 16
+y 48
+w 120
+h 24
+lineColor index 14
+fill
+fillColor index 20
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 16
+y 48
+w 120
+h 24
+lineColor index 14
+fill
+fillColor index 5
+visPv "$(P)-EA-FDBK-01:FB_PAUSE"
+visInvert
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 0
+y 0
+w 64
+h 32
+font "helvetica-medium-r-18.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 73
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 32
+y 0
+w 256
+h 32
+font "helvetica-medium-r-18.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 73
+value {
+  "$(BLname) XBPM feedback GUI"
+}
+endObjectProperties
+
+# (Exit Button)
+object activeExitButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 224
+y 856
+w 48
+h 24
+fgColor index 46
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 11
+label "EXIT"
+font "helvetica-medium-r-12.0"
+3d
+endObjectProperties
+
+# (Shell Command)
+object shellCmdClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 4
+y 4
+w 24
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 11
+font "helvetica-bold-r-14.0"
+buttonLabel "?"
+numCmds 1
+command {
+  0 "firefox http://confluence.diamond.ac.uk/display/MPrj/Feedback+system"
+}
+includeHelpIcon
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 24
+y 856
+w 136
+h 24
+fgColor index 43
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 11
+font "helvetica-bold-r-12.0"
+xPosOffset -2
+yPosOffset -26
+buttonLabel "Show detail"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "xbpm/xbpms.edl"
+}
+closeAction {
+  0 1
+}
+setPosition {
+  0 "parentWindow"
+}
+replaceSymbols {
+  0 1
+}
+closeDisplay {
+  0 1
+}
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 24
+y 88
+w 96
+h 48
+fgColor index 14
+onColor index 15
+offColor index 19
+inconsistentColor index 14
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)-EA-FDBK-01:FB_ENABLE"
+indicatorPv "$(P)-EA-FDBK-01:FB_ENABLE"
+3d
+font "helvetica-medium-r-12.0"
+objType "controls"
+colorPv "$(P)-EA-FDBK-01:FB_ENABLE"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 5
+release 0
+x 24
+y 56
+w 96
+h 14
+controlPv "$(P)-EA-FDBK-01:FB_PAUSE"
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 3
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+colorPv "$(P)-EA-FDBK-01:FB_ENABLE"
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+endObjectProperties
+
+# (Radio Box)
+object activeRadioButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 16
+y 152
+w 256
+h 40
+fgColor index 14
+bgColor index 3
+buttonColor index 14
+selectColor index 15
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)-EA-FDBK-01:FB_MODE"
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 136
+y 80
+w 168
+h 32
+font "helvetica-bold-r-10.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 20
+visPv "$(P)-EA-FDBK-01:FB_RUN1"
+visMin "0"
+visMax "1"
+value {
+  "XBPM1 feedback not running"
+}
+border
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 136
+y 112
+w 168
+h 32
+font "helvetica-bold-r-10.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 20
+visPv "$(P)-EA-FDBK-01:FB_RUN2"
+visMin "0"
+visMax "1"
+value {
+  "XBPM2 feedback not running"
+}
+border
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 16
+y 208
+w 152
+h 24
+lineColor index 14
+fill
+fillColor index 5
+visPv "$(P)-EA-FDBK-01:FB_PAUSE"
+visInvert
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 24
+y 216
+w 133
+h 14
+font "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+useDisplayBg
+value {
+  "Beam position threshold"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 16
+y 240
+w 123
+h 14
+font "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+useDisplayBg
+value {
+  "Threshold [%] XBPM1"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 16
+y 256
+w 123
+h 14
+font "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+useDisplayBg
+value {
+  "Threshold [%] XBPM2"
+}
+autoSize
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 152
+y 240
+w 48
+h 16
+controlPv "$(P)-EA-FDBK-01:THRESHOLDPC_XBPM1"
+precision 1
+fgColor index 14
+fgAlarm
+bgColor index 3
+fill
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 152
+y 256
+w 48
+h 16
+controlPv "$(P)-EA-FDBK-01:THRESHOLDPC_XBPM2"
+precision 1
+fgColor index 14
+fgAlarm
+bgColor index 3
+fill
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 24
+y 280
+w 237
+h 14
+font "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+useDisplayBg
+value {
+  "Beam position at XBPM1 within threshold?"
+}
+autoSize
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 272
+y 280
+w 16
+h 16
+lineColor index 14
+fill
+fillColor index 20
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 272
+y 280
+w 16
+h 16
+lineColor index 14
+fill
+fillColor index 15
+visPv "$(P)-EA-FDBK-01:XBPM1POSITION_OK"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 24
+y 304
+w 237
+h 14
+font "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+useDisplayBg
+value {
+  "Beam position at XBPM2 within threshold?"
+}
+autoSize
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 272
+y 304
+w 16
+h 16
+lineColor index 14
+fill
+fillColor index 20
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 272
+y 304
+w 16
+h 16
+lineColor index 14
+fill
+fillColor index 15
+visPv "$(P)-EA-FDBK-01:XBPM2POSITION_OK"
+visMin "1"
+visMax "2"
+endObjectProperties
+
