@@ -14,10 +14,10 @@ import XBPM_feedback_manager
 
 
 ## XBPM1 and XBPM2 PID parameters (DCM and FSWT)
-xbpm1_pid_params = {"KPx1": -1.800e-4, "KIx1": 1.250,  "KDx1": 0.000,
-                    "KPy1": 1.0e-5,    "KIy1": 1.1042, "KDy1": 0.000}
-xbpm2_pid_params = {"KPx2": -5.670e-5, "KIx2": 2.791,  "KDx2": 0.0,
-                    "KPy2": 1.080e-4,  "KIy2": 3.636,  "KDy2": 0.0}
+xbpm1_pid_params = [{"KPy1": 1.0e-5, "KIy1": 1.1042, "KDy1": 0.0, "prefix": "FDBK1"},
+                    {"KPx1": -1.800e-4, "KIx1": 1.250, "KDx1": 0.0, "prefix": "FDBK2"}]
+xbpm2_pid_params = [{"KPy2": 1.080e-4, "KIy2": 3.636, "KDy2": 0.0, "prefix": "FDBK3"},
+                    {"KPx2": -5.670e-5, "KIx2": 2.791, "KDx2": 0.0, "prefix": "FDBK4"}]
 
 
 ## Shared PVs.
@@ -39,9 +39,10 @@ XBPM2 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix='test:BL04I-EA
 
 
 ## Run XBPM feedback manager
-XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(shared_PVs, 'test:BL04I-MO-DCM-01')
+XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(shared_PVs, 'test:BL04I-MO-DCM-01', xbpm1_pid_params)
 XBPM1_fdbk.make_on_startup()
-XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(shared_PVs, 'test:BL04I-MO-FSWT-01', 'test:BL04I-MO-DCM-01')  # fix
+XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(shared_PVs, 'test:BL04I-MO-FSWT-01', 'test:BL04I-MO-DCM-01',
+                                                  xbpm2_pid_params)  # fix
 XBPM2_fdbk.make_on_startup()
 
 

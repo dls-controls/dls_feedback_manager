@@ -11,9 +11,6 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 def Monitor(pv):
     return MS(CP(pv))
 
-import unittest
-
-
 ## PVs used by both DCMs (/FSWT).
 class XBPMSharedPVs:
 
@@ -26,8 +23,7 @@ class XBPMSharedPVs:
         # For running monitors on overall ON/OFF button, GDA PAUSE button
         self.button_monitor = [self.fb_enable_status.name, self.fb_pause_status.name]
 
-
-    ##  Restricts caput to anything other than options given.
+    ##  Restricts caput to given options.
     def validate_status_options(self):
         assert self.status_options in [0, 1, 2]
 
@@ -76,12 +72,6 @@ class XBPMSharedPVs:
                                      PINI='YES')
 
 
-    def topup_countdown(self):
-        self.topup_countdown = builder.aOut('some pv name',
-                                            initial_value=3)
-
-
-
 ## XBPM1 feedback
 class XBPM1_feedback:
 
@@ -91,7 +81,8 @@ class XBPM1_feedback:
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
         self.xbpm1_pid_params = xbpm1_pid_params
-        self.feedback_prefix = [self.prefix + ':FDBK1', self.prefix + ':FDBK2']
+        self.feedback_prefix = [self.prefix + ':' + self.xbpm1_pid_params[0]["prefix"],
+                                self.prefix + ':' + self.xbpm1_pid_params[1]["prefix"]]
 
         print(self.prefix + " constructor successful")
 
@@ -135,22 +126,22 @@ class XBPM1_feedback:
     #  Set limits for each PID parameter.
     def create_PID_PVs(self):
         self.kpx1 = builder.aIn('KPX1',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KPx1"],
+                                initial_value=self.xbpm1_pid_params[1]["KPx1"],
                                 LOPR=-500.0, HOPR=500.0, PINI='YES')
         self.kix1 = builder.aIn('KIX1',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KIx1"],
+                                initial_value=self.xbpm1_pid_params[1]["KIx1"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kdx1 = builder.aIn('KDX1',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KDx1"],
+                                initial_value=self.xbpm1_pid_params[1]["KDx1"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kpy1 = builder.aIn('KPY1',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KPy1"],
+                                initial_value=self.xbpm1_pid_params[0]["KPy1"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kiy1 = builder.aIn('KIY1',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KIy1"],
+                                initial_value=self.xbpm1_pid_params[0]["KIy1"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kdy1 = builder.aIn('KDY1',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KDy1"],
+                                initial_value=self.xbpm1_pid_params[0]["KDy1"],
                                 LOPR=-500, HOPR=500, PINI='YES')
 
 
@@ -228,8 +219,10 @@ class XBPM2_feedback(XBPM1_feedback):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
         self.xbpm2_pid_params = xbpm2_pid_params
-        self.feedback_prefix = [self.prefix + ':FDBK1', self.prefix + ':FDBK2', self.prefix + ':FDBK3',
-                                self.prefix + ':FDBK4']
+        self.feedback_prefix = [self.prefix + ':' + self.xbpm1_pid_params[0]["prefix"],
+                                self.prefix + ':' + self.xbpm1_pid_params[1]["prefix"],
+                                self.prefix + ':' + self.xbpm2_pid_params[0]["prefix"],
+                                self.prefix + ':' + self.xbpm2_pid_params[1]["prefix"]]
 
         print(self.prefix + " constructor successful")
 
@@ -264,22 +257,22 @@ class XBPM2_feedback(XBPM1_feedback):
     #  Set limits for each PID parameter for XBPM2.
     def create_PID_PVs(self):
         self.kpx2 = builder.aIn('KPX2',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KPx2"],
+                                initial_value=self.xbpm2_pid_params[1]["KPx2"],
                                 LOPR=-500.0, HOPR=500.0, PINI='YES')
         self.kix2 = builder.aIn('KIX2',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KIx2"],
+                                initial_value=self.xbpm2_pid_params[1]["KIx2"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kdx2 = builder.aIn('KDX2',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KDx2"],
+                                initial_value=self.xbpm2_pid_params[1]["KDx2"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kpy2 = builder.aIn('KPY2',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KPy2"],
+                                initial_value=self.xbpm2_pid_params[0]["KPy2"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kiy2 = builder.aIn('KIY2',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KIy2"],
+                                initial_value=self.xbpm2_pid_params[0]["KIy2"],
                                 LOPR=-500, HOPR=500, PINI='YES')
         self.kdy2 = builder.aIn('KDY2',
-                                initial_value=self.XBPMSharedPVs.xbpm_pid_params["KDy2"],
+                                initial_value=self.xbpm2_pid_params[0]["KDy2"],
                                 LOPR=-500, HOPR=500, PINI='YES')
 
 

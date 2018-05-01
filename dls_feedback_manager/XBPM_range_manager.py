@@ -1,4 +1,3 @@
-import unittest
 from pkg_resources import require
 require('cothread==2.14')
 require('numpy==1.11.1')
@@ -6,7 +5,6 @@ require('epicsdbbuilder==1.2')
 
 from softioc import builder
 from cothread import catools
-
 from epicsdbbuilder import records, MS, CP, ImportRecord
 
 def Monitor(pv):
@@ -31,7 +29,6 @@ class XBPMRangeManager:
 
         if len(id_energy) > 0:
             self.camonitor_scale()
-
 
     ## Creates PVs and starts camonitors.
     def call_on_start(self):
@@ -62,7 +59,7 @@ class XBPMRangeManager:
         self.xbpm_y_beamsize = ImportRecord(self.pv_prefix + str(self.xbpm_num) + ':DRV:PositionScaleY')
 
     ## "Normalised" beam position PVs
-    def norm(self):
+    def norm_pos(self):
         self.xbpm_normx = records.calc('XBPM'+str(int(self.xbpm_num))+'_NORMX', CALC='A/B',
                                        INPA=Monitor(self.dx_mean_value),
                                        INPB=Monitor(self.sx_mean_value),
