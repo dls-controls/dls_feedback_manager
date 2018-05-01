@@ -33,7 +33,7 @@ class XBPMRangeManager:
     ## Creates PVs and starts camonitors.
     def call_on_start(self):
         self.xbpm_vals()
-        self.norm()
+        self.norm_pos()
         self.position_threshold()
         self.validate_params()
         self.signals_ok()
