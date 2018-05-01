@@ -70,7 +70,7 @@ rc5 = records.calc('BL03I-MO-DCM-01:FDBK3:AUTOCALC', CALC=A)
 rc6 = records.calc('BL03I-MO-DCM-01:FDBK4:AUTOCALC', CALC=A)
 
 # PID params
-#BL03I-MO-DCM-01:FDBK1.KP  # complaint about 'bad character'?
+fb1 = builder.mbbOut('BL03I-MO-DCM-01:FDBK1', initial_value=1)  # complaint about 'bad character'?
 
 
 """fb_enable_status = builder.mbbOut('BL03I-MO-DCM-01:FB_ENABLE',

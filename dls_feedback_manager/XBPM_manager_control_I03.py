@@ -15,10 +15,15 @@ import XBPM_feedback_manager
 
 ## XBPM1 and XBPM2 PID parameters (mirrors)
 #  Initial values used in feedback manager
-xbpm1_pid_params = [{"KPy1": -4.00e-5, "KIy1": 0.830, "KDy1": 0.000, "prefix": "FDBK1"},
-                    {"KPx1": 1.80e-5, "KIx1": 0.830, "KDx1": 0.000, "prefix": "FDBK2"}]
-xbpm2_pid_params = [{"KPy2": -4.00e-5, "KIy2": 0.830, "KDy2": 0.000, "prefix": "FDBK3"},
-                    {"KPx2": 1.80e-5, "KIx2": 0.830, "KDx2": 0.000, "prefix": "FDBK4"}]
+#  FDBK1 = Y1, FDBK2 = X1, FDBK3 = Y2, FDBK4 = X2 - MAYBE MAKE THIS INTO VARIABLES
+#  TO USE FOR CREATE PID PARAMS
+xbpm1_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK1", "pos": "Y1"},
+                    {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK2", "pos": "X1"}]
+
+xbpm2_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK1", "pos": "Y1"},
+                    {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK2", "pos": "X1"},
+                    {"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK3", "pos": "Y2"},
+                    {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK4", "pos": "X2"}]
 
 
 ## XBPM2 PID parameters DCM
