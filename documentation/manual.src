@@ -1,7 +1,7 @@
 /**
 \mainpage dls_feedback_manager Python Module
 \section intro_sec Introduction
-This module is used to control the feedback IOC.
+This module is used to control XBPM feedback IOC.
 
 \section Installation
 
