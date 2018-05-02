@@ -244,18 +244,18 @@ class XBPM2_feedback(XBPM1_feedback):
 
     ## Created in constructor.
     #  Set limits for each PID parameter for XBPM2.
-    def create_pid_pvs(self):
-        self.pv_dict = {}
-        for pid in self.xbpm_pid_params:
-            self.pv_dict['KP'+pid["pos"]] = builder.aIn(('KP' + pid["pos"]),
-                                                        initial_value=pid["KP"],
-                                                        LOPR=-500.0, HOPR=500.0, PINI='YES')
-            self.pv_dict['KI'+pid["pos"]] = builder.aIn(('KI' + pid["pos"]),
-                                                        initial_value=pid["KI"],
-                                                        LOPR=-500.0, HOPR=500.0, PINI='YES')
-            self.pv_dict['KD'+pid["pos"]] = builder.aIn(('KD' + pid["pos"]),
-                                                        initial_value=pid["KD"],
-                                                        LOPR=-500.0, HOPR=500.0, PINI='YES')
+    #def create_pid_pvs(self):
+     #   self.pv_dict = {}
+      #  for pid in self.xbpm_pid_params:
+       #     self.pv_dict['KP'+pid["pos"]] = builder.aIn(('KP' + pid["pos"]),
+        #                                                initial_value=pid["KP"],
+         #                                               LOPR=-500.0, HOPR=500.0, PINI='YES')
+          #  self.pv_dict['KI'+pid["pos"]] = builder.aIn(('KI' + pid["pos"]),
+           #                                             initial_value=pid["KI"],
+            #                                            LOPR=-500.0, HOPR=500.0, PINI='YES')
+            #self.pv_dict['KD'+pid["pos"]] = builder.aIn(('KD' + pid["pos"]),
+             #                                           initial_value=pid["KD"],
+              #                                          LOPR=-500.0, HOPR=500.0, PINI='YES')
 
     ## Check the status of the ENABLE button for feedback.
     #  Set feedback on or off depending on mode, with printout to terminal.
