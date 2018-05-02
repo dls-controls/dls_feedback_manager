@@ -20,9 +20,7 @@ import XBPM_feedback_manager
 xbpm1_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK1", "pos": "Y1"},
                     {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK2", "pos": "X1"}]
 
-xbpm2_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK1", "pos": "Y1"},
-                    {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK2", "pos": "X1"},
-                    {"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK3", "pos": "Y2"},
+xbpm2_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK3", "pos": "Y2"},
                     {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK4", "pos": "X2"}]
 
 

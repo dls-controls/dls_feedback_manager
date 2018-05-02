@@ -70,64 +70,8 @@ rc5 = records.calc('BL03I-MO-DCM-01:FDBK3:AUTOCALC', CALC=A)
 rc6 = records.calc('BL03I-MO-DCM-01:FDBK4:AUTOCALC', CALC=A)
 
 # PID params
-fb1 = builder.mbbOut('BL03I-MO-DCM-01:FDBK1', initial_value=1)  # complaint about 'bad character'?
+#fb1 = records.epid('BL03I-MO-DCM-01:FDBK1', initial_value=1)  # complaint about 'bad character'?
 
-
-"""fb_enable_status = builder.mbbOut('BL03I-MO-DCM-01:FB_ENABLE',
-            initial_value = 0,
-            PINI = 'YES',
-            NOBT = 2,
-            ZRVL = 0,   ZRST = 'Stopped',
-            ONVL = 1,   ONST = 'Run')
-
-fb_pause_status = builder.mbbOut('BL03I-MO-DCM-01:FB_PAUSE',
-                        initial_value = 1,
-                        PINI = 'YES',
-                        NOBT = 2,
-                        ZRVL = 0,   ZRST = 'Paused',
-                        ONVL = 1,   ONST = 'Ok to Run')
-
-fb_mode_status = builder.mbbOut('BL03I-MO-DCM-01:FB_MODE',
-                    initial_value = 1,
-                    PINI = 'YES',
-                    NOBT = 2,
-                    ZRVL = 0,   ZRST = 'Running on XBPM1',
-                    ONVL = 1,   ONST = 'Running on XBPM1 AND 2')
-
-position_threshold_ok_xbpm1 = records.calc('XBPM1POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
-            INPA = Monitor(threshold_percentage_xbpm1),
-            INPB = Monitor(xbpm1_normx),
-            INPC = Monitor(xbpm1_normy),
-            LOPR = 0,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '')
-            
-position_threshold_ok_xbpm2 = records.calc('XBPM2POSITION_OK', CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
-            INPA = Monitor(threshold_percentage_xbpm2),
-            INPB = Monitor(xbpm2_normx),
-            INPC = Monitor(xbpm2_normy),
-            LOPR = 0,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '')  
-
-# XBPM signal chain check PVs
-xbpm1SignalsOk = records.calc('XBPM1SIGNALS_OK', CALC='A>B',
-            INPA = Monitor(xbpm1_sum_mean_value),
-            INPB = Monitor(minXCurr),
-            LOPR = 0,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '') 
-            
-xbpm2SignalsOk = records.calc('XBPM2SIGNALS_OK', CALC='A>B',
-            INPA = Monitor(xbpm2_sum_mean_value),
-            INPB = Monitor(minXCurr),
-            LOPR = 0,
-            HOPR = 1,
-            PINI = 'YES',
-            EGU = '') """
 
 # Create the identity PVs
 

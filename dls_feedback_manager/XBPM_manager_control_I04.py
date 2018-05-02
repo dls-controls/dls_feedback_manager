@@ -14,10 +14,13 @@ import XBPM_feedback_manager
 
 
 ## XBPM1 and XBPM2 PID parameters (DCM and FSWT)
-xbpm1_pid_params = [{"KPy1": 1.0e-5, "KIy1": 1.1042, "KDy1": 0.0, "prefix": "FDBK1"},
-                    {"KPx1": -1.800e-4, "KIx1": 1.250, "KDx1": 0.0, "prefix": "FDBK2"}]
-xbpm2_pid_params = [{"KPy2": 1.080e-4, "KIy2": 3.636, "KDy2": 0.0, "prefix": "FDBK3"},
-                    {"KPx2": -5.670e-5, "KIx2": 2.791, "KDx2": 0.0, "prefix": "FDBK4"}]
+xbpm1_pid_params = [{"KP": 1.0e-5,    "KI": 1.1042, "KD": 0.0, "prefix": "FDBK1", "pos": "Y1dcm"},
+                    {"KP": -1.800e-4, "KI": 1.250,  "KD": 0.0, "prefix": "FDBK2", "pos": "X1dcm"}]
+
+xbpm2_pid_params = [{"KP": 1.0e-5,    "KI": 1.1042, "KD": 0.0, "prefix": "FDBK1", "pos": "Y1fswt"},  # how to relabel?
+                    {"KP": -1.800e-4, "KI": 1.250,  "KD": 0.0, "prefix": "FDBK2", "pos": "X1fswt"},
+                    {"KP": 1.080e-4,  "KI": 3.636,  "KD": 0.0, "prefix": "FDBK3", "pos": "Y2fswt"},
+                    {"KP": -5.670e-5, "KI": 2.791,  "KD": 0.0, "prefix": "FDBK4", "pos": "X2fswt"}]
 
 
 ## Shared PVs.
@@ -27,7 +30,7 @@ xbpm2_pid_params = [{"KPy2": 1.080e-4, "KIy2": 3.636, "KDy2": 0.0, "prefix": "FD
 #  This gets inserted into the feedback manager to avoid being repetitively set throughout the file.
 shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('04')
 
-## Run XBPM range manager
+## Run XBPM range manager.
 #  Input PV prefix, XBPM number, lower and upper current limits, TetrAMM scale factor, position threshold percentage and
 #  ID energy gap PV name.
 XBPM1 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix='test:BL04I-EA-XBPM-', xbpm_num='01',

@@ -1,4 +1,4 @@
-
+import sys
 from pkg_resources import require
 require('cothread==2.14')
 require('numpy==1.11.1')
@@ -7,6 +7,11 @@ require('epicsdbbuilder==1.2')
 from cothread import catools
 from softioc import builder
 from epicsdbbuilder import records, MS, CP, ImportRecord
+
+if 'D' in sys.argv:
+    def my_caput(pv, value, **args):
+        print 'caput', pv, value, args
+    catools.caput = my_caput
 
 def Monitor(pv):
     return MS(CP(pv))
@@ -79,7 +84,7 @@ class XBPM1_feedback:
     def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
-        self.xbpm1_pid_params = xbpm1_pid_params
+        self.xbpm_pid_params = xbpm1_pid_params
         for pid in xbpm1_pid_params:
             pid["feedback_prefix"] = self.prefix + ':' + pid["prefix"]
         print(self.prefix + " constructor successful")
@@ -91,7 +96,7 @@ class XBPM1_feedback:
         self.set_feedback_pid()
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = []
-        for pid in self.xbpm1_pid_params:
+        for pid in self.xbpm_pid_params:
             self.caput_list.append(pid["feedback_prefix"]+':AUTOCALC.INPB')
             self.caput_list.append(pid["feedback_prefix"]+':AUTOCALC.INPC')
 
@@ -126,7 +131,7 @@ class XBPM1_feedback:
     #  Set limits for each PID parameter.
     def create_pid_pvs(self):
         self.pv_dict = {}
-        for pid in self.xbpm1_pid_params:
+        for pid in self.xbpm_pid_params:
             self.pv_dict['KP'+pid["pos"]] = builder.aIn(('KP'+pid["pos"]),
                                                         initial_value=pid["KP"],
                                                         LOPR=-500.0, HOPR=500.0, PINI='YES')
@@ -188,7 +193,7 @@ class XBPM1_feedback:
 
     ## Set feedback PID values, and a scale if wanted.
     def set_feedback_pid(self):
-        for pid in self.xbpm1_pid_params:
+        for pid in self.xbpm_pid_params:
             catools.caput(pid["feedback_prefix"] + '.KP', self.pv_dict['KP' + pid["pos"]].get())
             catools.caput(pid["feedback_prefix"] + '.KI', self.pv_dict['KI' + pid["pos"]].get())
             catools.caput(pid["feedback_prefix"] + '.KD', self.pv_dict['KD' + pid["pos"]].get())
@@ -203,7 +208,7 @@ class XBPM2_feedback(XBPM1_feedback):
         XBPM1_feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm2_pid_params)
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
-        self.xbpm2_pid_params = xbpm2_pid_params
+        self.xbpm_pid_params = xbpm2_pid_params
         for pid in xbpm2_pid_params:
             pid["feedback_prefix"] = self.prefix + ':' + pid["prefix"]
 
@@ -213,9 +218,10 @@ class XBPM2_feedback(XBPM1_feedback):
     def make_on_startup(self):
         self.run_status_pv()
         self.create_pid_pvs()
+        # self.set_feedback_pid()
         # For setting up feedback AUTO ON/OFF PV names
         self.caput_list = []
-        for pid in self.xbpm2_pid_params:
+        for pid in self.xbpm_pid_params:
             self.caput_list.append(pid["feedback_prefix"] + ':AUTOCALC.INPB')
             self.caput_list.append(pid["feedback_prefix"] + ':AUTOCALC.INPB')
         self.setup_names()
@@ -227,7 +233,7 @@ class XBPM2_feedback(XBPM1_feedback):
     ## Created in the constructor.
     #  Used in check_feedback_inputs to specify conditions for setting new status
     #  if XBPM2 change.
-    def run_status_PV(self):
+    def run_status_pv(self):
         self.fb_run_status = builder.mbbOut('FB_RUN2',
                                             initial_value=0,
                                             PINI='YES',
@@ -238,9 +244,9 @@ class XBPM2_feedback(XBPM1_feedback):
 
     ## Created in constructor.
     #  Set limits for each PID parameter for XBPM2.
-    def create_PID_PVs(self):
+    def create_pid_pvs(self):
         self.pv_dict = {}
-        for pid in self.xbpm2_pid_params:
+        for pid in self.xbpm_pid_params:
             self.pv_dict['KP'+pid["pos"]] = builder.aIn(('KP' + pid["pos"]),
                                                         initial_value=pid["KP"],
                                                         LOPR=-500.0, HOPR=500.0, PINI='YES')
@@ -292,8 +298,8 @@ class XBPM2_feedback(XBPM1_feedback):
             print "Run for XBPM2 Stopped"
 
     ## Set feedback PID values, and a scale if wanted.
-    def set_feedback_pid(self):
-        for pid in self.xbpm2_pid_params:
-            catools.caput(pid["feedback_prefix"] + '.KP', self.pv_dict['KP' + pid["pos"]])
-            catools.caput(pid["feedback_prefix"] + '.KI', self.pv_dict['KI' + pid["pos"]])
-            catools.caput(pid["feedback_prefix"] + '.KD', self.pv_dict['KD' + pid["pos"]])
+    #def set_feedback_pid(self):
+     #   for pid in self.xbpm_pid_params:
+      #      catools.caput(pid["feedback_prefix"] + '.KP', self.pv_dict['KP' + pid["pos"]])
+       #     catools.caput(pid["feedback_prefix"] + '.KI', self.pv_dict['KI' + pid["pos"]])
+        #    catools.caput(pid["feedback_prefix"] + '.KD', self.pv_dict['KD' + pid["pos"]])
