@@ -10,6 +10,7 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 def Monitor(pv):
     return MS(CP(pv))
 
+
 ## XBPM range manager
 class XBPMRangeManager:
 
@@ -26,7 +27,6 @@ class XBPMRangeManager:
         self.threshold_percentage = threshold_percentage
         self.id_energy = id_energy
         self.call_on_start()
-
         if len(id_energy) > 0:
             self.camonitor_scale()
 
@@ -38,7 +38,6 @@ class XBPMRangeManager:
         self.validate_params()
         self.signals_ok()
         self.camonitor_range()
-
         print(self.pv_prefix + self.xbpm_num + ' PVs made and camonitors started')
 
     ## Sets restrictions for input values
@@ -76,7 +75,6 @@ class XBPMRangeManager:
                                        PINI='YES',
                                        EGU='')
 
-
     ## XBPM position threshold PVs
     #  Checks if the beam position is ok before restarting data collection.
     def position_threshold(self):
@@ -96,8 +94,6 @@ class XBPMRangeManager:
                                                        PINI='YES',
                                                        EGU='')
 
-
-    ## IS THIS NECESSARY - WHERE ELSE IS IT USED, NEED OUTPUT IF ITS NOT OK?
     def signals_ok(self):
         self.xbpmSignalsOk = records.calc('XBPM' + str(int(self.xbpm_num)) + 'SIGNALS_OK', CALC='A>B',
                                           INPA=Monitor(self.xbpm_sum_mean_value),
@@ -107,12 +103,10 @@ class XBPMRangeManager:
                                           PINI='YES',
                                           EGU='')
 
-
     ## Monitor XBPM signal currents.
     def camonitor_range(self):
         catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
         catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
-
 
     ## Gets current range for flipping between TetrAMM current ranges
     #  Won't flip into 'higher current range' until current is higher than lower_current_limit
@@ -128,11 +122,9 @@ class XBPMRangeManager:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 0)
                 print("Current range set to +-120uA")
 
-
     ## Run monitor on the ID gap. XBPM1; change scale factors if ID energy changes.
     def camonitor_scale(self):
         catools.camonitor(self.id_energy, self.set_vertical_xbpm_scale_factor)
-
 
     ## Set the vertical XBPM scale factor [um] based on the DCM energy [keV]
     #  Scale_factor is the magnification of the optics lens (XBPM2)

@@ -22,7 +22,7 @@ class XBPMSharedPVs:
     ## Constructor.
     def __init__(self, beamline_num):
         self.beamline_num = beamline_num
-        self.create_feedback_status_PV()
+        self.create_feedback_status_pv()
         self.create_xbpm_current()
         self.status_options = {0: 'Stopped', 1: 'Run', 2: 'Paused'}
         # For running monitors on overall ON/OFF button, GDA PAUSE button
@@ -38,7 +38,7 @@ class XBPMSharedPVs:
     #  or when an energy change is requested.
     #  FB_MODE acts as a button for the different modes. The XBPMs can either
     #  run independently or in tandem.
-    def create_feedback_status_PV(self):
+    def create_feedback_status_pv(self):
         self.fb_enable_status = builder.mbbOut('FB_ENABLE',
                                                initial_value=0,
                                                PINI='YES',
@@ -99,13 +99,15 @@ class XBPM1_feedback:
         for pid in self.xbpm_pid_params:
             self.caput_list.append(pid["feedback_prefix"]+':AUTOCALC.INPB')
             self.caput_list.append(pid["feedback_prefix"]+':AUTOCALC.INPC')
-
         self.setup_names()
-        # Run continuous checks for XBPM1
-        self.xbpm_fbcheck = ['test:BL'+self.XBPMSharedPVs.beamline_num+'I-EA-XBPM-01:SumAll:MeanValue_RBV',
-                             'test:SR-DI-DCCT-01-SIGNAL',
-                             'test:BL'+self.XBPMSharedPVs.beamline_num+'I-PS-SHTR-01:STA']
+        self.feedback_checks()
         self.start_camonitors()
+
+    ## Run continuous checks for XBPM1
+    def feedback_checks(self):
+        self.xbpm_fbcheck = ['test:BL' + self.XBPMSharedPVs.beamline_num + 'I-EA-XBPM-01:SumAll:MeanValue_RBV',
+                             'test:SR-DI-DCCT-01-SIGNAL',
+                             'test:BL' + self.XBPMSharedPVs.beamline_num + 'I-PS-SHTR-01:STA']
 
     ## Set up feedback auto on/off PV names
     def setup_names(self):
@@ -214,21 +216,10 @@ class XBPM2_feedback(XBPM1_feedback):
 
         print(self.prefix + " constructor successful")
 
-    ## Create PVs and start camonitors
-    def make_on_startup(self):
-        self.run_status_pv()
-        self.create_pid_pvs()
-        # self.set_feedback_pid()
-        # For setting up feedback AUTO ON/OFF PV names
-        self.caput_list = []
-        for pid in self.xbpm_pid_params:
-            self.caput_list.append(pid["feedback_prefix"] + ':AUTOCALC.INPB')
-            self.caput_list.append(pid["feedback_prefix"] + ':AUTOCALC.INPB')
-        self.setup_names()
-        # Run continuous checks for XBPM2
-        self.xbpm_fbcheck = ['FE'+self.XBPMSharedPVs.beamline_num+'I-PS-SHTR-02:STA',
-                             'BL'+self.XBPMSharedPVs.beamline_num+'I-EA-XBPM-02:SumAll:MeanValue:RBV']
-        self.start_camonitors()
+    ## Run continuous checks for XBPM2
+    def feedback_checks(self):
+        self.xbpm_fbcheck = ['FE' + self.XBPMSharedPVs.beamline_num + 'I-PS-SHTR-02:STA',
+                             'BL' + self.XBPMSharedPVs.beamline_num + 'I-EA-XBPM-02:SumAll:MeanValue:RBV']
 
     ## Created in the constructor.
     #  Used in check_feedback_inputs to specify conditions for setting new status
@@ -242,20 +233,6 @@ class XBPM2_feedback(XBPM1_feedback):
                                             ONVL=1, ONST='Run',
                                             TWVL=2, TWST='Paused')
 
-    ## Created in constructor.
-    #  Set limits for each PID parameter for XBPM2.
-    #def create_pid_pvs(self):
-     #   self.pv_dict = {}
-      #  for pid in self.xbpm_pid_params:
-       #     self.pv_dict['KP'+pid["pos"]] = builder.aIn(('KP' + pid["pos"]),
-        #                                                initial_value=pid["KP"],
-         #                                               LOPR=-500.0, HOPR=500.0, PINI='YES')
-          #  self.pv_dict['KI'+pid["pos"]] = builder.aIn(('KI' + pid["pos"]),
-           #                                             initial_value=pid["KI"],
-            #                                            LOPR=-500.0, HOPR=500.0, PINI='YES')
-            #self.pv_dict['KD'+pid["pos"]] = builder.aIn(('KD' + pid["pos"]),
-             #                                           initial_value=pid["KD"],
-              #                                          LOPR=-500.0, HOPR=500.0, PINI='YES')
 
     ## Check the status of the ENABLE button for feedback.
     #  Set feedback on or off depending on mode, with printout to terminal.
@@ -296,10 +273,3 @@ class XBPM2_feedback(XBPM1_feedback):
         else:
             self.set_run_status(0)
             print "Run for XBPM2 Stopped"
-
-    ## Set feedback PID values, and a scale if wanted.
-    #def set_feedback_pid(self):
-     #   for pid in self.xbpm_pid_params:
-      #      catools.caput(pid["feedback_prefix"] + '.KP', self.pv_dict['KP' + pid["pos"]])
-       #     catools.caput(pid["feedback_prefix"] + '.KI', self.pv_dict['KI' + pid["pos"]])
-        #    catools.caput(pid["feedback_prefix"] + '.KD', self.pv_dict['KD' + pid["pos"]])

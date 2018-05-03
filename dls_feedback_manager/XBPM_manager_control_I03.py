@@ -24,15 +24,6 @@ xbpm2_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK3"
                     {"KP": 1.80e-5,  "KI": 0.830, "KD": 0.000, "prefix": "FDBK4", "pos": "X2"}]
 
 
-## XBPM2 PID parameters DCM
-#KPx2 = 2.60e-5
-#KIx2 = 0.83
-#KDx2 = 0.000
-#KPy2 = -3.20e-5
-#KIy2 = 0.83
-#KDy2 = 0.000
-
-
 ## Shared PVs.
 #  Gets called and constructed in the feedback manager to set up PVs shared by both XBPM1 and XBPM2 feedback classes.
 #  Also gets used in the range manager to create the minimum current PVs.
