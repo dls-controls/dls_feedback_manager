@@ -8,4 +8,4 @@ export EPICS_CA_ADDR_LIST=172.23.240.67
 #export EPICS_CA_AUTO_ADDR_LIST=NO
 
 cd "$(dirname "$0")"
-exec $PYIOC simulationtest_I03.py "$@"
+exec $PYIOC simulationI03.py "$@"

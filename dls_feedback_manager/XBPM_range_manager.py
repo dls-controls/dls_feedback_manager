@@ -106,7 +106,7 @@ class XBPMRangeManager:
     ## Monitor XBPM signal currents.
     def camonitor_range(self):
         catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
-        catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
+        #catools.camonitor(self.pv_prefix + self.xbpm_num + ':SumAll:MeanValue_RBV', self.check_range)
 
     ## Gets current range for flipping between TetrAMM current ranges
     #  Won't flip into 'higher current range' until current is higher than lower_current_limit
