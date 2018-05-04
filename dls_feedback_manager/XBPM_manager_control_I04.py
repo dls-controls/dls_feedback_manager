@@ -1,6 +1,7 @@
 import sys
 from pkg_resources import require
 
+require('dls_feedback_manager')
 require('cothread==2.14')
 require('numpy==1.11.1')
 require('epicsdbbuilder==1.2')
