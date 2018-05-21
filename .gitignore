@@ -68,3 +68,7 @@ target/
 /venv/
 /installed.files
 
+# Extras
+screenlog.0
+.travis_comments.yml
+dls_feedback_manager/.idea/
