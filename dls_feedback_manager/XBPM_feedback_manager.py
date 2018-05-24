@@ -101,9 +101,11 @@ class XBPM1_Feedback:
         self.xbpm_pid_params = xbpm1_pid_params
         self.xbpm_num = xbpm1_num
         self.mode_range = mode_range1
-        for pid in xbpm1_pid_params:
-            pid[self.xbpm_pid_params.feedback_prefix] = self.prefix + ':' + \
-                                            pid[self.xbpm_pid_params.feedback]
+        for pid in self.xbpm_pid_params:
+            pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                .feedback_prefix] = \
+                self.prefix + ':' + pid[
+                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams.feedback]
         print(self.prefix + " constructor successful")
 
     ## Create PVs and start camonitors
@@ -114,10 +116,15 @@ class XBPM1_Feedback:
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = []
         for pid in self.xbpm_pid_params:
-            self.caput_list.append(pid[self.xbpm_pid_params.feedback_prefix]
-                                   + ':AUTOCALC.INPB')
-            self.caput_list.append(pid[self.xbpm_pid_params.feedback_prefix] +
-                                   ':AUTOCALC.INPC')
+            self.caput_list.append(
+                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    .feedback_prefix] +
+                ':AUTOCALC.INPB')
+            self.caput_list.append(
+                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    .feedback_prefix] +
+                ':AUTOCALC.INPC')
+
         self.setup_names()
         self.start_camonitors()
 
@@ -146,21 +153,47 @@ class XBPM1_Feedback:
     def create_pid_pvs(self):
         self.pv_dict = {}
         for pid in self.xbpm_pid_params:
-            self.pv_dict['KP' + pid[self.xbpm_pid_params.position]] = \
-                builder.aIn(('KP' + pid[self.xbpm_pid_params.position]),
-                            initial_value=pid[self.xbpm_pid_params.KP],
+            self.pv_dict['KP' +
+                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    .position]] = \
+                builder.aIn(('KP' +
+                            pid[
+                                self.xbpm_pid_params.XBPM_pid_params.
+                             XBPMPIDParams.position]),
+                            initial_value=
+                            pid[
+                                self.xbpm_pid_params.XBPM_pid_params.
+                            XBPMPIDParams.KP],
                             LOPR=-500.0,
                             HOPR=500.0,
                             PINI='YES')
-            self.pv_dict['KI' + pid[self.xbpm_pid_params.position]] = \
-                builder.aIn(('KI' + pid[self.xbpm_pid_params.position]),
-                            initial_value=pid[self.xbpm_pid_params.KI],
+            self.pv_dict['KI' +
+                         pid[
+                             self.xbpm_pid_params.XBPM_pid_params.
+                                 XBPMPIDParams.position]] = \
+                builder.aIn(('KI' +
+                            pid[
+                                self.xbpm_pid_params.XBPM_pid_params.
+                             XBPMPIDParams.position]),
+                            initial_value=
+                            pid[
+                                self.xbpm_pid_params.XBPM_pid_params.
+                            XBPMPIDParams.KI],
                             LOPR=-500.0,
                             HOPR=500.0,
                             PINI='YES')
-            self.pv_dict['KD' + pid[self.xbpm_pid_params.position]] = \
-                builder.aIn(('KD' + pid[self.xbpm_pid_params.position]),
-                            initial_value=pid[self.xbpm_pid_params.KD],
+            self.pv_dict['KD' +
+                         pid[
+                             self.xbpm_pid_params.XBPM_pid_params.
+                                 XBPMPIDParams.position]] = \
+                builder.aIn(('KD' +
+                            pid[
+                                self.xbpm_pid_params.XBPM_pid_params.
+                             XBPMPIDParams.position]),
+                            initial_value=
+                            pid[
+                                self.xbpm_pid_params.XBPM_pid_params.
+                            XBPMPIDParams.KD],
                             LOPR=-500.0,
                             HOPR=500.0,
                             PINI='YES')
@@ -229,15 +262,24 @@ class XBPM1_Feedback:
     ## Set feedback PID values, and a scale if wanted.
     def set_feedback_pid(self):
         for pid in self.xbpm_pid_params:
-            catools.caput(pid[self.xbpm_pid_params.feedback_prefix] + '.KP',
-                          self.pv_dict['KP' + pid[
-                              self.xbpm_pid_params.position]].get())
-            catools.caput(pid[self.xbpm_pid_params.feedback_prefix] + '.KI',
-                          self.pv_dict['KI' + pid[
-                              self.xbpm_pid_params.position]].get())
-            catools.caput(pid[self.xbpm_pid_params.feedback_prefix] + '.KD',
-                          self.pv_dict['KD' + pid[
-                              self.xbpm_pid_params.position]].get())
+            catools.caput(
+                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    .feedback_prefix] + '.KP',
+                self.pv_dict['KP' + pid[
+                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                        .position]].get())
+            catools.caput(
+                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    .feedback_prefix] + '.KI',
+                self.pv_dict['KI' + pid[
+                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                        .position]].get())
+            catools.caput(
+                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    .feedback_prefix] + '.KD',
+                self.pv_dict['KD' + pid[
+                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                        .position]].get())
 
 
 ## XBPM2 feedback
@@ -256,8 +298,10 @@ class XBPM2_Feedback(XBPM1_Feedback):
         self.xbpm_num = xbpm2_num
         self.mode_range = mode_range2
         for pid in xbpm2_pid_params:
-            pid[self.xbpm_pid_params.feedback_prefix] = self.prefix + ':' \
-                                            + pid[self.xbpm_pid_params.prefix]
+            pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                .feedback_prefix] = \
+                self.prefix + ':' + pid[
+                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams.prefix]
         print(self.prefix + " constructor successful")
 
 
