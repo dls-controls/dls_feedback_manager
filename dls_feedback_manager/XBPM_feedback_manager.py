@@ -13,7 +13,6 @@ if 'D' in sys.argv:
     def my_caput(pv, value, **args):
         print 'caput', pv, value, args
 
-
     catools.caput = my_caput
 
 
@@ -100,7 +99,8 @@ class XBPM1_Feedback:
         self.prefix = xbpm1_prefix
         self.xbpm_pid_params = xbpm1_pid_params
         for pid in xbpm1_pid_params:
-            pid["feedback_prefix"] = self.prefix + ':' + pid["prefix"]
+            pid[self.xbpm_pid_params.feedback_prefix] = self.prefix + ':' + \
+                                            pid[self.xbpm_pid_params.feedback]
         print(self.prefix + " constructor successful")
 
     ## Create PVs and start camonitors
@@ -111,8 +111,10 @@ class XBPM1_Feedback:
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = []
         for pid in self.xbpm_pid_params:
-            self.caput_list.append(pid["feedback_prefix"] + ':AUTOCALC.INPB')
-            self.caput_list.append(pid["feedback_prefix"] + ':AUTOCALC.INPC')
+            self.caput_list.append(pid[self.xbpm_pid_params.feedback_prefix]
+                                   + ':AUTOCALC.INPB')
+            self.caput_list.append(pid[self.xbpm_pid_params.feedback_prefix] +
+                                   ':AUTOCALC.INPC')
         self.setup_names()
         self.start_camonitors()
 
@@ -141,24 +143,24 @@ class XBPM1_Feedback:
     def create_pid_pvs(self):
         self.pv_dict = {}
         for pid in self.xbpm_pid_params:
-            self.pv_dict['KP' + pid["pos"]] = builder.aIn(('KP' + pid["pos"]),
-                                                          initial_value=pid[
-                                                              "KP"],
-                                                          LOPR=-500.0,
-                                                          HOPR=500.0,
-                                                          PINI='YES')
-            self.pv_dict['KI' + pid["pos"]] = builder.aIn(('KI' + pid["pos"]),
-                                                          initial_value=pid[
-                                                              "KI"],
-                                                          LOPR=-500.0,
-                                                          HOPR=500.0,
-                                                          PINI='YES')
-            self.pv_dict['KD' + pid["pos"]] = builder.aIn(('KD' + pid["pos"]),
-                                                          initial_value=pid[
-                                                              "KD"],
-                                                          LOPR=-500.0,
-                                                          HOPR=500.0,
-                                                          PINI='YES')
+            self.pv_dict['KP' + pid[self.xbpm_pid_params.position]] = \
+                builder.aIn(('KP' + pid[self.xbpm_pid_params.position]),
+                            initial_value=pid[self.xbpm_pid_params.KP],
+                            LOPR=-500.0,
+                            HOPR=500.0,
+                            PINI='YES')
+            self.pv_dict['KI' + pid[self.xbpm_pid_params.position]] = \
+                builder.aIn(('KI' + pid[self.xbpm_pid_params.position]),
+                            initial_value=pid[self.xbpm_pid_params.KI],
+                            LOPR=-500.0,
+                            HOPR=500.0,
+                            PINI='YES')
+            self.pv_dict['KD' + pid[self.xbpm_pid_params.position]] = \
+                builder.aIn(('KD' + pid[self.xbpm_pid_params.position]),
+                            initial_value=pid[self.xbpm_pid_params.KD],
+                            LOPR=-500.0,
+                            HOPR=500.0,
+                            PINI='YES')
 
     ## Monitor the feedback button PVs.
     def start_camonitors(self):

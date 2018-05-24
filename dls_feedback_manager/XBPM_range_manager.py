@@ -100,20 +100,20 @@ class XBPMRangeManager:
                                                       PINI='YES')
 
         self.position_threshold_ok_xbpm = records.calc('XBPM' +
-                                            str(int(self.xbpm_num)) +
-                                            'POSITION_OK',
-                                            CALC='(ABS(B)<(A/100)) '
-                                            '&& (ABS(C)<(A/100))',
-                                            INPA=Monitor
-                                            (self.threshold_percentage_xbpm),
-                                            INPB=Monitor
-                                            (self.xbpm_normx),
-                                            INPC=Monitor
-                                            (self.xbpm_normy),
-                                            LOPR=0,
-                                            HOPR=1,
-                                            PINI='YES',
-                                            EGU='')
+                                          str(int(self.xbpm_num)) +
+                                          'POSITION_OK',
+                                          CALC='(ABS(B)<(A/100)) '
+                                          '&& (ABS(C)<(A/100))',
+                                          INPA=Monitor
+                                          (self.threshold_percentage_xbpm),
+                                          INPB=Monitor
+                                          (self.xbpm_normx),
+                                          INPC=Monitor
+                                          (self.xbpm_normy),
+                                          LOPR=0,
+                                          HOPR=1,
+                                          PINI='YES',
+                                          EGU='')
 
     def signals_ok(self):
         self.xbpmSignalsOk = records.calc('XBPM' + str(int(self.xbpm_num)) +
