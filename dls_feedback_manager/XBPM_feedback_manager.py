@@ -94,10 +94,13 @@ class XBPM1_Feedback:
     ## Constructor.
     #  Imports XBPMSharedPVs class and sets the prefix for XBPM1.
     #  Creates list of feedback prefixes.
-    def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params):
+    def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params,
+                 xbpm1_num, mode_range1):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
         self.xbpm_pid_params = xbpm1_pid_params
+        self.xbpm_num = xbpm1_num
+        self.mode_range = mode_range1
         for pid in xbpm1_pid_params:
             pid[self.xbpm_pid_params.feedback_prefix] = self.prefix + ':' + \
                                             pid[self.xbpm_pid_params.feedback]
@@ -130,7 +133,7 @@ class XBPM1_Feedback:
     #  Used in check_feedback_inputs to specify conditions for setting new
     #  status if the PVs for DCM change.
     def run_status_pv(self):
-        self.fb_run_status = builder.mbbOut('FB_RUN1',
+        self.fb_run_status = builder.mbbOut('FB_RUN'+str(int(self.xbpm_num)),
                                             initial_value=0,
                                             PINI='YES',
                                             NOBT=2,
@@ -195,7 +198,7 @@ class XBPM1_Feedback:
         if (
                 catools.caget(
                     'BL' + self.XBPMSharedPVs.beamline_num +
-                    'I-EA-XBPM-01:SumAll:MeanValue_RBV')
+                    'I-EA-XBPM-'+str(self.xbpm_num)+':SumAll:MeanValue_RBV')
                 > self.XBPMSharedPVs.minXCurr.get() and
                 catools.caget(
                     'SR-DI-DCCT-01:SIGNAL') > self.XBPMSharedPVs.minSRCurr.get()
@@ -208,29 +211,33 @@ class XBPM1_Feedback:
                 == 1 and
                 self.XBPMSharedPVs.fb_enable_status.get() == 1 and
                 self.XBPMSharedPVs.fb_pause_status.get() == 1 and
-                self.XBPMSharedPVs.fb_mode_status.get() in (0, 1)
+                self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(1)
-            print "Run for XBPM1 Started"
+            print "Run for XBPM"+str(int(self.xbpm_num))+" Started"
         elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
               self.XBPMSharedPVs.fb_pause_status.get() == 0 and
-              self.XBPMSharedPVs.fb_mode_status.get() in (0, 1)
+              self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(2)
-            print "Run for XBPM1 Paused"
+            print "Run for XBPM"+str(int(self.xbpm_num))+" Paused"
         else:
             self.set_run_status(0)
-            print "Run for XBPM1 Stopped"
+            print "Run for XBPM"+str(int(self.xbpm_num))+" Stopped"
+
 
     ## Set feedback PID values, and a scale if wanted.
     def set_feedback_pid(self):
         for pid in self.xbpm_pid_params:
-            catools.caput(pid["feedback_prefix"] + '.KP',
-                          self.pv_dict['KP' + pid["pos"]].get())
-            catools.caput(pid["feedback_prefix"] + '.KI',
-                          self.pv_dict['KI' + pid["pos"]].get())
-            catools.caput(pid["feedback_prefix"] + '.KD',
-                          self.pv_dict['KD' + pid["pos"]].get())
+            catools.caput(pid[self.xbpm_pid_params.feedback_prefix] + '.KP',
+                          self.pv_dict['KP' + pid[
+                              self.xbpm_pid_params.position]].get())
+            catools.caput(pid[self.xbpm_pid_params.feedback_prefix] + '.KI',
+                          self.pv_dict['KI' + pid[
+                              self.xbpm_pid_params.position]].get())
+            catools.caput(pid[self.xbpm_pid_params.feedback_prefix] + '.KD',
+                          self.pv_dict['KD' + pid[
+                              self.xbpm_pid_params.position]].get())
 
 
 ## XBPM2 feedback
@@ -240,28 +247,19 @@ class XBPM2_Feedback(XBPM1_Feedback):
     #  Overrides prefix.
     #  Creates list of feedback prefixes.
     def __init__(self, XBPMSharedPVs, xbpm2_prefix, xbpm1_prefix,
-                 xbpm2_pid_params):
+                 xbpm2_pid_params, xbpm2_num, mode_range2):
         XBPM1_Feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix,
-                                xbpm2_pid_params)
+                                xbpm2_pid_params, xbpm2_num, mode_range2)
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
         self.xbpm_pid_params = xbpm2_pid_params
+        self.xbpm_num = xbpm2_num
+        self.mode_range = mode_range2
         for pid in xbpm2_pid_params:
-            pid["feedback_prefix"] = self.prefix + ':' + pid["prefix"]
-
+            pid[self.xbpm_pid_params.feedback_prefix] = self.prefix + ':' \
+                                            + pid[self.xbpm_pid_params.prefix]
         print(self.prefix + " constructor successful")
 
-    ## Created in the constructor.
-    #  Used in check_feedback_inputs to specify conditions for setting new
-    #  status if XBPM2 change.
-    def run_status_pv(self):
-        self.fb_run_status = builder.mbbOut('FB_RUN2',
-                                            initial_value=0,
-                                            PINI='YES',
-                                            NOBT=2,
-                                            ZRVL=0, ZRST='Stopped',
-                                            ONVL=1, ONST='Run',
-                                            TWVL=2, TWST='Paused')
 
     ## Check the status of the ENABLE button for feedback.
     #  Set feedback on or off depending on mode, with printout to terminal.
@@ -280,37 +278,3 @@ class XBPM2_Feedback(XBPM1_Feedback):
             elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
                 print "Feedback mode is XBPM2 operation only"
                 self.set_run_status(1)
-
-    ## What to do if any PVs change.
-    #  Define conditions for setting run status.
-    def check_feedback_inputs(self, val, index):
-        if (
-                catools.caget(
-                    'BL' + self.XBPMSharedPVs.beamline_num +
-                    'I-EA-XBPM-02:SumAll:MeanValue_RBV')
-                > self.XBPMSharedPVs.minXCurr.get() and
-                catools.caget(
-                    'SR-DI-DCCT-01:SIGNAL') > self.XBPMSharedPVs.minSRCurr.get()
-                and
-                catools.caget(
-                    'FE' + self.XBPMSharedPVs.beamline_num + 'I-PS-SHTR-02:STA')
-                == 1 and
-                catools.caget(
-                    'BL' + self.XBPMSharedPVs.beamline_num + 'I-PS-SHTR-01:STA')
-                == 1 and
-                self.XBPMSharedPVs.fb_enable_status.get() == 1 and
-                self.XBPMSharedPVs.fb_pause_status.get() == 1 and
-                self.XBPMSharedPVs.fb_mode_status.get() in (1, 2)
-        ):
-            self.set_run_status(1)
-            print "Run for XBPM2 Started"
-        elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
-              self.XBPMSharedPVs.fb_pause_status.get() == 0 and
-              self.XBPMSharedPVs.fb_mode_status.get() in (1, 2)
-        ):
-            self.set_run_status(2)
-            print "Run for XBPM2 Paused"
-        else:
-            self.set_run_status(0)
-            print "Run for XBPM2 Stopped"
-            # Prints for each PV being monitored in xbpm_fbcheck
