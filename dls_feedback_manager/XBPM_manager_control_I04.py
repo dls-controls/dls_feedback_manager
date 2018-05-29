@@ -1,5 +1,6 @@
 import sys
 from pkg_resources import require
+import logging
 
 require('dls_feedback_manager==1.2')
 require('cothread==2.14')
@@ -8,21 +9,24 @@ require('epicsdbbuilder==1.2')
 
 from softioc import softioc, builder
 
+formatter = '%(asctime)s, %(name)s, %(levelname)s, %(message)s'
+logging.basicConfig(format=formatter, level=logging.DEBUG)
+
 builder.SetDeviceName('BL04I-EA-FDBK-01')
 
-from dls_feedback_manager import XBPM_range_manager, XBPM_feedback_manager,\
+import XBPM_range_manager, XBPM_feedback_manager,\
     XBPM_pid_params
 
-xbpm1_pid_params_list = ([XBPM_pid_params.XBPMPIDParamsClass(KP=1.0e-5,
-                                                             KI=1.1042,
-                                                             KD=0.000,
-                                                             feedback="FDBK1",
-                                                             position="Y1"),
+xbpm1_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(KP=1.0e-5,
+                                                            KI=1.1042,
+                                                            KD=0.000,
+                                                            feedback="FDBK1",
+                                                            position="Y1"),
                          XBPM_pid_params.XBPMPIDParamsClass(KP=-1.800e-4,
                                                             KI=1.250,
                                                             KD=0.000,
                                                             feedback="FDBK2",
-                                                            position="X1")])
+                                                            position="X1")]
 xbpm2_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(KP=1.800e-4,
                                                             KI=3.636,
                                                             KD=0.0,
@@ -61,13 +65,15 @@ XBPM2 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix=
 
 
 ## Run XBPM feedback manager
-XBPM1_fdbk = XBPM_feedback_manager.XBPM1_Feedback(shared_PVs, 'BL04I-MO-DCM-01',
+XBPM1_fdbk = XBPM_feedback_manager.XBPM1_Feedback(shared_PVs,
+                                                  'BL04I-MO-DCM-01',
                                                   xbpm1_pid_params_list,
                                                   xbpm1_num='01',
                                                   mode_range1=(0, 1))
 XBPM1_fdbk.make_on_startup()
-XBPM2_fdbk = XBPM_feedback_manager.XBPM2_Feedback(shared_PVs, 'BL04I-MO-DCM-01',
-                                                  'BL04I-MO-DCM-01',  # fix
+XBPM2_fdbk = XBPM_feedback_manager.XBPM2_Feedback(shared_PVs,
+                                                  'BL04I-MO-FSWT-01',
+                                                  'BL04I-MO-DCM-01',
                                                   xbpm2_pid_params_list,
                                                   xbpm2_num='02',
                                                   mode_range2=(1, 2))

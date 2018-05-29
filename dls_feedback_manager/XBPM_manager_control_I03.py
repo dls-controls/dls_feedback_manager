@@ -1,5 +1,6 @@
 import sys
 from pkg_resources import require
+import logging
 
 require('dls_feedback_manager==1.2')
 require('cothread==2.14')
@@ -8,31 +9,34 @@ require('epicsdbbuilder==1.2')
 
 from softioc import softioc, builder
 
+formatter = '%(asctime)s, %(name)s, %(levelname)s, %(message)s'
+logging.basicConfig(format=formatter, level=logging.DEBUG)
+
 builder.SetDeviceName('BL03I-EA-FDBK-01')
 
-from dls_feedback_manager import XBPM_range_manager, XBPM_feedback_manager, \
+import XBPM_range_manager, XBPM_feedback_manager, \
     XBPM_pid_params
 
-xbpm1_pid_params_list = [(XBPM_pid_params.XBPMPIDParamsClass(KP=-4.00e-5,
-                                                             KI=0.830,
-                                                             KD=0.000,
-                                                             feedback="FDBK1",
-                                                             position="Y1")),
-                         (XBPM_pid_params.XBPMPIDParamsClass(KP=1.80e-5,
-                                                             KI=0.830,
-                                                             KD=0.000,
-                                                             feedback="FDBK2",
-                                                             position="X1"))]
-xbpm2_pid_params_list = [(XBPM_pid_params.XBPMPIDParamsClass(KP=-4.00e-5,
-                                                             KI=0.830,
-                                                             KD=0.000,
-                                                             feedback="FDBK3",
-                                                             position="Y2")),
-                         (XBPM_pid_params.XBPMPIDParamsClass(KP=1.80e-5,
-                                                             KI=0.830,
-                                                             KD=0.000,
-                                                             feedback="FDBK4",
-                                                             position="X2"))]
+xbpm1_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(KP=-4.00e-5,
+                                                            KI=0.830,
+                                                            KD=0.000,
+                                                            feedback="FDBK1",
+                                                            position="Y1"),
+                         XBPM_pid_params.XBPMPIDParamsClass(KP=1.80e-5,
+                                                            KI=0.830,
+                                                            KD=0.000,
+                                                            feedback="FDBK2",
+                                                            position="X1")]
+xbpm2_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(KP=-4.00e-5,
+                                                            KI=0.830,
+                                                            KD=0.000,
+                                                            feedback="FDBK3",
+                                                            position="Y2"),
+                         XBPM_pid_params.XBPMPIDParamsClass(KP=1.80e-5,
+                                                            KI=0.830,
+                                                            KD=0.000,
+                                                            feedback="FDBK4",
+                                                            position="X2")]
 
 ## Shared PVs.
 #  Gets called and constructed in the feedback manager to set up PVs shared by

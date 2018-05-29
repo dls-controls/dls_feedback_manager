@@ -12,7 +12,7 @@ from epicsdbbuilder import records, MS, CP, ImportRecord
 
 if 'D' in sys.argv:
     def my_caput(pv, value, **args):
-        logging.INFO('caput', pv, value, args)
+        print('caput', pv, value, args)
 
     catools.caput = my_caput
 
@@ -104,7 +104,7 @@ class XBPM1_Feedback:
         for pid in self.xbpm_pid_params_list:
             pid.feedback_prefix = self.prefix + ':' + pid.feedback
 
-        logging.DEBUG(self.prefix + ' constructor successful')
+        logging.debug('constructor successful')
 
     ## Create PVs and start camonitors
     def make_on_startup(self):
@@ -179,18 +179,18 @@ class XBPM1_Feedback:
     #  Set feedback on or off as is appropriate.
     def check_enable_status(self, val):
         if self.XBPMSharedPVs.fb_enable_status.get() == 0:
-            logging.INFO("Feedback ENABLE button set to OFF (Stopped)")
+            logging.info("Feedback ENABLE button set to OFF (Stopped)")
             self.set_run_status(0)
         elif self.XBPMSharedPVs.fb_enable_status.get() == 1:
-            logging.INFO("Feedback ENABLE button set to ON (Running)")
+            logging.info("Feedback ENABLE button set to ON (Running)")
             if self.XBPMSharedPVs.fb_mode_status.get() == 0:
-                logging.INFO("Feedback mode is XBPM1 operation only")
+                logging.info("Feedback mode is XBPM1 operation only")
                 self.set_run_status(1)
             elif self.XBPMSharedPVs.fb_mode_status.get() == 1:
-                logging.INFO("Feedback mode is XBPM1 and XBPM2 operation")
+                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
                 self.set_run_status(1)
             elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
-                logging.INFO("Feedback mode is XBPM2 operation only")
+                logging.info("Feedback mode is XBPM2 operation only")
 
     ## What to do if any PVs change.
     #  Define conditions for setting new status.
@@ -211,16 +211,18 @@ class XBPM1_Feedback:
                 self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(1)
-            logging.DEBUG("Run for XBPM"+str(int(self.xbpm_num))+" Started")
+            logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Started")
+            logging.info("Feedback started")
         elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
               self.XBPMSharedPVs.fb_pause_status.get() == 0 and
               self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
               ):
             self.set_run_status(2)
-            logging.DEBUG("Run for XBPM"+str(int(self.xbpm_num))+" Paused")
+            logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Paused")
+            logging.info('Feedback paused')
         else:
             self.set_run_status(0)
-            logging.DEBUG("Run for XBPM"+str(int(self.xbpm_num))+" Stopped")
+            logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Stopped")
 
 
     ## Set feedback PID values, and a scale if wanted.
@@ -250,24 +252,24 @@ class XBPM2_Feedback(XBPM1_Feedback):
         self.xbpm_num = xbpm2_num
         self.mode_range = mode_range2
         for pid in xbpm2_pid_params_list:
-            pid.feedback_prefix = self.prefix + ':' + pid.prefix
-        logging.DEBUG(self.prefix + " constructor successful")
+            pid.feedback_prefix = self.prefix + ':' + pid.feedback
+        logging.debug('constructor successful')
 
 
     ## Check the status of the ENABLE button for feedback.
     #  Set feedback on or off depending on mode, with printout to terminal.
     def check_enable_status(self, val):
         if self.XBPMSharedPVs.fb_enable_status.get() == 0:
-            logging.INFO("Feedback ENABLE button set to OFF (Stopped)")
+            logging.info("Feedback ENABLE button set to OFF (Stopped)")
             self.set_run_status(0)
         elif self.XBPMSharedPVs.fb_enable_status.get() == 1:
-            logging.INFO("Feedback ENABLE button set to ON (Running)")
+            logging.info("Feedback ENABLE button set to ON (Running)")
             if self.XBPMSharedPVs.fb_mode_status.get() == 0:
-                logging.INFO("Feedback mode is XBPM1 operation only")
+                logging.info("Feedback mode is XBPM1 operation only")
                 self.set_run_status(0)
             elif self.XBPMSharedPVs.fb_mode_status.get() == 1:
-                logging.INFO("Feedback mode is XBPM1 and XBPM2 operation")
+                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
                 self.set_run_status(1)
             elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
-                logging.INFO("Feedback mode is XBPM2 operation only")
+                logging.info("Feedback mode is XBPM2 operation only")
                 self.set_run_status(1)

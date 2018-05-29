@@ -1,4 +1,5 @@
 from pkg_resources import require
+import logging
 require('cothread==2.14')
 require('numpy==1.11.1')
 require('epicsdbbuilder==1.2')
@@ -39,8 +40,8 @@ class XBPMRangeManager:
         self.validate_params()
         self.signals_ok()
         self.camonitor_range()
-        print(self.pv_prefix+self.xbpm_num+' PVs made and camonitors started')
-        # logging
+
+        logging.debug('PVs made and camonitors started')
 
     ## Sets restrictions for input values
     def validate_params(self):
@@ -141,11 +142,11 @@ class XBPMRangeManager:
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 1)
-                print("Current range set to +-120nA")  # logging
+                logging.info("Current range set to +-120nA")
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 0)
-                print("Current range set to +-120uA")  # logging
+                logging.info("Current range set to +-120uA")
 
     ## Run monitor on the ID gap, change scale factors if ID energy changes.
     def camonitor_scale(self):
@@ -161,7 +162,7 @@ class XBPMRangeManager:
         kx = 1200 / self.scale_factor
         catools.caput(self.pv_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleY', ky)
-        print("Position scale Y set to " + str(ky))  # logging
+        logging.info("Position scale Y set to " + str(ky))
         catools.caput(self.pv_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleX', kx)
-        print("Position scale X set to " + str(kx))  # logging
+        logging.info("Position scale X set to " + str(kx))
