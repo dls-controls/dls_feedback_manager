@@ -56,11 +56,6 @@ x1BLss = builder.mbbOut('STA',
                       initial_value = 1)
 
 
-
-# PID params
-#fb1 = records.epid('BL03I-MO-DCM-01:FDBK1', initial_value=1)  # complaint about 'bad character'?
-
-
 # Create the identity PVs
 
 builder.stringIn('WHOAMI', VAL = 'XBPM feedback controller')
@@ -68,7 +63,6 @@ builder.stringIn('HOSTNAME', VAL = os.uname()[1])
 
 builder.LoadDatabase()
 softioc.iocInit()
-
 
 
 softioc.interactive_ioc(globals())
