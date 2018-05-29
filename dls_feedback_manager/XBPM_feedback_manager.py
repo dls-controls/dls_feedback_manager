@@ -43,6 +43,21 @@ class XBPMSharedPVs:
     def validate_status_options(self):
         assert self.status_options in [0, 1, 2]
 
+        ## Check the status of the ENABLE button for feedback.
+        #  Set feedback on or off as is appropriate.
+
+    def check_enable_status(self, val):
+        if self.fb_enable_status.get() == 0:
+            logging.info("Feedback ENABLE button set to OFF (Stopped)")
+        elif self.fb_enable_status.get() == 1:
+            logging.info("Feedback ENABLE button set to ON (Running)")
+            if self.fb_mode_status.get() == 0:
+                logging.info("Feedback mode is XBPM1 operation only")
+            elif self.fb_mode_status.get() == 1:
+                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
+            elif self.fb_mode_status.get() == 2:
+                logging.info("Feedback mode is XBPM2 operation only")
+
     ## Feedback status PVs.
     #  FB_ENABLE acts as an ON/OFF button for the IOC.
     #  FB_PAUSE pauses the IOC when a change to the TetrAMM is detected
@@ -169,28 +184,12 @@ class XBPM1_Feedback:
     ## Monitor the feedback button PVs.
     def start_camonitors(self):
         catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name,
-                          self.check_enable_status)
+                          self.XBPMSharedPVs.check_enable_status)
         catools.camonitor(self.XBPMSharedPVs.button_monitor,
                           self.check_feedback_inputs)
         catools.camonitor(self.XBPMSharedPVs.xbpm_fbcheck,
                           self.check_feedback_inputs)
 
-    ## Check the status of the ENABLE button for feedback.
-    #  Set feedback on or off as is appropriate.
-    def check_enable_status(self, val):
-        if self.XBPMSharedPVs.fb_enable_status.get() == 0:
-            logging.info("Feedback ENABLE button set to OFF (Stopped)")
-            self.set_run_status(0)
-        elif self.XBPMSharedPVs.fb_enable_status.get() == 1:
-            logging.info("Feedback ENABLE button set to ON (Running)")
-            if self.XBPMSharedPVs.fb_mode_status.get() == 0:
-                logging.info("Feedback mode is XBPM1 operation only")
-                self.set_run_status(1)
-            elif self.XBPMSharedPVs.fb_mode_status.get() == 1:
-                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
-                self.set_run_status(1)
-            elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
-                logging.info("Feedback mode is XBPM2 operation only")
 
     ## What to do if any PVs change.
     #  Define conditions for setting new status.
@@ -211,8 +210,8 @@ class XBPM1_Feedback:
                 self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(1)
+            logging.info("Feedback OK to run")
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Started")
-            logging.info("Feedback started")
         elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
               self.XBPMSharedPVs.fb_pause_status.get() == 0 and
               self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
@@ -254,22 +253,3 @@ class XBPM2_Feedback(XBPM1_Feedback):
         for pid in xbpm2_pid_params_list:
             pid.feedback_prefix = self.prefix + ':' + pid.feedback
         logging.debug('constructor successful')
-
-
-    ## Check the status of the ENABLE button for feedback.
-    #  Set feedback on or off depending on mode, with printout to terminal.
-    def check_enable_status(self, val):
-        if self.XBPMSharedPVs.fb_enable_status.get() == 0:
-            logging.info("Feedback ENABLE button set to OFF (Stopped)")
-            self.set_run_status(0)
-        elif self.XBPMSharedPVs.fb_enable_status.get() == 1:
-            logging.info("Feedback ENABLE button set to ON (Running)")
-            if self.XBPMSharedPVs.fb_mode_status.get() == 0:
-                logging.info("Feedback mode is XBPM1 operation only")
-                self.set_run_status(0)
-            elif self.XBPMSharedPVs.fb_mode_status.get() == 1:
-                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
-                self.set_run_status(1)
-            elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
-                logging.info("Feedback mode is XBPM2 operation only")
-                self.set_run_status(1)
