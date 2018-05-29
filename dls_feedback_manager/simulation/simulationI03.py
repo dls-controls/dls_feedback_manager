@@ -42,7 +42,7 @@ rc6 = records.calc('FDBK4:AUTOCALC', CALC=A)
 
 builder.SetDeviceName('SR-DI-DCCT-01')
 
-x1SRcurr = builder.aOut('SIGNAL', initial_value = 302.721)
+x1SRcurr = builder.aOut('SIGNAL', initial_value=302.721)
 
 
 builder.SetDeviceName('FE03I-PS-SHTR-02')
@@ -53,13 +53,13 @@ x1FEss = builder.mbbOut('STA', initial_value=1)  # front end shutter status
 builder.SetDeviceName('BL03I-PS-SHTR-01')
 
 x1BLss = builder.mbbOut('STA',
-                      initial_value = 1)
+                        initial_value=1)
 
 
 # Create the identity PVs
 
-builder.stringIn('WHOAMI', VAL = 'XBPM feedback controller')
-builder.stringIn('HOSTNAME', VAL = os.uname()[1])
+builder.stringIn('WHOAMI', VAL='XBPM feedback controller')
+builder.stringIn('HOSTNAME', VAL=os.uname()[1])
 
 builder.LoadDatabase()
 softioc.iocInit()
