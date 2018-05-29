@@ -40,6 +40,7 @@ class XBPMRangeManager:
         self.signals_ok()
         self.camonitor_range()
         print(self.pv_prefix+self.xbpm_num+' PVs made and camonitors started')
+        # logging
 
     ## Sets restrictions for input values
     def validate_params(self):
@@ -140,11 +141,11 @@ class XBPMRangeManager:
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 1)
-                print("Current range set to +-120nA")
+                print("Current range set to +-120nA")  # logging
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 0)
-                print("Current range set to +-120uA")
+                print("Current range set to +-120uA")  # logging
 
     ## Run monitor on the ID gap, change scale factors if ID energy changes.
     def camonitor_scale(self):
@@ -160,7 +161,7 @@ class XBPMRangeManager:
         kx = 1200 / self.scale_factor
         catools.caput(self.pv_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleY', ky)
-        print("Position scale Y set to " + str(ky))
+        print("Position scale Y set to " + str(ky))  # logging
         catools.caput(self.pv_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleX', kx)
-        print("Position scale X set to " + str(kx))
+        print("Position scale X set to " + str(kx))  # logging

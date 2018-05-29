@@ -1,5 +1,6 @@
 import sys
 from pkg_resources import require
+import logging
 
 require('cothread==2.14')
 require('numpy==1.11.1')
@@ -94,19 +95,17 @@ class XBPM1_Feedback:
     ## Constructor.
     #  Imports XBPMSharedPVs class and sets the prefix for XBPM1.
     #  Creates list of feedback prefixes.
-    def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params,
+    def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params_list,
                  xbpm1_num, mode_range1):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm1_prefix
-        self.xbpm_pid_params = xbpm1_pid_params
+        self.xbpm_pid_params_list = xbpm1_pid_params_list
         self.xbpm_num = xbpm1_num
         self.mode_range = mode_range1
-        for pid in self.xbpm_pid_params:
-            pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                .feedback_prefix] = \
-                self.prefix + ':' + pid[
-                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams.feedback]
-        print(self.prefix + " constructor successful")
+        for pid in self.xbpm_pid_params_list:
+            pid.feedback_prefix = self.prefix + ':' + pid.feedback
+
+        print(self.prefix + ' constructor successful')
 
     ## Create PVs and start camonitors
     def make_on_startup(self):
@@ -115,15 +114,11 @@ class XBPM1_Feedback:
         self.set_feedback_pid()
         # For setting up the Feedback AUTO ON/OFF PV names
         self.caput_list = []
-        for pid in self.xbpm_pid_params:
+        for pid in self.xbpm_pid_params_list:
             self.caput_list.append(
-                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                    .feedback_prefix] +
-                ':AUTOCALC.INPB')
+                pid.feedback_prefix + ':AUTOCALC.INPB')
             self.caput_list.append(
-                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                    .feedback_prefix] +
-                ':AUTOCALC.INPC')
+                pid.feedback_prefix + ':AUTOCALC.INPC')
 
         self.setup_names()
         self.start_camonitors()
@@ -152,48 +147,22 @@ class XBPM1_Feedback:
     #  Set limits for each PID parameter.
     def create_pid_pvs(self):
         self.pv_dict = {}
-        for pid in self.xbpm_pid_params:
-            self.pv_dict['KP' +
-                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                    .position]] = \
-                builder.aIn(('KP' +
-                            pid[
-                                self.xbpm_pid_params.XBPM_pid_params.
-                             XBPMPIDParams.position]),
-                            initial_value=
-                            pid[
-                                self.xbpm_pid_params.XBPM_pid_params.
-                            XBPMPIDParams.KP],
+        for pid in self.xbpm_pid_params_list:
+            self.pv_dict['KP' + pid.position] = \
+                builder.aIn(('KP' + pid.position),
+                            initial_value=pid.KP,
                             LOPR=-500.0,
                             HOPR=500.0,
                             PINI='YES')
-            self.pv_dict['KI' +
-                         pid[
-                             self.xbpm_pid_params.XBPM_pid_params.
-                                 XBPMPIDParams.position]] = \
-                builder.aIn(('KI' +
-                            pid[
-                                self.xbpm_pid_params.XBPM_pid_params.
-                             XBPMPIDParams.position]),
-                            initial_value=
-                            pid[
-                                self.xbpm_pid_params.XBPM_pid_params.
-                            XBPMPIDParams.KI],
+            self.pv_dict['KI' + pid.position] = \
+                builder.aIn(('KI' + pid.position),
+                            initial_value=pid.KI,
                             LOPR=-500.0,
                             HOPR=500.0,
                             PINI='YES')
-            self.pv_dict['KD' +
-                         pid[
-                             self.xbpm_pid_params.XBPM_pid_params.
-                                 XBPMPIDParams.position]] = \
-                builder.aIn(('KD' +
-                            pid[
-                                self.xbpm_pid_params.XBPM_pid_params.
-                             XBPMPIDParams.position]),
-                            initial_value=
-                            pid[
-                                self.xbpm_pid_params.XBPM_pid_params.
-                            XBPMPIDParams.KD],
+            self.pv_dict['KD' + pid.position] = \
+                builder.aIn(('KD' + pid.position),
+                            initial_value=pid.KD,
                             LOPR=-500.0,
                             HOPR=500.0,
                             PINI='YES')
@@ -229,19 +198,15 @@ class XBPM1_Feedback:
     #  Mode has to set before turning enable on.
     def check_feedback_inputs(self, val, index):
         if (
-                catools.caget(
-                    'BL' + self.XBPMSharedPVs.beamline_num +
-                    'I-EA-XBPM-'+str(self.xbpm_num)+':SumAll:MeanValue_RBV')
-                > self.XBPMSharedPVs.minXCurr.get() and
-                catools.caget(
-                    'SR-DI-DCCT-01:SIGNAL') > self.XBPMSharedPVs.minSRCurr.get()
-                and
-                catools.caget(
-                    'FE' + self.XBPMSharedPVs.beamline_num + 'I-PS-SHTR-02:STA')
-                == 1 and
-                catools.caget(
-                    'BL' + self.XBPMSharedPVs.beamline_num + 'I-PS-SHTR-01:STA')
-                == 1 and
+            catools.caget('BL'+self.XBPMSharedPVs.beamline_num+'I-EA-XBPM-'
+                          + str(self.xbpm_num)+':SumAll:MeanValue_RBV') >
+            self.XBPMSharedPVs.minXCurr.get() and
+            catools.caget('SR-DI-DCCT-01:SIGNAL') >
+                self.XBPMSharedPVs.minSRCurr.get() and
+                catools.caget('FE' + self.XBPMSharedPVs.beamline_num +
+                              'I-PS-SHTR-02:STA') == 1 and
+                catools.caget('BL' + self.XBPMSharedPVs.beamline_num +
+                              'I-PS-SHTR-01:STA') == 1 and
                 self.XBPMSharedPVs.fb_enable_status.get() == 1 and
                 self.XBPMSharedPVs.fb_pause_status.get() == 1 and
                 self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
@@ -251,7 +216,7 @@ class XBPM1_Feedback:
         elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
               self.XBPMSharedPVs.fb_pause_status.get() == 0 and
               self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
-        ):
+              ):
             self.set_run_status(2)
             print "Run for XBPM"+str(int(self.xbpm_num))+" Paused"
         else:
@@ -261,24 +226,18 @@ class XBPM1_Feedback:
 
     ## Set feedback PID values, and a scale if wanted.
     def set_feedback_pid(self):
-        for pid in self.xbpm_pid_params:
-            catools.caput(
-                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                    .feedback_prefix] + '.KP',
-                self.pv_dict['KP' + pid[
-                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                        .position]].get())
-            catools.caput(
-                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
-                    .feedback_prefix] + '.KI',
+        for pid in self.xbpm_pid_params_list:
+            catools.caput(pid.feedback_prefix + '.KP',
+                          self.pv_dict['KP' + pid.position])
+            catools.caput(pid.feedback_prefix + '.KI',
                 self.pv_dict['KI' + pid[
-                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    self.xbpm_pid_params_list.XBPM_pid_params.XBPMPIDParamsClass
                         .position]].get())
             catools.caput(
-                pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                pid[self.xbpm_pid_params_list.XBPM_pid_params.XBPMPIDParamsClass
                     .feedback_prefix] + '.KD',
                 self.pv_dict['KD' + pid[
-                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+                    self.xbpm_pid_params_list.XBPM_pid_params.XBPMPIDParamsClass
                         .position]].get())
 
 
@@ -289,19 +248,20 @@ class XBPM2_Feedback(XBPM1_Feedback):
     #  Overrides prefix.
     #  Creates list of feedback prefixes.
     def __init__(self, XBPMSharedPVs, xbpm2_prefix, xbpm1_prefix,
-                 xbpm2_pid_params, xbpm2_num, mode_range2):
+                 xbpm2_pid_params_list, xbpm2_num, mode_range2):
         XBPM1_Feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix,
-                                xbpm2_pid_params, xbpm2_num, mode_range2)
+                                xbpm2_pid_params_list, xbpm2_num, mode_range2)
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
-        self.xbpm_pid_params = xbpm2_pid_params
+        self.xbpm_pid_params_list = xbpm2_pid_params_list
         self.xbpm_num = xbpm2_num
         self.mode_range = mode_range2
-        for pid in xbpm2_pid_params:
-            pid[self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams
+        for pid in xbpm2_pid_params_list:
+            pid[self.xbpm_pid_params_list.XBPM_pid_params.XBPMPIDParamsClass
                 .feedback_prefix] = \
                 self.prefix + ':' + pid[
-                    self.xbpm_pid_params.XBPM_pid_params.XBPMPIDParams.prefix]
+                    self.xbpm_pid_params_list.XBPM_pid_params.XBPMPIDParamsClass
+                        .prefix]
         print(self.prefix + " constructor successful")
 
 

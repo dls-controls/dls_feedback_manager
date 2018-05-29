@@ -13,26 +13,32 @@ builder.SetDeviceName('BL04I-EA-FDBK-01')
 from dls_feedback_manager import XBPM_range_manager, XBPM_feedback_manager,\
     XBPM_pid_params
 
-xbpm1_pid_params = [XBPM_pid_params.XBPMPIDParams(KP=1.0e-5, KI=1.1042,
-                                                  KD=0.000, feedback="FDBK1",
-                                                  position="Y1"),
-                    XBPM_pid_params.XBPMPIDParams(KP=-1.800e-4, KI=1.250,
-                                                  KD=0.000, feedback="FDBK2",
-                                                  position="X1")]
-xbpm2_pid_params = [XBPM_pid_params.XBPMPIDParams(KP=1.800e-4, KI=3.636,
-                                                  KD=0.0, feedback="FDBK3",
-                                                  position="Y2"),
-                    XBPM_pid_params.XBPMPIDParams(KP=-9.450e-5, KI=2.791,
-                                                  KD=0.0, feedback="FDBK4",
-                                                  position="X2")]
+xbpm1_pid_params_list = ([XBPM_pid_params.XBPMPIDParamsClass(KP=1.0e-5,
+                                                             KI=1.1042,
+                                                             KD=0.000,
+                                                             feedback="FDBK1",
+                                                             position="Y1"),
+                         XBPM_pid_params.XBPMPIDParamsClass(KP=-1.800e-4,
+                                                            KI=1.250,
+                                                            KD=0.000,
+                                                            feedback="FDBK2",
+                                                            position="X1")])
+xbpm2_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(KP=1.800e-4,
+                                                            KI=3.636,
+                                                            KD=0.0,
+                                                            feedback="FDBK3",
+                                                            position="Y2"),
+                         XBPM_pid_params.XBPMPIDParamsClass(KP=-9.450e-5,
+                                                            KI=2.791,
+                                                            KD=0.0,
+                                                            feedback="FDBK4",
+                                                            position="X2")]
 
 ## Shared PVs.
 #  Gets called and constructed in the feedback manager to set up PVs shared by
 #  both XBPM1 and XBPM2 feedback classes.
 #  Also gets used in the range manager to create the minimum current PVs.
-#  It contains one argument, the beamline number (to be given as a string).
-#  This gets inserted into the feedback manager to avoid being repetitively set
-#  throughout the file.
+
 shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('04')
 
 ## Run XBPM range manager
@@ -56,13 +62,13 @@ XBPM2 = XBPM_range_manager.XBPMRangeManager(shared_PVs, pv_prefix=
 
 ## Run XBPM feedback manager
 XBPM1_fdbk = XBPM_feedback_manager.XBPM1_Feedback(shared_PVs, 'BL04I-MO-DCM-01',
-                                                  xbpm1_pid_params,
+                                                  xbpm1_pid_params_list,
                                                   xbpm1_num='01',
                                                   mode_range1=(0, 1))
 XBPM1_fdbk.make_on_startup()
 XBPM2_fdbk = XBPM_feedback_manager.XBPM2_Feedback(shared_PVs, 'BL04I-MO-DCM-01',
                                                   'BL04I-MO-DCM-01',  # fix
-                                                  xbpm2_pid_params,
+                                                  xbpm2_pid_params_list,
                                                   xbpm2_num='02',
                                                   mode_range2=(1, 2))
 XBPM2_fdbk.make_on_startup()
