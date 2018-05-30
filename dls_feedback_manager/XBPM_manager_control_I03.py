@@ -9,7 +9,7 @@ require('epicsdbbuilder==1.2')
 
 from softioc import softioc, builder
 
-formatter = '%(asctime)s, %(levelname)s, %(message)s'
+formatter = '%(asctime)s - %(levelname)s - %(funcName)s - %(message)s'
 logging.basicConfig(format=formatter, level=logging.INFO)
 
 builder.SetDeviceName('BL03I-EA-FDBK-01')

@@ -32,7 +32,7 @@ class XBPMSharedPVs:
         # For running monitors on overall ON/OFF button, GDA PAUSE button
         self.button_monitor = [self.fb_enable_status.name,
                                self.fb_pause_status.name]
-        self.xbpm_fbcheck = [
+        self.xbpm_fb_checklist = [
             'BL' + self.beamline_num + 'I-EA-XBPM-01:SumAll:MeanValue_RBV',
             'SR-DI-DCCT-01-SIGNAL',
             'FE' + self.beamline_num + 'I-PS-SHTR-02:STA',
@@ -42,21 +42,6 @@ class XBPMSharedPVs:
     ##  Restricts caput to given options.
     def validate_status_options(self):
         assert self.status_options in [0, 1, 2]
-
-        ## Check the status of the ENABLE button for feedback.
-        #  Set feedback on or off as is appropriate.
-
-    def check_enable_status(self, val):
-        if self.fb_enable_status.get() == 0:
-            logging.info("Feedback ENABLE button set to OFF (Stopped)")
-        elif self.fb_enable_status.get() == 1:
-            logging.info("Feedback ENABLE button set to ON (Running)")
-            if self.fb_mode_status.get() == 0:
-                logging.info("Feedback mode is XBPM1 operation only")
-            elif self.fb_mode_status.get() == 1:
-                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
-            elif self.fb_mode_status.get() == 2:
-                logging.info("Feedback mode is XBPM2 operation only")
 
     ## Feedback status PVs.
     #  FB_ENABLE acts as an ON/OFF button for the IOC.
@@ -184,30 +169,47 @@ class XBPM1_Feedback:
     ## Monitor the feedback button PVs.
     def start_camonitors(self):
         catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name,
-                          self.XBPMSharedPVs.check_enable_status)
+                          self.enable_status)
         catools.camonitor(self.XBPMSharedPVs.button_monitor,
-                          self.check_feedback_inputs)
-        catools.camonitor(self.XBPMSharedPVs.xbpm_fbcheck,
-                          self.check_feedback_inputs)
+                          self.feedback_inputs)
+        catools.camonitor(self.XBPMSharedPVs.xbpm_fb_checklist,
+                          self.feedback_inputs)
 
+        ## Check the status of the ENABLE button for feedback.
+        #  Set feedback on or off as is appropriate.
+        #  Logging will output to console once for each XBPM in operation.
+
+    def enable_status(self, val):
+        if self.XBPMSharedPVs.fb_enable_status.get() == 0:
+            self.set_run_status(0)
+            logging.info("Feedback ENABLE button set to OFF (Stopped)")
+        elif self.XBPMSharedPVs.fb_enable_status.get() == 1:
+            self.set_run_status(1)
+            logging.info("Feedback ENABLE button set to ON (Running)")
+            if self.XBPMSharedPVs.fb_mode_status.get() == 0:
+                logging.info("Feedback mode is XBPM1 operation only")
+            elif self.XBPMSharedPVs.fb_mode_status.get() == 1:
+                logging.info("Feedback mode is XBPM1 and XBPM2 operation")
+            elif self.XBPMSharedPVs.fb_mode_status.get() == 2:
+                logging.info("Feedback mode is XBPM2 operation only")
 
     ## What to do if any PVs change.
     #  Define conditions for setting new status.
     #  Mode has to set before turning enable on.
-    def check_feedback_inputs(self, val, index):
+    def feedback_inputs(self, val, index):
         if (
             catools.caget('BL'+self.XBPMSharedPVs.beamline_num+'I-EA-XBPM-'
                           + str(self.xbpm_num)+':SumAll:MeanValue_RBV') >
             self.XBPMSharedPVs.minXCurr.get() and
             catools.caget('SR-DI-DCCT-01:SIGNAL') >
-                self.XBPMSharedPVs.minSRCurr.get() and
-                catools.caget('FE' + self.XBPMSharedPVs.beamline_num +
-                              'I-PS-SHTR-02:STA') == 1 and
-                catools.caget('BL' + self.XBPMSharedPVs.beamline_num +
-                              'I-PS-SHTR-01:STA') == 1 and
-                self.XBPMSharedPVs.fb_enable_status.get() == 1 and
-                self.XBPMSharedPVs.fb_pause_status.get() == 1 and
-                self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
+            self.XBPMSharedPVs.minSRCurr.get() and
+            catools.caget('FE' + self.XBPMSharedPVs.beamline_num +
+                          'I-PS-SHTR-02:STA') == 1 and
+            catools.caget('BL' + self.XBPMSharedPVs.beamline_num +
+                          'I-PS-SHTR-01:STA') == 1 and
+            self.XBPMSharedPVs.fb_enable_status.get() == 1 and
+            self.XBPMSharedPVs.fb_pause_status.get() == 1 and
+            self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(1)
             logging.info("Feedback OK to run")
