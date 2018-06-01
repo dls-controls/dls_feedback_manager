@@ -17,11 +17,11 @@ class XBPMRangeManager:
 
     ## Constructor.
     #  Inputs from XBPM manager control replace defaults.
-    def __init__(self, shared_pvs, pv_prefix='', xbpm_num='',
+    def __init__(self, shared_pvs, tetramm_prefix='', xbpm_num='',
                  lower_current_limit=0.0, upper_current_limit=0.0,
                  fswt_strength=0.0, threshold_percentage=0.0, id_energy=''):
         self.shared_pvs = shared_pvs
-        self.pv_prefix = pv_prefix
+        self.tetramm_prefix = tetramm_prefix
         self.xbpm_num = xbpm_num
         self.lower_current_limit = lower_current_limit
         self.upper_current_limit = upper_current_limit
@@ -54,20 +54,20 @@ class XBPMRangeManager:
 
     ## Imported records of readback values
     def xbpm_vals(self):
-        self.dx_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) +
+        self.dx_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
                                           ':DiffX:MeanValue_RBV')
-        self.sx_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) +
+        self.sx_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
                                           ':SumX:MeanValue_RBV')
-        self.dy_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) +
+        self.dy_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
                                           ':DiffY:MeanValue_RBV')
-        self.sy_mean_value = ImportRecord(self.pv_prefix + str(self.xbpm_num) +
+        self.sy_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
                                           ':SumY:MeanValue_RBV')
-        self.xbpm_sum_mean_value = ImportRecord(self.pv_prefix +
+        self.xbpm_sum_mean_value = ImportRecord(self.tetramm_prefix +
                                                 str(self.xbpm_num) +
                                                 ':SumAll:MeanValue_RBV')
-        self.xbpm_x_beamsize = ImportRecord(self.pv_prefix + str(self.xbpm_num)
+        self.xbpm_x_beamsize = ImportRecord(self.tetramm_prefix + str(self.xbpm_num)
                                             + ':DRV:PositionScaleX')
-        self.xbpm_y_beamsize = ImportRecord(self.pv_prefix + str(self.xbpm_num)
+        self.xbpm_y_beamsize = ImportRecord(self.tetramm_prefix + str(self.xbpm_num)
                                             + ':DRV:PositionScaleY')
 
     ## "Normalised" beam position PVs
@@ -126,21 +126,21 @@ class XBPMRangeManager:
 
     ## Monitor XBPM signal currents.
     def camonitor_range(self):
-        catools.camonitor(self.pv_prefix + self.xbpm_num +
+        catools.camonitor(self.tetramm_prefix + self.xbpm_num +
                           ':SumAll:MeanValue_RBV', self.check_range)
         # catools.camonitor(self.pv_prefix + self.xbpm_num +
         # ':SumAll:MeanValue_RBV', self.check_range)
 
     ## Gets current range for flipping between TetrAMM current ranges
     def check_range(self, val):
-        self.r = catools.caget(self.pv_prefix + self.xbpm_num + ':DRV:Range')
+        self.r = catools.caget(self.tetramm_prefix + self.xbpm_num + ':DRV:Range')
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
-                catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 1)
+                catools.caput(self.tetramm_prefix + self.xbpm_num + ':DRV:Range', 1)
                 logging.debug("Current range set to +-120nA")
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
-                catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 0)
+                catools.caput(self.tetramm_prefix + self.xbpm_num + ':DRV:Range', 0)
                 logging.debug("Current range set to +-120uA")
 
     ## Run monitor on the ID gap, change scale factors if ID energy changes.
@@ -155,9 +155,9 @@ class XBPMRangeManager:
     def set_vertical_xbpm_scale_factor(self, energy):
         ky = (-26 * energy + 1120) / self.fswt_strength
         kx = 1200 / self.fswt_strength
-        catools.caput(self.pv_prefix + str(self.xbpm_num) +
+        catools.caput(self.tetramm_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleY', ky)
         logging.info("Position scale Y set to " + str(ky))
-        catools.caput(self.pv_prefix + str(self.xbpm_num) +
+        catools.caput(self.tetramm_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleX', kx)
         logging.info("Position scale X set to " + str(kx))

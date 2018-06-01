@@ -51,7 +51,7 @@ shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('04')
 #  factor, position threshold percentage and ID energy gap PV name.
 XBPM1 = XBPM_range_manager.XBPMRangeManager(
     shared_PVs,
-    pv_prefix='BL04I-EA-XBPM-',
+    tetramm_prefix='BL04I-EA-XBPM-',
     xbpm_num='01',
     lower_current_limit=50e-9,
     upper_current_limit=100e-9,
@@ -61,7 +61,7 @@ XBPM1 = XBPM_range_manager.XBPMRangeManager(
 
 XBPM2 = XBPM_range_manager.XBPMRangeManager(
     shared_PVs,
-    pv_prefix='BL04I-EA-XBPM-',
+    tetramm_prefix='BL04I-EA-XBPM-',
     xbpm_num='02',
     lower_current_limit=90e-9,
     upper_current_limit=110e-9,
