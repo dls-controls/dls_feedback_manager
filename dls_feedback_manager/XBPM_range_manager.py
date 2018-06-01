@@ -2,7 +2,7 @@ from pkg_resources import require
 import logging
 require('cothread==2.14')
 require('numpy==1.11.1')
-require('epicsdbbuilder==1.2')
+require('epicsdbbuilder')
 
 from softioc import builder
 from cothread import catools
@@ -17,15 +17,15 @@ class XBPMRangeManager:
 
     ## Constructor.
     #  Inputs from XBPM manager control replace defaults.
-    def __init__(self, shared_PVs, pv_prefix='', xbpm_num='',
+    def __init__(self, shared_pvs, pv_prefix='', xbpm_num='',
                  lower_current_limit=0.0, upper_current_limit=0.0,
-                 scale_factor=0.0, threshold_percentage=0.0, id_energy=''):
-        self.shared_PVs = shared_PVs
+                 fswt_strength=0.0, threshold_percentage=0.0, id_energy=''):
+        self.shared_pvs = shared_pvs
         self.pv_prefix = pv_prefix
         self.xbpm_num = xbpm_num
         self.lower_current_limit = lower_current_limit
         self.upper_current_limit = upper_current_limit
-        self.scale_factor = scale_factor
+        self.fswt_strength = fswt_strength
         self.threshold_percentage = threshold_percentage
         self.id_energy = id_energy
         self.call_on_start()
@@ -45,8 +45,8 @@ class XBPMRangeManager:
 
     ## Sets restrictions for input values
     def validate_params(self):
-        assert type(self.scale_factor) is not str, \
-            "input numerical type scale factor"
+        assert type(self.fswt_strength) is not str, \
+            "input numerical type fswt strength"
         assert type(self.threshold_percentage) is not str, \
             "input numerical type threshold percentage"
         assert 0 <= self.threshold_percentage <= 100, "insert valid percentage"
@@ -72,62 +72,57 @@ class XBPMRangeManager:
 
     ## "Normalised" beam position PVs
     def norm_pos(self):
-        self.xbpm_normx = records.calc('XBPM'+str(int(self.xbpm_num))+'_NORMX',
-                                       CALC='A/B',
-                                       INPA=Monitor(self.dx_mean_value),
-                                       INPB=Monitor(self.sx_mean_value),
-                                       LOPR=-1,
-                                       HOPR=1,
-                                       PINI='YES',
-                                       EGU='')
+        self.xbpm_normx = records.calc(
+            'XBPM'+str(int(self.xbpm_num))+'_NORMX',
+            CALC='A/B',
+            INPA=Monitor(self.dx_mean_value),
+            INPB=Monitor(self.sx_mean_value),
+            LOPR=-1,
+            HOPR=1,
+            PINI='YES',
+            EGU='')
 
-        self.xbpm_normy = records.calc('XBPM'+str(int(self.xbpm_num))+'_NORMY',
-                                       CALC='A/B',
-                                       INPA=Monitor(self.dy_mean_value),
-                                       INPB=Monitor(self.sy_mean_value),
-                                       LOPR=-1,
-                                       HOPR=1,
-                                       PINI='YES',
-                                       EGU='')
+        self.xbpm_normy = records.calc(
+            'XBPM'+str(int(self.xbpm_num))+'_NORMY',
+            CALC='A/B',
+            INPA=Monitor(self.dy_mean_value),
+            INPB=Monitor(self.sy_mean_value),
+            LOPR=-1,
+            HOPR=1,
+            PINI='YES',
+            EGU='')
 
     ## XBPM position threshold PVs
     #  Checks if the beam position is ok before restarting data collection.
     def position_threshold(self):
-        self.threshold_percentage_xbpm = builder.aOut('THRESHOLDPC_XBPM' +
-                                                      str(int(self.xbpm_num)),
-                                                      initial_value=
-                                                      self.threshold_percentage,
-                                                      LOPR=0,
-                                                      HOPR=100,
-                                                      PINI='YES')
+        self.threshold_percentage_xbpm = builder.aOut(
+            'THRESHOLDPC_XBPM' + str(int(self.xbpm_num)),
+            initial_value=self.threshold_percentage,
+            LOPR=0,
+            HOPR=100,
+            PINI='YES')
 
-        self.position_threshold_ok_xbpm = records.calc('XBPM' +
-                                          str(int(self.xbpm_num)) +
-                                          'POSITION_OK',
-                                          CALC='(ABS(B)<(A/100)) '
-                                          '&& (ABS(C)<(A/100))',
-                                          INPA=Monitor
-                                          (self.threshold_percentage_xbpm),
-                                          INPB=Monitor
-                                          (self.xbpm_normx),
-                                          INPC=Monitor
-                                          (self.xbpm_normy),
-                                          LOPR=0,
-                                          HOPR=1,
-                                          PINI='YES',
-                                          EGU='')
+        self.position_threshold_ok_xbpm = records.calc(
+            'XBPM' + str(int(self.xbpm_num)) + 'POSITION_OK',
+            CALC='(ABS(B)<(A/100)) && (ABS(C)<(A/100))',
+            INPA=Monitor(self.threshold_percentage_xbpm),
+            INPB=Monitor(self.xbpm_normx),
+            INPC=Monitor(self.xbpm_normy),
+            LOPR=0,
+            HOPR=1,
+            PINI='YES',
+            EGU='')
 
     def signals_ok(self):
-        self.xbpmSignalsOk = records.calc('XBPM' + str(int(self.xbpm_num)) +
-                                          'SIGNALS_OK', CALC='A>B',
-                                          INPA=Monitor
-                                          (self.xbpm_sum_mean_value),
-                                          INPB=Monitor
-                                          (self.shared_PVs.minXCurr),
-                                          LOPR=0,
-                                          HOPR=1,
-                                          PINI='YES',
-                                          EGU='')
+        self.xbpmSignalsOk = records.calc(
+            'XBPM' + str(int(self.xbpm_num)) + 'SIGNALS_OK',
+            CALC='A>B',
+            INPA=Monitor(self.xbpm_sum_mean_value),
+            INPB=Monitor(self.shared_pvs.minXCurr),
+            LOPR=0,
+            HOPR=1,
+            PINI='YES',
+            EGU='')
 
     ## Monitor XBPM signal currents.
     def camonitor_range(self):
@@ -142,11 +137,11 @@ class XBPMRangeManager:
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 1)
-                logging.info("Current range set to +-120nA")
+                logging.debug("Current range set to +-120nA")
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
                 catools.caput(self.pv_prefix + self.xbpm_num + ':DRV:Range', 0)
-                logging.info("Current range set to +-120uA")
+                logging.debug("Current range set to +-120uA")
 
     ## Run monitor on the ID gap, change scale factors if ID energy changes.
     def camonitor_scale(self):
@@ -158,8 +153,8 @@ class XBPMRangeManager:
     #  For more information please see TDI-DIA-XBPM-REP-003.
     #  Note - XBPM2 divided by 3.2
     def set_vertical_xbpm_scale_factor(self, energy):
-        ky = (-26 * energy + 1120) / self.scale_factor
-        kx = 1200 / self.scale_factor
+        ky = (-26 * energy + 1120) / self.fswt_strength
+        kx = 1200 / self.fswt_strength
         catools.caput(self.pv_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleY', ky)
         logging.info("Position scale Y set to " + str(ky))

@@ -4,7 +4,7 @@ import logging
 
 require('cothread==2.14')
 require('numpy==1.11.1')
-require('epicsdbbuilder==1.2')
+require('epicsdbbuilder==1.2')  # todo:
 
 from cothread import catools
 from softioc import builder
@@ -50,55 +50,59 @@ class XBPMSharedPVs:
     #  FB_MODE acts as a button for the different modes. The XBPMs can either
     #  run independently or in tandem.
     def create_feedback_status_pv(self):
-        self.fb_enable_status = builder.mbbOut('FB_ENABLE',
-                                               initial_value=0,
-                                               PINI='YES',
-                                               NOBT=2,
-                                               ZRVL=0, ZRST='Stopped',
-                                               ONVL=1, ONST='Run')
+        self.fb_enable_status = builder.mbbOut(
+            'FB_ENABLE',
+            initial_value=0,
+            PINI='YES',
+            NOBT=2,
+            ZRVL=0, ZRST='Stopped',
+            ONVL=1, ONST='Run')
 
-        self.fb_pause_status = builder.mbbOut('FB_PAUSE',
-                                              initial_value=1,
-                                              PINI='YES',
-                                              NOBT=2,
-                                              ZRVL=0, ZRST='Paused',
-                                              ONVL=1, ONST='Ok to Run')
+        self.fb_pause_status = builder.mbbOut(
+            'FB_PAUSE',
+            initial_value=1,
+            PINI='YES',
+            NOBT=2,
+            ZRVL=0, ZRST='Paused',
+            ONVL=1, ONST='Ok to Run')
 
-        self.fb_mode_status = builder.mbbOut('FB_MODE',
-                                             initial_value=0,
-                                             PINI='YES',
-                                             NOBT=3,
-                                             ZRVL=0, ZRST='Running on XBPM1',
-                                             ONVL=1,
-                                             ONST='Running on XBPM1 AND 2',
-                                             TWVL=2, TWST='Running on XBPM2')
+        self.fb_mode_status = builder.mbbOut(
+            'FB_MODE',
+            initial_value=0,
+            PINI='YES',
+            NOBT=3,
+            ZRVL=0, ZRST='Running on XBPM1',
+            ONVL=1, ONST='Running on XBPM1 AND 2',
+            TWVL=2, TWST='Running on XBPM2')
 
     ## Limits for XBPM current
     def create_xbpm_current(self):
-        self.minXCurr = builder.aIn('MIN_XBPMCURRENT',
-                                    initial_value=10e-9,
-                                    LOPR=0,
-                                    HOPR=1.0,
-                                    PINI='YES')
+        self.minXCurr = builder.aIn(
+            'MIN_XBPMCURRENT',
+            initial_value=10e-9,
+            LOPR=0,
+            HOPR=1.0,
+            PINI='YES')
 
-        self.minSRCurr = builder.aIn('MIN_DCCTCURRENT',
-                                     initial_value=8,
-                                     LOPR=0,
-                                     HOPR=310.0,
-                                     PINI='YES')
+        self.minSRCurr = builder.aIn(
+            'MIN_DCCTCURRENT',
+            initial_value=8,
+            LOPR=0,
+            HOPR=310.0,
+            PINI='YES')
 
 
 ## XBPM1 feedback
-class XBPM1_Feedback:
+class XBPM1Feedback:
 
     ## Constructor.
     #  Imports XBPMSharedPVs class and sets the prefix for XBPM1.
     #  Creates list of feedback prefixes.
-    def __init__(self, XBPMSharedPVs, xbpm1_prefix, xbpm1_pid_params_list,
+    def __init__(self, XBPMSharedPVs, xbpm1_pid_params_list, xbpm1_prefix,
                  xbpm1_num, mode_range1):
         self.XBPMSharedPVs = XBPMSharedPVs
-        self.prefix = xbpm1_prefix
         self.xbpm_pid_params_list = xbpm1_pid_params_list
+        self.prefix = xbpm1_prefix
         self.xbpm_num = xbpm1_num
         self.mode_range = mode_range1
         for pid in self.xbpm_pid_params_list:
@@ -134,13 +138,14 @@ class XBPM1_Feedback:
     #  Used in check_feedback_inputs to specify conditions for setting new
     #  status if the PVs for DCM change.
     def run_status_pv(self):
-        self.fb_run_status = builder.mbbOut('FB_RUN'+str(int(self.xbpm_num)),
-                                            initial_value=0,
-                                            PINI='YES',
-                                            NOBT=2,
-                                            ZRVL=0, ZRST='Stopped',
-                                            ONVL=1, ONST='Run',
-                                            TWVL=2, TWST='Paused')
+        self.fb_run_status = builder.mbbOut(
+            'FB_RUN'+str(int(self.xbpm_num)),
+            initial_value=0,
+            PINI='YES',
+            NOBT=2,
+            ZRVL=0, ZRST='Stopped',
+            ONVL=1, ONST='Run',
+            TWVL=2, TWST='Paused')
 
     ## Created in constructor.
     #  Set limits for each PID parameter.
@@ -212,7 +217,7 @@ class XBPM1_Feedback:
             self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(1)
-            logging.info("Feedback OK to run")
+            logging.info("Feedback OK to Run")
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Started")
         elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
               self.XBPMSharedPVs.fb_pause_status.get() == 0 and
@@ -220,7 +225,7 @@ class XBPM1_Feedback:
               ):
             self.set_run_status(2)
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Paused")
-            logging.info('Feedback paused')
+            logging.warning('Feedback Paused')
         else:
             self.set_run_status(0)
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Stopped")
@@ -235,18 +240,19 @@ class XBPM1_Feedback:
                           self.pv_dict['KI' + pid.position])
             catools.caput(pid.feedback_prefix + '.KD',
                           self.pv_dict['KD' + pid.position])
+        logging.debug("Feedback PID values set")
 
 
 ## XBPM2 feedback
-class XBPM2_Feedback(XBPM1_Feedback):
+class XBPM2Feedback(XBPM1Feedback):
 
     ## Constructor.
     #  Overrides prefix.
     #  Creates list of feedback prefixes.
-    def __init__(self, XBPMSharedPVs, xbpm2_prefix, xbpm1_prefix,
-                 xbpm2_pid_params_list, xbpm2_num, mode_range2):
-        XBPM1_Feedback.__init__(self, XBPMSharedPVs, xbpm1_prefix,
-                                xbpm2_pid_params_list, xbpm2_num, mode_range2)
+    def __init__(self, XBPMSharedPVs, xbpm2_pid_params_list, xbpm2_prefix,
+                 xbpm1_prefix, xbpm2_num, mode_range2):
+        XBPM1Feedback.__init__(self, XBPMSharedPVs, xbpm2_pid_params_list,
+                               xbpm1_prefix, xbpm2_num, mode_range2)
         self.XBPMSharedPVs = XBPMSharedPVs
         self.prefix = xbpm2_prefix
         self.xbpm_pid_params_list = xbpm2_pid_params_list
