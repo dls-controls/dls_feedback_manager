@@ -71,9 +71,9 @@ class XBPMSharedPVs:
             initial_value=0,
             PINI='YES',
             NOBT=3,
-            ZRVL=0, ZRST='Running on XBPM1',
-            ONVL=1, ONST='Running on XBPM1 AND 2',
-            TWVL=2, TWST='Running on XBPM2')
+            ZRVL=0, ZRST='XBPM1 mode',
+            ONVL=1, ONST='XBPM1 AND 2 mode',
+            TWVL=2, TWST='XBPM2 mode')
 
     ## Limits for XBPM current
     def create_xbpm_current(self):
@@ -98,11 +98,11 @@ class XBPM1Feedback:
     ## Constructor.
     #  Imports XBPMSharedPVs class and sets the prefix for XBPM1.
     #  Creates list of feedback prefixes.
-    def __init__(self, XBPMSharedPVs, xbpm1_pid_params_list, xbpm1_prefix,
+    def __init__(self, XBPMSharedPVs, xbpm1_pid_params_list, epics_fb_prefix1,
                  xbpm1_num, mode_range1):
         self.XBPMSharedPVs = XBPMSharedPVs
         self.xbpm_pid_params_list = xbpm1_pid_params_list
-        self.prefix = xbpm1_prefix
+        self.prefix = epics_fb_prefix1
         self.xbpm_num = xbpm1_num
         self.mode_range = mode_range1
         for pid in self.xbpm_pid_params_list:
@@ -146,6 +146,7 @@ class XBPM1Feedback:
             ZRVL=0, ZRST='Stopped',
             ONVL=1, ONST='Run',
             TWVL=2, TWST='Paused')
+
 
     ## Created in constructor.
     #  Set limits for each PID parameter.
@@ -217,7 +218,7 @@ class XBPM1Feedback:
             self.XBPMSharedPVs.fb_mode_status.get() in self.mode_range
         ):
             self.set_run_status(1)
-            logging.info("Feedback OK to Run")
+            logging.info('Feedback OK to Run')
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Started")
         elif (self.XBPMSharedPVs.fb_enable_status.get() == 1 and
               self.XBPMSharedPVs.fb_pause_status.get() == 0 and
@@ -248,13 +249,12 @@ class XBPM2Feedback(XBPM1Feedback):
 
     ## Constructor.
     #  Overrides prefix.
-    #  Creates list of feedback prefixes.
-    def __init__(self, XBPMSharedPVs, xbpm2_pid_params_list, xbpm2_prefix,
-                 xbpm1_prefix, xbpm2_num, mode_range2):
+    def __init__(self, XBPMSharedPVs, xbpm2_pid_params_list, epics_fb_prefix2,
+                 epics_fb_prefix1, xbpm2_num, mode_range2):
         XBPM1Feedback.__init__(self, XBPMSharedPVs, xbpm2_pid_params_list,
-                               xbpm1_prefix, xbpm2_num, mode_range2)
+                               epics_fb_prefix1, xbpm2_num, mode_range2)
         self.XBPMSharedPVs = XBPMSharedPVs
-        self.prefix = xbpm2_prefix
+        self.prefix = epics_fb_prefix2
         self.xbpm_pid_params_list = xbpm2_pid_params_list
         self.xbpm_num = xbpm2_num
         self.mode_range = mode_range2

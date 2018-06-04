@@ -5,4 +5,4 @@ export EPICS_CA_REPEATER_PORT=6165
 export EPICS_CA_ADDR_LIST=127.0.0.1
 export EPICS_CA_AUTO_ADDR_LIST=
 
-edm -m BLname=I04,P=test:BL03I BL03I-XBPMFeedback.edl
+edm -m BLname=I24,P=BL24I BL24I-XBPMFeedback.edl

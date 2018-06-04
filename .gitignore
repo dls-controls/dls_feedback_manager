@@ -72,3 +72,4 @@ target/
 screenlog.0
 .travis_comments.yml
 dls_feedback_manager/.idea/
+*~
