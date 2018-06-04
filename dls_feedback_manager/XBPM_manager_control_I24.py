@@ -45,7 +45,7 @@ XBPM1 = XBPM_range_manager.XBPMRangeManager(
     upper_current_limit=100e-9,
     fswt_strength=1.0,
     threshold_percentage=3.0,
-    id_energy='BL24I-MO-DCM-01:ENERGY')
+    id_energy='')
 
 
 ## Run XBPM feedback manager
