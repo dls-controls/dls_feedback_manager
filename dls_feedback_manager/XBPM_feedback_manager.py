@@ -23,7 +23,7 @@ def Monitor(pv):
     return MS(CP(pv))
 
 
-## PVs used by both DCMs (/FSWT).
+## PVs used by both XBPMs.
 class XBPMSharedPVs:
 
     ## Constructor.
@@ -42,10 +42,6 @@ class XBPMSharedPVs:
             'FE' + self.beamline_num + 'I-PS-SHTR-02:STA',
             'BL' + self.beamline_num + 'I-PS-SHTR-01:STA',
             'BL' + self.beamline_num + 'I-EA-XBPM-02:SumAll:MeanValue_RBV']
-
-    ##  Restricts caput to given options.
-    def validate_status_options(self):
-        assert self.status_options in [0, 1, 2]
 
     ## Feedback status PVs.
     #  FB_ENABLE acts as an ON/OFF button for the IOC.

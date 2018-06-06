@@ -1,16 +1,64 @@
-#!/bin/env dls-python
 
 import unittest
-from mock import Mock, MagicMock, patch
-from XBPM_feedback_manager import XBPM1Feedback, XBPM2Feedback
+from mock import MagicMock, patch, call
+from XBPM_feedback_manager import XBPMSharedPVs, XBPM1Feedback, XBPM2Feedback
 
 ## dls_feedback_manager
 #  Unittests for XBPM Feedback Manager.
 
 XBPM_feedback_manager_patch = "XBPM_feedback_manager"
-XBPM2 = XBPM_feedback_manager_patch + ".XBPM2Feedback"
+shared_patch = XBPM_feedback_manager_patch + ".XBPMSharedPVs"
+XBPM2_patch = XBPM_feedback_manager_patch + ".XBPM2Feedback"
 catools_patch = XBPM_feedback_manager_patch + ".catools"
 
+
+class XBPMSharedPVsTester(XBPMSharedPVs):
+
+    """A version of XBPMSharedPVs without initialisation.
+
+        For testing single methods of the class. Must have required attributes
+        passed before calling testee function.
+
+        """
+
+    def __init__(self, **kwargs):
+        for attribute, value in kwargs.items():
+            self.__setattr__(attribute, value)
+
+
+class SharedParamsTest(unittest.TestCase):
+
+    @patch(shared_patch)
+    def test_feedback_status_pvs_created(self):
+        builder_mock = MagicMock()
+        fb_enable_status_mock = MagicMock()
+        fb_pause_status_mock = MagicMock()
+        fb_mode_status_mock = MagicMock()
+
+        pvs = XBPMSharedPVsTester(builder=builder_mock,
+                                  fb_enable_status=fb_enable_status_mock,
+                                  fb_pause_status=fb_pause_status_mock,
+                                  fb_mode_status=fb_mode_status_mock)
+
+        pvs.create_feedback_status_pv()
+
+        builder_mock.mbbOut.assert_has_calls(
+            [call("FB_ENABLE"), call("FB_PAUSE"), call("FB_MODE")])
+
+    @patch(shared_patch)
+    def test_xbpm_current_pvs_created(self):
+        builder_mock = MagicMock()
+        min_xcurr_mock = MagicMock()
+        min_srcurr_mock = MagicMock()
+
+        pvs = XBPMSharedPVsTester(builder=builder_mock,
+                                  minXCurr=min_xcurr_mock,
+                                  minSRCurr=min_srcurr_mock)
+
+        pvs.create_feedback_status_pv()
+
+        builder_mock.aIn.assert_has_calls(
+            [call("MIN_XBPMCURRENT"), call("MIN_DCCTCURRENT")])
 
 
 class XBPM1FeedbackTester(XBPM1Feedback):
@@ -28,14 +76,14 @@ class XBPM1FeedbackTester(XBPM1Feedback):
 
 
 ## Testing functions
-class FeedbackTests(unittest.TestCase):
+class MainClassFeedbackTests(unittest.TestCase):
 
     @patch(catools_patch + ".caput")
     def test_setup_names(self, caput_mock):
         status_mock = MagicMock()
         status_mock.name = "FB_RUN1"
         xbpm1 = XBPM1FeedbackTester(caput_list=["TEST"],
-                                   fb_run_status=status_mock)
+                                    fb_run_status=status_mock)
 
         xbpm1.setup_names()
 
@@ -77,19 +125,19 @@ class XBPM2FeedbackTester(XBPM2Feedback):
 
 class XBPMFeedbackSuperTest(unittest.TestCase):
 
-    @patch(XBPM2 + '.__init__')
+    @patch(XBPM2_patch + '.__init__')
     def test_super_called(self, super_mock):
         builder_mock = MagicMock()
         sharedpvs_mock = MagicMock()
-        xbpm2 = XBPM2FeedbackTester(builder=builder_mock,
-                                    XBPMSharedPVs=sharedpvs_mock,
-                                    xbpm2_pid_params_list=["TEST"],
-                                    epics_fb_prefix1="prefix1",
-                                    epics_fb_prefix2="prefix2",
-                                    xbpm2_num="02", mode_range2=(0, 1))
 
-        xbpm2.__init__()
+        xbpm2class = XBPM2FeedbackTester(
+            builder=builder_mock,
+            XBPMSharedPVs=sharedpvs_mock,
+            xbpm2_pid_params_list=["TEST"])
 
-        super_mock.assert_called_once_with(builder_mock, sharedpvs_mock,
-                                           ["TEST"], "prefix2", "prefix1",
-                                           "02", (0, 1))
+        xbpm2class.__init__()
+
+        super_mock.assert_called_once_with(
+            builder_mock, sharedpvs_mock, ["TEST"],
+            "prefix2", "prefix1", "02", (0, 1))
+
