@@ -44,12 +44,13 @@ xbpm2_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(
     position="X2")]
 
 ## PVs shared by both XBPM1 and XBPM2 classes, assigns beamline number.
-shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('03')
+shared_PVs = XBPM_feedback_manager.XBPMSharedPVs(builder, '03')
 
 ## Run XBPM range manager
 #  Input PV prefix, XBPM number, lower and upper current limits, TetrAMM scale
 #  factor, position threshold percentage and ID energy gap PV name.
 XBPM1 = XBPM_range_manager.XBPMRangeManager(
+    builder,
     shared_PVs,
     tetramm_prefix='BL03I-EA-XBPM-',
     xbpm_num='01',
@@ -60,6 +61,7 @@ XBPM1 = XBPM_range_manager.XBPMRangeManager(
     id_energy='')
 
 XBPM2 = XBPM_range_manager.XBPMRangeManager(
+    builder,
     shared_PVs,
     tetramm_prefix='BL03I-EA-XBPM-',
     xbpm_num='02',
@@ -72,18 +74,20 @@ XBPM2 = XBPM_range_manager.XBPMRangeManager(
 
 ## Run XBPM feedback manager
 XBPM1_fdbk = XBPM_feedback_manager.XBPM1Feedback(
+    builder,
     shared_PVs,
     xbpm1_pid_params_list,
-    xbpm1_prefix='BL03I-MO-DCM-01',
+    epics_fb_prefix1='BL03I-MO-DCM-01',
     xbpm1_num='01',
     mode_range1=(0, 1))
 XBPM1_fdbk.make_on_startup()
 
 XBPM2_fdbk = XBPM_feedback_manager.XBPM2Feedback(
+    builder,
     shared_PVs,
     xbpm2_pid_params_list,
-    xbpm2_prefix='BL03I-MO-DCM-01',
-    xbpm1_prefix='BL03I-MO-DCM-01',
+    epics_fb_prefix2='BL03I-MO-DCM-01',
+    epics_fb_prefix1='BL03I-MO-DCM-01',
     xbpm2_num='02',
     mode_range2=(1, 2))
 XBPM2_fdbk.make_on_startup()

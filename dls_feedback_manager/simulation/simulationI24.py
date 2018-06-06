@@ -15,36 +15,19 @@ builder.SetDeviceName('BL24I-EA-XBPM-01')
 
 x1sigcurr = builder.aOut('SumAll:MeanValue_RBV', initial_value=5)
 x1r = builder.mbbOut('DRV:Range', initial_value=0)
-x1psy = builder.mbbOut('DRV:PositionScaleY', initial_value=790)
-x1psx = builder.mbbOut('DRV:PositionScaleX', initial_value=1200)
+x1psy = builder.mbbOut('DRV:PositionScaleY', initial_value=1)
+x1psx = builder.mbbOut('DRV:PositionScaleX', initial_value=1)
+
 
 ##############################################
 
-builder.SetDeviceName('BL24I-EA-XBPM-02')
-
-x2sigcurr = builder.aOut('SumAll:MeanValue_RBV', initial_value=7)
-x2r = builder.aOut('DRV:Range', initial_value=0)
-x2psy = builder.aOut('DRV:PositionScaleY', initial_value=247)
-x2psx = builder.aOut('DRV:PositionScaleX', initial_value=1200)
-
-##############################################
-
-builder.SetDeviceName('BL24I-MO-DCM-01')
+builder.SetDeviceName('BL24I-OP-DCM-01')
 
 A = 1
-x1SF = builder.aOut('ENERGY', initial_value=12.658)
-rc1 = records.calc('FDBK1:AUTOCALC', CALC=A)
-rc2 = records.calc('FDBK2:AUTOCALC', CALC=A)
+x1SF = builder.aOut('ENERGY', initial_value=11.882)
+pitch = builder.aOut('FPITCH:FB1', initial_value=0.554)
+roll = builder.aOut('FPITCH:FB2', initial_value=0.0261)
 
-##############################################
-
-builder.SetDeviceName('BL24I-MO-FSWT-01')
-
-A = 1
-rc1f = records.calc('FDBK1:AUTOCALC', CALC=A)
-rc2f = records.calc('FDBK2:AUTOCALC', CALC=A)
-rc3 = records.calc('FDBK3:AUTOCALC', CALC=A)
-rc4 = records.calc('FDBK4:AUTOCALC', CALC=A)
 
 ##############################################
 

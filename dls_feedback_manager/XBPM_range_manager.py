@@ -4,7 +4,7 @@ require('cothread==2.14')
 require('numpy==1.11.1')
 require('epicsdbbuilder')
 
-from softioc import builder
+#from softioc import builder
 from cothread import catools
 from epicsdbbuilder import records, MS, CP, ImportRecord
 
@@ -17,9 +17,11 @@ class XBPMRangeManager:
 
     ## Constructor.
     #  Inputs from XBPM manager control replace defaults.
-    def __init__(self, shared_pvs, tetramm_prefix='', xbpm_num='',
+    def __init__(self, builder, shared_pvs, tetramm_prefix='', xbpm_num='',
                  lower_current_limit=0.0, upper_current_limit=0.0,
-                 fswt_strength=0.0, threshold_percentage=0.0, id_energy=''):
+                 fswt_strength=0.0, threshold_percentage=0.0, id_energy=''
+                 ):
+        self.builder = builder
         self.shared_pvs = shared_pvs
         self.tetramm_prefix = tetramm_prefix
         self.xbpm_num = xbpm_num
@@ -31,6 +33,7 @@ class XBPMRangeManager:
         self.call_on_start()
         if len(id_energy) > 0:
             self.camonitor_scale()
+
 
     ## Creates PVs and starts camonitors.
     def call_on_start(self):
@@ -54,12 +57,12 @@ class XBPMRangeManager:
 
     ## Imported records of readback values
     def xbpm_vals(self):
-        self.dx_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
-                                          ':DiffX:MeanValue_RBV')
-        self.sx_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
-                                          ':SumX:MeanValue_RBV')
-        self.dy_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
-                                          ':DiffY:MeanValue_RBV')
+        self.dx_mean_value = ImportRecord(self.tetramm_prefix +
+            str(self.xbpm_num) + ':DiffX:MeanValue_RBV')
+        self.sx_mean_value = ImportRecord(self.tetramm_prefix +
+            str(self.xbpm_num) + ':SumX:MeanValue_RBV')
+        self.dy_mean_value = ImportRecord(self.tetramm_prefix +
+            str(self.xbpm_num) + ':DiffY:MeanValue_RBV')
         self.sy_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
                                           ':SumY:MeanValue_RBV')
         self.xbpm_sum_mean_value = ImportRecord(self.tetramm_prefix +
@@ -95,7 +98,7 @@ class XBPMRangeManager:
     ## XBPM position threshold PVs
     #  Checks if the beam position is ok before restarting data collection.
     def position_threshold(self):
-        self.threshold_percentage_xbpm = builder.aOut(
+        self.threshold_percentage_xbpm = self.builder.aOut(
             'THRESHOLDPC_XBPM' + str(int(self.xbpm_num)),
             initial_value=self.threshold_percentage,
             LOPR=0,

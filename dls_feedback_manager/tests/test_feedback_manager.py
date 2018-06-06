@@ -2,81 +2,94 @@
 
 import unittest
 from mock import Mock, MagicMock, patch
-import XBPM_feedback_manager
+from XBPM_feedback_manager import XBPM1Feedback, XBPM2Feedback
 
-## @package dls_feedback_manager
+## dls_feedback_manager
 #  Unittests for XBPM Feedback Manager.
 
-## Class containing unittest methods.
+XBPM_feedback_manager_patch = "XBPM_feedback_manager"
+XBPM2 = XBPM_feedback_manager_patch + ".XBPM2Feedback"
+catools_patch = XBPM_feedback_manager_patch + ".catools"
+
+
+
+class XBPM1FeedbackTester(XBPM1Feedback):
+
+    """A version of XBPM1Feedback without initialisation.
+
+    For testing single methods of the class. Must have required attributes
+    passed before calling testee function.
+
+    """
+
+    def __init__(self, **kwargs):
+        for attribute, value in kwargs.items():
+            self.__setattr__(attribute, value)
+
+
+## Testing functions
 class FeedbackTests(unittest.TestCase):
 
-    def setUp(self):
-        self.xbpm1_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK1", "pos": "Y1"},
-                                 {"KP": 1.80e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK2", "pos": "X1"}]
+    @patch(catools_patch + ".caput")
+    def test_setup_names(self, caput_mock):
+        status_mock = MagicMock()
+        status_mock.name = "FB_RUN1"
+        xbpm1 = XBPM1FeedbackTester(caput_list=["TEST"],
+                                   fb_run_status=status_mock)
 
-        self.xbpm2_pid_params = [{"KP": -4.00e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK3", "pos": "Y2"},
-                                 {"KP": 1.80e-5, "KI": 0.830, "KD": 0.000, "prefix": "FDBK4", "pos": "X2"}]
-        self.shared_PVs = XBPM_feedback_manager.XBPMSharedPVs('03')
-        self.XBPM1_fdbk = XBPM_feedback_manager.XBPM1_feedback(self.shared_PVs, 'BL03I-MO-DCM-01',
-                                                               self.xbpm1_pid_params)
-        self.XBPM2_fdbk = XBPM_feedback_manager.XBPM2_feedback(self.shared_PVs, 'BL03I-MO-DCM-01', 'BL03I-MO-DCM-01',
-                                                               self.xbpm2_pid_params)
+        xbpm1.setup_names()
 
-    ## Method to ensure the prefix gets formatted correctly.
-    def test_prefix(self):
-        self.assertEqual(self.XBPM1_fdbk.prefix, 'BL03I-MO-DCM-01')
-        print("xbpm1 prefix is " + self.XBPM1_fdbk.prefix)
-        self.assertEqual(self.XBPM2_fdbk.prefix, 'BL04I-MO-FSWT-01')
+        caput_mock.assert_called_once_with(["TEST"], "FB_RUN1 CP")
 
-    def test_xbpm_fbcheck_name(self):
-        self.assertTrue('FE03I-PS-SHTR-02:STA' in self.XBPM2_fdbk.xbpm_fbcheck)
+    def test_run_status_pv(self):
+        builder_mock = MagicMock()
+        xbpm1 = XBPM1FeedbackTester(
+            builder=builder_mock,
+            xbpm_num=1)
 
-    def test_validate_status_options(self):
-        self.assertTrue(self.shared_PVs.status_options in range(0, 4))
+        xbpm1.run_status_pv()
 
-    def test_sub_class(self):
-        self.XBPM2_fdbk.create_pid_pvs()
+        builder_mock.mbbOut.assert_called_once_with(
+            'FB_RUN1',
+            initial_value=0,
+            PINI='YES',
+            NOBT=2,
+            ZRVL=0, ZRST='Stopped',
+            ONVL=1, ONST='Run',
+            TWVL=2, TWST='Paused')
 
-    def tearDown(self):
-        self.xbpm1_pid_params = None
-        self.xbpm2_pid_params = None
-        self.shared_PVs = None
-        self.XBPM1_fdbk = None
-        self.XBPM2_fdbk = None
-        pass
+        # todo: for pid in params list
 
 
-if __name__ == '__main__':
-    unittest.main()
+class XBPM2FeedbackTester(XBPM2Feedback):
+
+    """A version of XBPM2Feedback without initialisation.
+
+    For testing single methods of the class. Must have required attributes
+    passed before calling testee function.
+
+    """
+
+    def __init__(self, **kwargs):
+        for attribute, value in kwargs.items():
+            self.__setattr__(attribute, value)
 
 
-    #def test_reset_when_fb_off(self):
-     #   pass
+class XBPMFeedbackSuperTest(unittest.TestCase):
 
-    #def test_restart_pid_params(self):  # is this necessary
-     #   pass
+    @patch(XBPM2 + '.__init__')
+    def test_super_called(self, super_mock):
+        builder_mock = MagicMock()
+        sharedpvs_mock = MagicMock()
+        xbpm2 = XBPM2FeedbackTester(builder=builder_mock,
+                                    XBPMSharedPVs=sharedpvs_mock,
+                                    xbpm2_pid_params_list=["TEST"],
+                                    epics_fb_prefix1="prefix1",
+                                    epics_fb_prefix2="prefix2",
+                                    xbpm2_num="02", mode_range2=(0, 1))
 
-    #def test_enable_button(self):
-     #   pass  # on or off, test prints under different circumstances
+        xbpm2.__init__()
 
-    #def test_XBPM2_PID_limits(self):
-     #   pass  # redefine e.g. kpx2 and make sure its inside lopr and hopr
-
-
-# RESET EVERYTHING BACK TO CERTAIN CONFIGURATION WHEN IOC TURNED OFF
-# RESET BEFORE RERUNNING TESTS
-
-    def test_example_of_setup_name(self):
-        pass
-
-    def test_expected_print_status(self):
-        pass
-
-    def test_check_feedback_inputs(self):
-        pass
-
-    def test_check_enable_status(self):
-        pass
-
-    def test_enable_status_checker(self):
-        pass
+        super_mock.assert_called_once_with(builder_mock, sharedpvs_mock,
+                                           ["TEST"], "prefix2", "prefix1",
+                                           "02", (0, 1))

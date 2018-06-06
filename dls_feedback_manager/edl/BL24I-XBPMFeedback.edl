@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2284
-y 91
+x 1392
+y 387
 w 320
 h 340
 font "helvetica-medium-r-12.0"
@@ -280,7 +280,7 @@ major 4
 minor 1
 release 1
 x 136
-y 80
+y 96
 w 168
 h 32
 font "helvetica-bold-r-10.0"
@@ -342,7 +342,7 @@ major 4
 minor 1
 release 1
 x 16
-y 200
+y 208
 w 123
 h 14
 font "helvetica-medium-r-12.0"
@@ -362,7 +362,7 @@ major 10
 minor 0
 release 0
 x 152
-y 200
+y 208
 w 48
 h 16
 controlPv "$(P)-EA-FDBK-01:THRESHOLDPC_XBPM1"
