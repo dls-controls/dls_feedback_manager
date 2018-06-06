@@ -63,15 +63,14 @@ class XBPMRangeManager:
             str(self.xbpm_num) + ':SumX:MeanValue_RBV')
         self.dy_mean_value = ImportRecord(self.tetramm_prefix +
             str(self.xbpm_num) + ':DiffY:MeanValue_RBV')
-        self.sy_mean_value = ImportRecord(self.tetramm_prefix + str(self.xbpm_num) +
-                                          ':SumY:MeanValue_RBV')
+        self.sy_mean_value = ImportRecord(self.tetramm_prefix +
+            str(self.xbpm_num) + ':SumY:MeanValue_RBV')
         self.xbpm_sum_mean_value = ImportRecord(self.tetramm_prefix +
-                                                str(self.xbpm_num) +
-                                                ':SumAll:MeanValue_RBV')
-        self.xbpm_x_beamsize = ImportRecord(self.tetramm_prefix + str(self.xbpm_num)
-                                            + ':DRV:PositionScaleX')
-        self.xbpm_y_beamsize = ImportRecord(self.tetramm_prefix + str(self.xbpm_num)
-                                            + ':DRV:PositionScaleY')
+            str(self.xbpm_num) + ':SumAll:MeanValue_RBV')
+        self.xbpm_x_beamsize = ImportRecord(self.tetramm_prefix +
+            str(self.xbpm_num) + ':DRV:PositionScaleX')
+        self.xbpm_y_beamsize = ImportRecord(self.tetramm_prefix +
+            str(self.xbpm_num) + ':DRV:PositionScaleY')
 
     ## "Normalised" beam position PVs
     def norm_pos(self):
