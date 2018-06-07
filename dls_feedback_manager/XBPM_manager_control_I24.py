@@ -18,16 +18,16 @@ builder.SetDeviceName('BL24I-EA-FDBK-01')
 import XBPM_range_manager, XBPM_feedback_manager, XBPM_pid_params
 
 xbpm1_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(
-    KP=1.0e-5,
-    KI=1.1042,
+    KP=-0.0050,
+    KI=0.000,
     KD=0.000,
-    feedback="FPITCH",
+    feedback="FPITCH:FB1",
     position="FB1"),  # pitch
                         XBPM_pid_params.XBPMPIDParamsClass(
-    KP=-1.800e-4,
-    KI=1.250,
+    KP=-0.0100,
+    KI=0.000,
     KD=0.000,
-    feedback="FPITCH",
+    feedback="FPITCH:FB2",
     position="FB2")]  # roll
 
 
@@ -44,7 +44,7 @@ XBPM1 = XBPM_range_manager.XBPMRangeManager(
     xbpm_num='01',
     lower_current_limit=50e-9,
     upper_current_limit=100e-9,
-    fswt_strength=1.0,
+    fswt_strength=1.0,  # Leave as 1 unless FSWT featured in BL
     threshold_percentage=3.0,
     id_energy='')
 

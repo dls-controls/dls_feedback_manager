@@ -64,7 +64,9 @@ class XBPMSharedPVs:
             PINI='YES',
             NOBT=2,
             ZRVL=0, ZRST='Paused',
-            ONVL=1, ONST='Ok to Run')
+            ONVL=1, ONST='Ok to Run',
+            on_update=self.pause_condition,
+            always_update=True)
 
         self.fb_mode_status = self.builder.mbbOut(
             'FB_MODE',
@@ -74,6 +76,12 @@ class XBPMSharedPVs:
             ZRVL=0, ZRST='XBPM1 mode',
             ONVL=1, ONST='XBPM1 AND 2 mode',
             TWVL=2, TWST='XBPM2 mode')
+
+    def pause_condition(self, value):
+        if value == 0:
+            logging.warning("Feedback Paused")
+        elif value == 1:
+            logging.warning("Feedback Ok to Run")
 
     ## Limits for XBPM current
     def create_xbpm_current(self):
@@ -226,7 +234,6 @@ class XBPM1Feedback(object):
               ):
             self.set_run_status(2)
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Paused")
-            logging.warning('Feedback Paused')
         else:
             self.set_run_status(0)
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Stopped")
@@ -236,11 +243,11 @@ class XBPM1Feedback(object):
     def set_feedback_pid(self):
         for pid in self.xbpm_pid_params_list:
             catools.caput(pid.feedback_prefix + '.KP',
-                          self.pv_dict['KP' + pid.position])
+                          self.pv_dict['KP' + pid.position].get())
             catools.caput(pid.feedback_prefix + '.KI',
-                          self.pv_dict['KI' + pid.position])
+                          self.pv_dict['KI' + pid.position].get())
             catools.caput(pid.feedback_prefix + '.KD',
-                          self.pv_dict['KD' + pid.position])
+                          self.pv_dict['KD' + pid.position].get())
         logging.debug("Feedback PID values set")
 
 

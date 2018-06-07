@@ -135,15 +135,18 @@ class XBPMRangeManager:
 
     ## Gets current range for flipping between TetrAMM current ranges
     def check_range(self, val):
-        self.r = catools.caget(self.tetramm_prefix + self.xbpm_num + ':DRV:Range')
+        self.r = catools.caget(
+            self.tetramm_prefix + self.xbpm_num + ':DRV:Range')
         if self.r == 0:  # 120uA
             if val < self.lower_current_limit:
-                catools.caput(self.tetramm_prefix + self.xbpm_num + ':DRV:Range', 1)
-                logging.debug("Current range set to +-120nA")
+                catools.caput(
+                    self.tetramm_prefix + self.xbpm_num + ':DRV:Range', 1)
+                logging.info("Current range set to +-120nA")
         elif self.r == 1:  # 120nA
             if val > self.upper_current_limit:
-                catools.caput(self.tetramm_prefix + self.xbpm_num + ':DRV:Range', 0)
-                logging.debug("Current range set to +-120uA")
+                catools.caput(
+                    self.tetramm_prefix + self.xbpm_num + ':DRV:Range', 0)
+                logging.info("Current range set to +-120uA")
 
     ## Run monitor on the ID gap, change scale factors if ID energy changes.
     def camonitor_scale(self):
