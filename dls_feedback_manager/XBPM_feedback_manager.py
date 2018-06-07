@@ -4,7 +4,7 @@ import logging
 
 require('cothread==2.14')
 require('numpy==1.11.1')
-require('epicsdbbuilder')
+require('epicsdbbuilder==1.2')
 
 #from mock import Mock
 #self.builder = Mock()
