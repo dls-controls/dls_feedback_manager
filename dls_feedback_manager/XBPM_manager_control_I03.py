@@ -2,7 +2,7 @@ import sys
 from pkg_resources import require
 import logging
 
-require('dls_feedback_manager==1.2')
+require('dls_feedback_manager==1.3.1')
 require('cothread==2.14')
 require('numpy==1.11.1')
 require('epicsdbbuilder==1.2')
