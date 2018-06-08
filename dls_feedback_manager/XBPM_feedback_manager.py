@@ -24,7 +24,7 @@ def Monitor(pv):
 
 
 ## PVs used by both XBPMs.
-class XBPMSharedPVs:
+class XBPMSharedPVs(object):
 
     ## Constructor.
     def __init__(self, builder, beamline_num):
