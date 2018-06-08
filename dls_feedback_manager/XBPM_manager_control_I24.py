@@ -44,7 +44,7 @@ XBPM1 = XBPM_range_manager.XBPMRangeManager(
     xbpm_num='01',
     lower_current_limit=50e-9,
     upper_current_limit=100e-9,
-    fswt_strength=1.0,  # Leave as 1 unless FSWT featured in BL
+    optics=1.0,  # Leave as 1 unless FSWT featured in BL
     threshold_percentage=3.0,
     id_energy='')
 
