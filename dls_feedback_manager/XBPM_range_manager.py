@@ -17,17 +17,17 @@ class XBPMRangeManager:
 
     ## Constructor.
     #  Inputs from XBPM manager control replace defaults.
-    def __init__(self, builder, shared_pvs, tetramm_prefix='', xbpm_num='',
-                 lower_current_limit=0.0, upper_current_limit=0.0,
-                 fswt_strength=0.0, threshold_percentage=0.0, id_energy=''
-                 ):
+    def __init__(
+            self, builder, shared_pvs, tetramm_prefix='', xbpm_num='',
+            lower_current_limit=0.0, upper_current_limit=0.0,
+            optics=0.0, threshold_percentage=0.0, id_energy=''):
         self.builder = builder
         self.shared_pvs = shared_pvs
         self.tetramm_prefix = tetramm_prefix
         self.xbpm_num = xbpm_num
         self.lower_current_limit = lower_current_limit
         self.upper_current_limit = upper_current_limit
-        self.fswt_strength = fswt_strength
+        self.optics = optics
         self.threshold_percentage = threshold_percentage
         self.id_energy = id_energy
         self.call_on_start()
@@ -48,8 +48,8 @@ class XBPMRangeManager:
 
     ## Sets restrictions for input values
     def validate_params(self):
-        assert type(self.fswt_strength) is not str, \
-            "input numerical type fswt strength"
+        assert type(self.optics) is not str, \
+            "input numerical type optics"
         assert type(self.threshold_percentage) is not str, \
             "input numerical type threshold percentage"
         assert 0 <= self.threshold_percentage <= 100, "insert valid percentage"
@@ -158,8 +158,8 @@ class XBPMRangeManager:
     #  For more information please see TDI-DIA-XBPM-REP-003.
     #  Note - XBPM2 divided by 3.2
     def set_vertical_xbpm_scale_factor(self, energy):
-        ky = (-26 * energy + 1120) / self.fswt_strength
-        kx = 1200 / self.fswt_strength
+        ky = (-26 * energy + 1120) / self.optics
+        kx = 1200 / self.optics
         catools.caput(self.tetramm_prefix + str(self.xbpm_num) +
                       ':DRV:PositionScaleY', ky)
         logging.info("Position scale Y set to " + str(ky))

@@ -56,7 +56,7 @@ XBPM1 = XBPM_range_manager.XBPMRangeManager(
     xbpm_num='01',
     lower_current_limit=50e-9,
     upper_current_limit=100e-9,
-    fswt_strength=1.0,
+    optics=1.0,
     threshold_percentage=3.0,
     id_energy='BL04I-MO-DCM-01:ENERGY')
 
@@ -67,7 +67,7 @@ XBPM2 = XBPM_range_manager.XBPMRangeManager(
     xbpm_num='02',
     lower_current_limit=90e-9,
     upper_current_limit=110e-9,
-    fswt_strength=3.2,
+    optics=3.2,
     threshold_percentage=3.0,
     id_energy='BL04I-MO-DCM-01:ENERGY')
 
