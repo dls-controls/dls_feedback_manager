@@ -74,7 +74,8 @@ class XBPMSharedPVs(object):
             ONVL=1, ONST='XBPM1 AND 2 mode',
             TWVL=2, TWST='XBPM2 mode')
 
-    def pause_condition(self, value):
+    @staticmethod
+    def pause_condition(value):
         if value == 0:
             logging.warning("Feedback Paused")
         elif value == 1:

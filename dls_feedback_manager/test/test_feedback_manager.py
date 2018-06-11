@@ -12,6 +12,7 @@ XBPM2_patch = XBPM_feedback_manager_patch + ".XBPM2Feedback"
 catools_patch = XBPM_feedback_manager_patch + ".catools"
 
 builder_mock = MagicMock()
+beamline_num_mock = MagicMock()
 
 
 class XBPMSharedPVsTester(XBPMSharedPVs):
@@ -32,24 +33,21 @@ class SharedParamsTest(unittest.TestCase):
 
     @patch(shared_patch + ".__init__")
     def test_shared_class_gets_called(self, shared_mock):
-        beamline_num_mock = MagicMock()
 
-        XBPMSharedPVs(
+        XBPMSharedPVs(  # COME BACK TO THIS
             builder=builder_mock, beamline_num=beamline_num_mock)
 
         shared_mock.assert_called_once_with(builder_mock, beamline_num_mock)
 
     @patch(shared_patch + ".pause_condition")
-    def test_feedback_status_pvs_created(self, pause_mock):
-        beamline_num_mock = MagicMock()
+    def test_feedback_status_pvs_called(self, pause_mock):
 
         XBPMSharedPVs(
             builder=builder_mock,
             beamline_num=beamline_num_mock).create_feedback_status_pv()
 
         builder_mock.mbbOut.assert_has_calls([
-            call(
-                 'FB_ENABLE',
+            call('FB_ENABLE',
                  initial_value=0,
                  PINI='YES',
                  NOBT=2,
@@ -71,13 +69,32 @@ class SharedParamsTest(unittest.TestCase):
                  ONVL=1, ONST='XBPM1 AND 2 mode',
                  TWVL=2, TWST='XBPM2 mode')])
 
-    @patch(shared_patch)
-    def test_xbpm_current_pvs_created(self, current_mock):
-        pass
+    @patch(shared_patch + ".pause_condition")
+    def test_pause_condition_called(self, pause_mock):
 
-#current_mock.builder_mock.aIn.assert_has_calls
-#[call("MIN_XBPMCURRENT"), call("MIN_DCCTCURRENT")])
-# AN EXAMPLE, INSTEAD OF JUST NAME, PASS EVERYTHING THROUGH
+        XBPMSharedPVs(
+            builder=builder_mock,
+            beamline_num=beamline_num_mock).pause_condition(0)
+
+        pause_mock.assert_called_once_with(0)
+
+    def test_xbpm_current_pvs_called(self):
+
+        XBPMSharedPVs(
+            builder=builder_mock,
+            beamline_num=beamline_num_mock).create_xbpm_current()
+
+        builder_mock.aIn.assert_has_calls([
+            call('MIN_XBPMCURRENT',
+                 initial_value=10e-9,
+                 LOPR=0,
+                 HOPR=1.0,
+                 PINI='YES'),
+            call('MIN_DCCTCURRENT',
+                 initial_value=8,
+                 LOPR=0,
+                 HOPR=310.0,
+                 PINI='YES')])
 
 
 class XBPM1FeedbackTester(XBPM1Feedback):
@@ -98,7 +115,7 @@ class XBPM1FeedbackTester(XBPM1Feedback):
 class MainClassFeedbackTests(unittest.TestCase):
 
     @patch(catools_patch + ".caput")
-    def test_setup_names(self, caput_mock):
+    def test_setup_names_created(self, caput_mock):
         fb_status_mock = MagicMock()
         fb_status_mock.name = "FB_RUN1"
         xbpm1 = XBPM1FeedbackTester(
@@ -110,7 +127,7 @@ class MainClassFeedbackTests(unittest.TestCase):
         caput_mock.assert_called_once_with(["TEST"], "FB_RUN1 CP")
 
     @staticmethod
-    def test_run_status_pv():
+    def test_run_status_pv_called():
         xbpm1 = XBPM1FeedbackTester(
             builder=builder_mock,
             xbpm_num=1)
