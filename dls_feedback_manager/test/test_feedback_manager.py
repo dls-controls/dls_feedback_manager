@@ -11,8 +11,17 @@ XBPM1_patch = XBPM_feedback_manager_patch + ".XBPM1Feedback"
 XBPM2_patch = XBPM_feedback_manager_patch + ".XBPM2Feedback"
 catools_patch = XBPM_feedback_manager_patch + ".catools"
 
+builder_mock = MagicMock()
+
 
 class XBPMSharedPVsTester(XBPMSharedPVs):
+
+    """A version of XBPM1Feedback without initialisation.
+
+    For testing single methods of the class. Must have required attributes
+    passed before calling testee function.
+
+    """
 
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
@@ -21,10 +30,46 @@ class XBPMSharedPVsTester(XBPMSharedPVs):
 
 class SharedParamsTest(unittest.TestCase):
 
+    @patch(shared_patch + ".__init__")
+    def test_shared_class_gets_called(self, shared_mock):
+        beamline_num_mock = MagicMock()
 
-    @patch(shared_patch)
-    def test_feedback_status_pvs_created(self, status_mock):
-        pass
+        XBPMSharedPVs(
+            builder=builder_mock, beamline_num=beamline_num_mock)
+
+        shared_mock.assert_called_once_with(builder_mock, beamline_num_mock)
+
+    @patch(shared_patch + ".pause_condition")
+    def test_feedback_status_pvs_created(self, pause_mock):
+        beamline_num_mock = MagicMock()
+
+        XBPMSharedPVs(
+            builder=builder_mock,
+            beamline_num=beamline_num_mock).create_feedback_status_pv()
+
+        builder_mock.mbbOut.assert_has_calls([
+            call(
+                 'FB_ENABLE',
+                 initial_value=0,
+                 PINI='YES',
+                 NOBT=2,
+                 ZRVL=0, ZRST='Stopped',
+                 ONVL=1, ONST='Run'),
+            call('FB_PAUSE',
+                 initial_value=1,
+                 PINI='YES',
+                 NOBT=2,
+                 ZRVL=0, ZRST='Paused',
+                 ONVL=1, ONST='Ok to Run',
+                 on_update=pause_mock,
+                 always_update=True),
+            call('FB_MODE',
+                 initial_value=0,
+                 PINI='YES',
+                 NOBT=3,
+                 ZRVL=0, ZRST='XBPM1 mode',
+                 ONVL=1, ONST='XBPM1 AND 2 mode',
+                 TWVL=2, TWST='XBPM2 mode')])
 
     @patch(shared_patch)
     def test_xbpm_current_pvs_created(self, current_mock):
@@ -52,8 +97,6 @@ class XBPM1FeedbackTester(XBPM1Feedback):
 ## Testing functions
 class MainClassFeedbackTests(unittest.TestCase):
 
-    shared_mocked_names = ["fb_run_status"]
-
     @patch(catools_patch + ".caput")
     def test_setup_names(self, caput_mock):
         fb_status_mock = MagicMock()
@@ -66,8 +109,8 @@ class MainClassFeedbackTests(unittest.TestCase):
 
         caput_mock.assert_called_once_with(["TEST"], "FB_RUN1 CP")
 
-    def test_run_status_pv(self):
-        builder_mock = MagicMock()
+    @staticmethod
+    def test_run_status_pv():
         xbpm1 = XBPM1FeedbackTester(
             builder=builder_mock,
             xbpm_num=1)
@@ -82,8 +125,6 @@ class MainClassFeedbackTests(unittest.TestCase):
             ZRVL=0, ZRST='Stopped',
             ONVL=1, ONST='Run',
             TWVL=2, TWST='Paused')
-
-        # todo: for pid in params list
 
 
 class XBPM2FeedbackTester(XBPM2Feedback):
@@ -100,11 +141,10 @@ class XBPM2FeedbackTester(XBPM2Feedback):
             self.__setattr__(attribute, value)
 
 
-class XBPMFeedbackSuperTest(unittest.TestCase):
+class XBPM2FeedbackSuperTest(unittest.TestCase):
 
     @patch(XBPM1_patch + '.__init__')
     def test_super_called(self, super_mock):
-        builder_mock = MagicMock()
         sharedpvs_mock = MagicMock()
         params_mock = MagicMock()
 
@@ -117,4 +157,4 @@ class XBPMFeedbackSuperTest(unittest.TestCase):
 
         super_mock.assert_called_once_with(
             builder_mock, sharedpvs_mock, [params_mock],
-            "prefix1", "02", (0, 1))
+            "prefix1", "02", (0, 1), any_order=False)

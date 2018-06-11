@@ -6,9 +6,6 @@ require('cothread==2.14')
 require('numpy==1.11.1')
 require('epicsdbbuilder==1.2')
 
-#from mock import Mock
-#self.builder = Mock()
-
 from cothread import catools
 #from softioc import builder
 from epicsdbbuilder import records, MS, CP, ImportRecord
