@@ -105,14 +105,14 @@ class XBPM1Feedback(object):
     #  Imports XBPMSharedPVs class and sets the prefix for XBPM1.
     #  Creates list of feedback prefixes.
     def __init__(self, builder, XBPMSharedPVs, xbpm1_pid_params_list,
-                 epics_fb_prefix1,
-                 xbpm1_num, mode_range1):
+                 epics_fb_prefix1, xbpm1_num, mode_range1):
         self.builder = builder
         self.XBPMSharedPVs = XBPMSharedPVs
         self.xbpm_pid_params_list = xbpm1_pid_params_list
         self.prefix = epics_fb_prefix1
         self.xbpm_num = xbpm1_num
         self.mode_range = mode_range1
+
         for pid in self.xbpm_pid_params_list:
             pid.feedback_prefix = self.prefix + ':' + pid.feedback
 
@@ -241,11 +241,11 @@ class XBPM1Feedback(object):
     def set_feedback_pid(self):
         for pid in self.xbpm_pid_params_list:
             catools.caput(pid.feedback_prefix + '.KP',
-                          self.pv_dict['KP' + pid.position].get())
+                          self.pv_dict['KP' + pid.position])
             catools.caput(pid.feedback_prefix + '.KI',
-                          self.pv_dict['KI' + pid.position].get())
+                          self.pv_dict['KI' + pid.position])
             catools.caput(pid.feedback_prefix + '.KD',
-                          self.pv_dict['KD' + pid.position].get())
+                          self.pv_dict['KD' + pid.position])
         logging.debug("Feedback PID values set")
 
 

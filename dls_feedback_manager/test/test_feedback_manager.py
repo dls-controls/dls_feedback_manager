@@ -2,8 +2,7 @@ import unittest
 from mock import MagicMock, patch, call
 from XBPM_feedback_manager import XBPMSharedPVs, XBPM1Feedback, XBPM2Feedback
 
-## dls_feedback_manager
-#  Unittests for XBPM Feedback Manager
+##  Unittests for XBPM Feedback Manager
 
 XBPM_feedback_manager_patch = "XBPM_feedback_manager"
 shared_patch = XBPM_feedback_manager_patch + ".XBPMSharedPVs"
@@ -30,14 +29,6 @@ class XBPMSharedPVsTester(XBPMSharedPVs):
 
 
 class SharedParamsTest(unittest.TestCase):
-
-    @patch(shared_patch + ".__init__")
-    def test_shared_class_gets_called(self, shared_mock):
-
-        XBPMSharedPVs(  # COME BACK TO THIS
-            builder=builder_mock, beamline_num=beamline_num_mock)
-
-        shared_mock.assert_called_once_with(builder_mock, beamline_num_mock)
 
     @patch(shared_patch + ".pause_condition")
     def test_feedback_status_pvs_called(self, pause_mock):
@@ -114,6 +105,17 @@ class XBPM1FeedbackTester(XBPM1Feedback):
 ## Testing functions
 class MainClassFeedbackTests(unittest.TestCase):
 
+    @patch(XBPM1_patch)
+    def test_feedback_prefix_name(self):
+        shared_pvs_mock = MagicMock()
+        params_list_mock = MagicMock()
+
+        XBPM1Feedback(
+            builder=builder_mock, XBPMSharedPVs=shared_pvs_mock,
+            xbpm1_pid_params_list=[params_list_mock],
+            epics_fb_prefix1="prefix1", xbpm1_num="test1",
+            mode_range1=(0, 10))
+
     @patch(catools_patch + ".caput")
     def test_setup_names_created(self, caput_mock):
         fb_status_mock = MagicMock()
@@ -125,6 +127,25 @@ class MainClassFeedbackTests(unittest.TestCase):
         xbpm1.setup_names()
 
         caput_mock.assert_called_once_with(["TEST"], "FB_RUN1 CP")
+
+    @patch(catools_patch + ".caput")
+    def test_set_feedback_pid_correct_names(self, caput_mock):
+        patch_dict = {}
+        params_list_mock = MagicMock()
+        xbpm1 = XBPM1FeedbackTester(feedback_prefix="feedback_prefix",
+                                    position=".POSX",
+                                    pv_dict={patch_dict},
+                                    xbpm_pid_params_list=[params_list_mock])
+
+        xbpm1.set_feedback_pid()
+
+        with patch.dict(
+                patch_dict, {
+                    "test_key1": "test_val1", "test_key2": "test_val2"}):
+            assert patch_dict == {
+                    "test_key1": "test_val1", "test_key2": "test_val2"}
+            caput_mock.assert_called_once_with(
+                "feedback_prefix.KP", patch_dict['KP.POSX'])
 
     @staticmethod
     def test_run_status_pv_called():
@@ -162,16 +183,16 @@ class XBPM2FeedbackSuperTest(unittest.TestCase):
 
     @patch(XBPM1_patch + '.__init__')
     def test_super_called(self, super_mock):
-        sharedpvs_mock = MagicMock()
+        sharedpvs_class_mock = MagicMock()
         params_mock = MagicMock()
 
         XBPM2Feedback(
             builder=builder_mock,
-            XBPMSharedPVs=sharedpvs_mock,
+            XBPMSharedPVs=sharedpvs_class_mock,
             xbpm2_pid_params_list=[params_mock],
             epics_fb_prefix2="prefix2", epics_fb_prefix1="prefix1",
-            xbpm2_num='02', mode_range2=(0, 1))
+            xbpm2_num='02', mode_range2=(0, 10))
 
         super_mock.assert_called_once_with(
-            builder_mock, sharedpvs_mock, [params_mock],
-            "prefix1", "02", (0, 1), any_order=False)
+            builder_mock, sharedpvs_class_mock, [params_mock],
+            "prefix1", "02", (0, 10))
