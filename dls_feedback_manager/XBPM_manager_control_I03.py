@@ -15,7 +15,7 @@ logging.basicConfig(format=formatter, level=logging.INFO)
 ## Creates name for feedback PVs created during run.
 builder.SetDeviceName('BL03I-EA-FDBK-01')
 
-import XBPM_range_manager, XBPM_feedback_manager, XBPM_pid_params
+from dls_feedback_manager import XBPM_range_manager, XBPM_feedback_manager, XBPM_pid_params
 
 xbpm1_pid_params_list = [XBPM_pid_params.XBPMPIDParamsClass(
     KP=-4.00e-5,

@@ -31,7 +31,7 @@ class XBPMSharedPVs(object):
         self.create_xbpm_current()
         self.status_options = {0: 'Stopped', 1: 'Run', 2: 'Paused'}
         # For running monitors on overall ON/OFF button, GDA PAUSE button
-        self.button_monitor = [self.fb_enable_status.name,
+        self.status_monitor = [self.fb_enable_status.name,
                                self.fb_pause_status.name]
         self.xbpm_fb_checklist = [
             'BL' + self.beamline_num + 'I-EA-XBPM-01:SumAll:MeanValue_RBV',
@@ -182,7 +182,7 @@ class XBPM1Feedback(object):
     def start_camonitors(self):
         catools.camonitor(self.XBPMSharedPVs.fb_enable_status.name,
                           self.enable_status)
-        catools.camonitor(self.XBPMSharedPVs.button_monitor,
+        catools.camonitor(self.XBPMSharedPVs.status_monitor,
                           self.feedback_inputs)
         catools.camonitor(self.XBPMSharedPVs.xbpm_fb_checklist,
                           self.feedback_inputs)
@@ -241,11 +241,11 @@ class XBPM1Feedback(object):
     def set_feedback_pid(self):
         for pid in self.xbpm_pid_params_list:
             catools.caput(pid.feedback_prefix + '.KP',
-                          self.pv_dict['KP' + pid.position])
+                          self.pv_dict['KP' + pid.position].get())
             catools.caput(pid.feedback_prefix + '.KI',
-                          self.pv_dict['KI' + pid.position])
+                          self.pv_dict['KI' + pid.position].get())
             catools.caput(pid.feedback_prefix + '.KD',
-                          self.pv_dict['KD' + pid.position])
+                          self.pv_dict['KD' + pid.position].get())
         logging.debug("Feedback PID values set")
 
 

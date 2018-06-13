@@ -164,6 +164,25 @@ class MainClassFeedbackTests(unittest.TestCase):
             ONVL=1, ONST='Run',
             TWVL=2, TWST='Paused')
 
+    @patch(catools_patch + ".camonitor")
+    def test_start_camonitors_called_x_times(self, camonitor_mock):  # x to no.
+        shared_pvs_mock = MagicMock()
+        enable_mock = MagicMock()
+        enable_mock.name = "FB_ENABLE"
+        feedback_inputs_mock = MagicMock()
+
+        xbpm = XBPM1FeedbackTester(
+            XBPMSharedPVs=shared_pvs_mock, status_monitor=["STATUS"],
+            xbpm_fb_checklist=["SHUTTERS"], enable_status=enable_mock,
+            feedback_inputs=feedback_inputs_mock)
+
+        xbpm.start_camonitors()
+
+        camonitor_mock.assert_has_calls([
+            call("FB_ENABLE", enable_mock),
+            call(["STATUS"], feedback_inputs_mock),
+            call(["SHUTTERS"], feedback_inputs_mock)])
+
 
 class XBPM2FeedbackTester(XBPM2Feedback):
 
