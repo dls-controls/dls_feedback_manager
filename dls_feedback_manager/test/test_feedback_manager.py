@@ -65,9 +65,19 @@ class SharedParamsTest(unittest.TestCase):
 
         XBPMSharedPVs(
             builder=builder_mock,
-            beamline_num=beamline_num_mock).pause_condition(0)
+            beamline_num=beamline_num_mock).pause_condition(1)
 
-        pause_mock.assert_called_once_with(0)
+        pause_mock.assert_called_once_with(1)
+
+    # write test to make sure called when necessary, include other def which
+    # calls it
+
+    @patch(XBPM_feedback_manager_patch + ".logging")
+    def test_pause_condition_logging(self, logging_mock):
+
+        XBPMSharedPVs(
+            builder=builder_mock, beamline_num="03").pause_condition(0)
+        self.assertTrue(logging_mock.warning.called)
 
     def test_xbpm_current_pvs_called(self):
 
@@ -106,15 +116,19 @@ class XBPM1FeedbackTester(XBPM1Feedback):
 class MainClassFeedbackTests(unittest.TestCase):
 
     @patch(XBPM1_patch)
-    def test_feedback_prefix_name(self):
+    def test_feedback_prefix_name(self, class_patch):  # todo
         shared_pvs_mock = MagicMock()
         params_list_mock = MagicMock()
 
         XBPM1Feedback(
             builder=builder_mock, XBPMSharedPVs=shared_pvs_mock,
             xbpm1_pid_params_list=[params_list_mock],
-            epics_fb_prefix1="prefix1", xbpm1_num="test1",
+            epics_fb_prefix1="prefix1", xbpm1_num="01",
             mode_range1=(0, 10))
+
+        class_patch.assert_called_once_with(
+            builder_mock, shared_pvs_mock, [params_list_mock], "prefix1",
+            "01", (0, 10))
 
     @patch(catools_patch + ".caput")
     def test_setup_names_created(self, caput_mock):
@@ -128,7 +142,29 @@ class MainClassFeedbackTests(unittest.TestCase):
 
         caput_mock.assert_called_once_with(["TEST"], "FB_RUN1 CP")
 
-    @patch(catools_patch + ".caput")
+    def test_run_status_pv_called(self):
+        xbpm1 = XBPM1FeedbackTester(
+            builder=builder_mock,
+            xbpm_num=1)
+
+        xbpm1.run_status_pv()
+
+        builder_mock.mbbOut.assert_called_once_with(
+            'FB_RUN1',
+            initial_value=0,
+            PINI='YES',
+            NOBT=2,
+            ZRVL=0, ZRST='Stopped',
+            ONVL=1, ONST='Run',
+            TWVL=2, TWST='Paused')
+
+    def test_set_run_status(self):
+        pass
+
+    def test_pid_pvs_created(self):
+        pass
+
+    @patch(catools_patch + ".caput")  # todo
     def test_set_feedback_pid_correct_names(self, caput_mock):
         patch_dict = {}
         params_list_mock = MagicMock()
@@ -147,41 +183,12 @@ class MainClassFeedbackTests(unittest.TestCase):
             caput_mock.assert_called_once_with(
                 "feedback_prefix.KP", patch_dict['KP.POSX'])
 
-    @staticmethod
-    def test_run_status_pv_called():
-        xbpm1 = XBPM1FeedbackTester(
-            builder=builder_mock,
-            xbpm_num=1)
+    # test that both enable and pause from status monitor get passed through
+    # camonitor from "start camonitors"
 
-        xbpm1.run_status_pv()
-
-        builder_mock.mbbOut.assert_called_once_with(
-            'FB_RUN1',
-            initial_value=0,
-            PINI='YES',
-            NOBT=2,
-            ZRVL=0, ZRST='Stopped',
-            ONVL=1, ONST='Run',
-            TWVL=2, TWST='Paused')
-
-    @patch(catools_patch + ".camonitor")
-    def test_start_camonitors_called_x_times(self, camonitor_mock):  # x to no.
-        shared_pvs_mock = MagicMock()
-        enable_mock = MagicMock()
-        enable_mock.name = "FB_ENABLE"
-        feedback_inputs_mock = MagicMock()
-
-        xbpm = XBPM1FeedbackTester(
-            XBPMSharedPVs=shared_pvs_mock, status_monitor=["STATUS"],
-            xbpm_fb_checklist=["SHUTTERS"], enable_status=enable_mock,
-            feedback_inputs=feedback_inputs_mock)
-
-        xbpm.start_camonitors()
-
-        camonitor_mock.assert_has_calls([
-            call("FB_ENABLE", enable_mock),
-            call(["STATUS"], feedback_inputs_mock),
-            call(["SHUTTERS"], feedback_inputs_mock)])
+    @patch(XBPM1_patch + ".logging")
+    def test_xbpm1_enable_status_logging(self):
+        pass
 
 
 class XBPM2FeedbackTester(XBPM2Feedback):

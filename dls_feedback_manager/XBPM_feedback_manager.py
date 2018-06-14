@@ -160,23 +160,26 @@ class XBPM1Feedback(object):
         self.pv_dict = {}
         for pid in self.xbpm_pid_params_list:
             self.pv_dict['KP' + pid.position] = \
-                self.builder.aIn(('KP' + pid.position),
-                            initial_value=pid.KP,
-                            LOPR=-500.0,
-                            HOPR=500.0,
-                            PINI='YES')
+                self.builder.aIn(
+                    ('KP' + pid.position),
+                    initial_value=pid.KP,
+                    LOPR=-500.0,
+                    HOPR=500.0,
+                    PINI='YES')
             self.pv_dict['KI' + pid.position] = \
-                self.builder.aIn(('KI' + pid.position),
-                            initial_value=pid.KI,
-                            LOPR=-500.0,
-                            HOPR=500.0,
-                            PINI='YES')
+                self.builder.aIn(
+                    ('KI' + pid.position),
+                    initial_value=pid.KI,
+                    LOPR=-500.0,
+                    HOPR=500.0,
+                    PINI='YES')
             self.pv_dict['KD' + pid.position] = \
-                self.builder.aIn(('KD' + pid.position),
-                            initial_value=pid.KD,
-                            LOPR=-500.0,
-                            HOPR=500.0,
-                            PINI='YES')
+                self.builder.aIn(
+                    ('KD' + pid.position),
+                    initial_value=pid.KD,
+                    LOPR=-500.0,
+                    HOPR=500.0,
+                    PINI='YES')
 
     ## Monitor the feedback button PVs.
     def start_camonitors(self):
