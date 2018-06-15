@@ -10,10 +10,10 @@ install:
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
 - cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
 - python epicsdbbuilder/setup.py install
+- sudo apt-get update -qq
 - curl http://epics.nsls2.bnl.gov/debian/repo-key.pub | sudo apt-key add
 - echo "deb http://epics.nsls2.bnl.gov/debian/ wheezy main contrib" | sudo tee -a /etc/apt/sources.list
 - echo "deb-src http://epics.nsls2.bnl.gov/debian/ wheezy main contrib"
-- sudo apt-get update -qq
 - sudo apt-get install python-dev
 - sudo apt-get install epics-dev build-essential
 - ls /usr/lib/epics
