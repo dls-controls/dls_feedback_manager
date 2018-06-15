@@ -9,7 +9,6 @@ install:
 - pip install cothread==2.14
 - git clone https://github.com/Araneidae/epicsdbbuilder.git epicsdbbuilder
 - cd epicsdbbuilder && git checkout 4d46b0246856e3369ebdfde10c56221b2987ac36 && cd ..
-#- 'sed -i s^version = os.environ.get("MODULEVER", "development")^version = os.environ.get("MODULEVER")^ epicsdbbuilder/setup.py'
 - python epicsdbbuilder/setup.py install
 - curl http://epics.nsls2.bnl.gov/debian/repo-key.pub | sudo apt-key add
 - echo "deb http://epics.nsls2.bnl.gov/debian/ wheezy main contrib" | sudo tee -a /etc/apt/sources.list
@@ -37,7 +36,7 @@ install:
 - cd ..
 - chmod 744 $TRAVIS_BUILD_DIR/pythonSoftIoc-2.11/pythonIoc
 
-script: ./dls_feedback_manager/test_refact/start_travis_test.sh
+script: ./dls_feedback_manager/test/
 
 after_success:
 - coveralls

@@ -240,7 +240,7 @@ class XBPM1Feedback(object):
             logging.debug("Run for XBPM"+str(int(self.xbpm_num))+" Stopped")
 
 
-    ## Set feedback PID values, and a scale if wanted.
+    ## Set feedback PID values
     def set_feedback_pid(self):
         for pid in self.xbpm_pid_params_list:
             catools.caput(pid.feedback_prefix + '.KP',
